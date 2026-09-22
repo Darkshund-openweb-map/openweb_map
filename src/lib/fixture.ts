@@ -1,0 +1,342 @@
+export type CategoryId =
+  | 'code'
+  | 'text'
+  | 'community'
+  | 'cloud'
+  | 'files'
+  | 'backend'
+  | 'release'
+  | 'other';
+export type DetailTab = 'overview' | 'events' | 'connections';
+export type Selection =
+  | { kind: 'category'; id: CategoryId }
+  | { kind: 'platform'; id: string }
+  | null;
+export type RelationStatus = 'verified' | 'candidate' | 'excluded';
+
+export interface Category {
+  id: CategoryId;
+  name: string;
+  color: string;
+  light: string;
+  count: number;
+  badge: [number, number];
+  center: [number, number];
+  rows: number[];
+  description: string;
+}
+
+export interface Platform {
+  id: string;
+  name: string;
+  category: CategoryId;
+  x: number;
+  y: number;
+  domain: string;
+  description: string;
+  featured?: boolean;
+}
+
+export interface Relation {
+  id: string;
+  source: string;
+  target: string;
+  type: string;
+  status: RelationStatus;
+  confidence: '높음' | '중간' | '낮음';
+  evidence: number;
+  firstSeen: string;
+  lastSeen: string;
+  note: string;
+}
+
+export const categories: Category[] = [
+  {
+    id: 'code',
+    name: '코드 저장소',
+    color: '#447aff',
+    light: '#edf3ff',
+    count: 1,
+    badge: [245, 115],
+    center: [245, 212],
+    rows: [5, 7, 8, 9, 10, 9, 8, 7, 5],
+    description: '공개 코드와 스니펫에서 인증정보가 확인되는 영역입니다.',
+  },
+  {
+    id: 'text',
+    name: '텍스트 호스팅',
+    color: '#2cbfaf',
+    light: '#e7f8f7',
+    count: 3,
+    badge: [555, 99],
+    center: [555, 192],
+    rows: [3, 5, 7, 8, 8, 7, 6, 5, 3],
+    description: '텍스트 기반 자료가 공개되는 플랫폼 유형입니다.',
+  },
+  {
+    id: 'community',
+    name: '커뮤니티',
+    color: '#fa812d',
+    light: '#fff0e7',
+    count: 9,
+    badge: [584, 349],
+    center: [582, 425],
+    rows: [3, 5, 6, 6, 5, 4, 3],
+    description: '사용자 간 정보가 공유되는 공개 커뮤니티입니다.',
+  },
+  {
+    id: 'cloud',
+    name: '클라우드 스토리지',
+    color: '#4cc4f9',
+    light: '#eaf8ff',
+    count: 0,
+    badge: [247, 375],
+    center: [239, 445],
+    rows: [2, 3, 4, 5, 4, 4],
+    description: '파일과 객체를 공개 링크로 공유하는 공간입니다.',
+  },
+  {
+    id: 'files',
+    name: '파일 공유',
+    color: '#976cf7',
+    light: '#f3eeff',
+    count: 0,
+    badge: [419, 433],
+    center: [417, 497],
+    rows: [2, 3, 4, 3, 2],
+    description: '공개 파일 공유 서비스입니다.',
+  },
+  {
+    id: 'backend',
+    name: '백엔드 서비스',
+    color: '#38cb6e',
+    light: '#eaf9f0',
+    count: 0,
+    badge: [405, 282],
+    center: [404, 329],
+    rows: [2, 3, 2],
+    description: '백엔드 플랫폼과 API 서비스입니다.',
+  },
+  {
+    id: 'release',
+    name: '리서치 소스',
+    color: '#ecbb21',
+    light: '#fff8dd',
+    count: 0,
+    badge: [409, 75],
+    center: [408, 124],
+    rows: [2, 1],
+    description: '분석 및 조사에 사용하는 공개 출처입니다.',
+  },
+  {
+    id: 'other',
+    name: '기타',
+    color: '#d0d9e4',
+    light: '#f5f7fb',
+    count: 0,
+    badge: [138, 295],
+    center: [128, 337],
+    rows: [1, 2],
+    description: '그 외 공개 플랫폼입니다.',
+  },
+];
+
+export const platforms: Platform[] = [
+  {
+    id: 'github-gist',
+    name: 'GitHub Gist',
+    category: 'code',
+    x: 244,
+    y: 216,
+    domain: 'gist.github.com',
+    featured: true,
+    description:
+      '쿠팡 API 관련 코드가 공개된 스니펫 플랫폼입니다. 현재 사건 1건이 연결되어 있으며 실제 재유통 관계는 등록되지 않았습니다.',
+  },
+  {
+    id: 'github',
+    name: 'GitHub',
+    category: 'code',
+    x: 220,
+    y: 194,
+    domain: 'github.com',
+    description: '공개 코드 저장소 플랫폼입니다.',
+  },
+  {
+    id: 'gist',
+    name: 'Gist',
+    category: 'code',
+    x: 281,
+    y: 242,
+    domain: 'gist.github.com',
+    featured: true,
+    description: '코드와 텍스트를 공유하는 공개 스니펫입니다.',
+  },
+  {
+    id: 'pastebin',
+    name: 'Pastebin',
+    category: 'text',
+    x: 555,
+    y: 195,
+    domain: 'pastebin.com',
+    featured: true,
+    description: '텍스트를 게시하고 공유하는 공개 서비스입니다.',
+  },
+  {
+    id: 'rentry',
+    name: 'Rentry',
+    category: 'text',
+    x: 528,
+    y: 230,
+    domain: 'rentry.co',
+    featured: true,
+    description: '마크다운 문서를 공유하는 텍스트 호스팅 서비스입니다.',
+  },
+  {
+    id: 'mega',
+    name: 'MEGA',
+    category: 'cloud',
+    x: 255,
+    y: 458,
+    domain: 'mega.nz',
+    description: '클라우드 파일 저장 서비스입니다.',
+  },
+  {
+    id: 'aws-s3',
+    name: 'AWS S3',
+    category: 'cloud',
+    x: 249,
+    y: 468,
+    domain: 'aws.amazon.com',
+    featured: true,
+    description: '클라우드 스토리지 서비스입니다.',
+  },
+  {
+    id: 'telegram',
+    name: 'Telegram',
+    category: 'community',
+    x: 590,
+    y: 458,
+    domain: 'telegram.org',
+    featured: true,
+    description: '메시지 기반 커뮤니티입니다.',
+  },
+  {
+    id: 'twitter',
+    name: '트위터',
+    category: 'community',
+    x: 575,
+    y: 425,
+    domain: 'x.com',
+    featured: true,
+    description: '공개 소셜 미디어 플랫폼입니다.',
+  },
+  {
+    id: 'naver-cafe',
+    name: '네이버',
+    category: 'community',
+    x: 619,
+    y: 436,
+    domain: 'cafe.naver.com',
+    featured: true,
+    description: '공개 커뮤니티 플랫폼입니다.',
+  },
+];
+
+export const relations: Relation[] = [
+  {
+    id: 'gist-pastebin',
+    source: 'github-gist',
+    target: 'pastebin',
+    type: '재게시',
+    status: 'candidate',
+    confidence: '높음',
+    evidence: 2,
+    firstSeen: '2026-03-14',
+    lastSeen: '2026-08-02',
+    note: '코드 일치 98% · 동일 해시 1건',
+  },
+  {
+    id: 'gist-mega',
+    source: 'github-gist',
+    target: 'mega',
+    type: '동일 파일',
+    status: 'candidate',
+    confidence: '중간',
+    evidence: 1,
+    firstSeen: '2026-05-01',
+    lastSeen: '2026-05-21',
+    note: '근거 파일 해시 일치',
+  },
+  {
+    id: 'gist-rentry',
+    source: 'github-gist',
+    target: 'rentry',
+    type: '동일 콘텐츠',
+    status: 'candidate',
+    confidence: '낮음',
+    evidence: 1,
+    firstSeen: '2026-07-08',
+    lastSeen: '2026-07-08',
+    note: '근거 본문 일치',
+  },
+  {
+    id: 'code-text',
+    source: 'github',
+    target: 'pastebin',
+    type: '집계 보류',
+    status: 'candidate',
+    confidence: '낮음',
+    evidence: 0,
+    firstSeen: '2026-08-01',
+    lastSeen: '2026-08-01',
+    note: '섬 단위 유형 간 연결',
+  },
+];
+
+export const events = [
+  {
+    date: '08-31',
+    type: '등록',
+    title: '쿠팡 API 관련 코드 게시',
+    meta: 'GitHub Gist · 소스코드',
+    platform: 'github-gist',
+  },
+  {
+    date: '09-06',
+    type: '등록',
+    title: 'JB오토리스할부 DB 유출',
+    meta: 'Telegram · 계정정보',
+    platform: 'telegram',
+  },
+  {
+    date: '09-03',
+    type: '등록',
+    title: '한국 nexon 계정 판매',
+    meta: '타다바야 · 계정정보',
+    platform: 'telegram',
+  },
+  {
+    date: '09-01',
+    type: '등록',
+    title: '남양주요양원진료주소',
+    meta: 'Pastebin · 이메일',
+    platform: 'pastebin',
+  },
+];
+
+export const exposureRows = [
+  { name: '계정정보', heat: 50, count: 8, date: '09-06', state: '활성' },
+  { name: '이메일', heat: 25, count: 4, date: '09-01', state: '활성' },
+  { name: 'API 키', heat: 6, count: 1, date: '08-31', state: '등록' },
+  { name: '비밀키', heat: 6, count: 1, date: '08-31', state: '등록' },
+  { name: '본인인증', heat: 6, count: 1, date: '08-31', state: '등록' },
+  { name: '소스코드·IP', heat: 13, count: 2, date: '09-01', state: '등록' },
+];
+
+export function getCategory(id: CategoryId) {
+  return categories.find((item) => item.id === id)!;
+}
+export function getPlatform(id: string) {
+  return platforms.find((item) => item.id === id);
+}
