@@ -1,0 +1,27 @@
+.button {
+  border-radius: 5px;
+  padding: 6px 9px;
+  font-size: 10px;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.primary {
+  border: 1px solid #1d69eb;
+  background: #176bfa;
+  color: #fff;
+}
+
+.secondary {
+  border: 1px solid #dce4ef;
+  background: #fff;
+  color: #52627d;
+}
+
+.ghost {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}

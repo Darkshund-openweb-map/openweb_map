@@ -6,3 +6,7 @@ out/
 *.tsbuildinfo
 .DS_Store
 /images/
+/AGENTS.md
+/CLAUDE.md
+/test-results/
+/playwright-report/
