@@ -26,7 +26,13 @@ function getTileAppearance(
   selectedPlatform?: Platform,
 ) {
   const active = isTileActive(category, cell, selected, selectedPlatform);
-  const raised = Boolean(selected && active && !dimmed);
+  const raised = Boolean(
+    !dimmed &&
+      (!selected ||
+        (selected.kind === 'category'
+          ? selected.id === category.id
+          : selectedPlatform?.category === category.id && active)),
+  );
   const related =
     selected?.kind === 'platform' &&
     tab !== 'connections' &&
@@ -57,7 +63,14 @@ export function IslandTiles({ category, cells, selected, tab, dimmed, selectedPl
         filter="url(#island-shadow)"
       >
         {rendered.map(({ cell, fill, raised }) =>
-          raised ? <HexTileSides key={`side-${cell.key}`} cell={cell} fill={fill} /> : null,
+          raised ? (
+            <HexTileSides
+              key={`side-${cell.key}`}
+              cell={cell}
+              fill={fill}
+              depth={selected ? 9 : 6.5}
+            />
+          ) : null,
         )}
       </g>
       <g className={styles['island-top-layer']} data-map-layer="tops">

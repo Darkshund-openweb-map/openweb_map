@@ -429,6 +429,21 @@
   font-size: 9px;
   color: #8795a8;
 }
+.category-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.category-link > b {
+  margin: 0;
+  min-width: 0;
+}
+.category-link > small {
+  flex: none;
+  color: #176bfa;
+  white-space: nowrap;
+}
 .detail-panel {
   width: 247px;
 }

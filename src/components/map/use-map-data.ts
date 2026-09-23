@@ -18,11 +18,6 @@ export function useMapData(selected: Selection, selectedRelation: string | null)
   const relevantRelations = relations.filter(
     (item) => ids.has(item.source) || ids.has(item.target),
   );
-  const relatedCategories = new Set(
-    relevantRelations
-      .filter((item) => item.status !== 'excluded')
-      .flatMap((item) => [getPlatform(item.source)?.category, getPlatform(item.target)?.category]),
-  );
   const tileGroups = useMemo(
     () => categories.map((category) => ({ category, cells: getCategoryTiles(category) })),
     [categories],
@@ -32,7 +27,6 @@ export function useMapData(selected: Selection, selectedRelation: string | null)
     relation,
     activeCategory,
     selectedPlatform,
-    relatedCategories,
     tileGroups,
     title:
       selectedPlatform?.name ?? categories.find((item) => item.id === activeCategory)?.name ?? '',
