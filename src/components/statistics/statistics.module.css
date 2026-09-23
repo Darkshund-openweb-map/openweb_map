@@ -1,0 +1,197 @@
+.statistics-surface {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid #dce5f1;
+  border-radius: 9px;
+  padding: 19px 18px;
+}
+.stats-heading h2 {
+  font-size: 15px;
+  margin: 0 0 10px;
+}
+.category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border: 1px solid #dce4ef;
+  border-radius: 7px;
+  background: #f6f9fe;
+  width: max-content;
+  max-width: 100%;
+  overflow: hidden;
+}
+.category-chips button {
+  border: 0;
+  border-right: 1px solid #e2e8f1;
+  background: none;
+  font-size: 9px;
+  color: #66758a;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 6px 8px;
+}
+.category-chips button.active,
+.category-chips button:hover {
+  background: #e8f2ff;
+  color: #176bfa;
+}
+.category-chips button:last-child {
+  border: 0;
+}
+.category-chips i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.category-chips span {
+  color: #8b9aab;
+}
+.stats-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 16px 0;
+}
+.stats-metrics > div {
+  border: 1px solid #dce5ef;
+  border-radius: 8px;
+  background: #f9fbff;
+  padding: 12px 13px;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+}
+.stats-metrics span {
+  font-size: 10px;
+  color: #6f7e92;
+}
+.stats-metrics strong {
+  font-size: 23px;
+  line-height: 1.4;
+}
+.stats-metrics small {
+  font-size: 9px;
+  color: #176bfa;
+}
+.stats-table-heading {
+  font-size: 11px;
+  font-weight: 700;
+  margin: 15px 0 9px;
+}
+.stats-table {
+  border: 1px solid #dce5f1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.stats-table-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 25px 1.6fr 1fr 35px 48px 45px 60px;
+  align-items: center;
+  gap: 9px;
+  min-height: 31px;
+  border: 0;
+  border-bottom: 1px solid #e8edf4;
+  background: #fff;
+  text-align: left;
+  padding: 0 10px;
+  font-size: 9px;
+  color: #728199;
+}
+.stats-table-row:last-child {
+  border-bottom: 0;
+}
+.stats-table-row strong {
+  color: #202d41;
+}
+.stats-table-row.table-header {
+  background: #f8faff;
+  font-size: 9px;
+  color: #7d8ba0;
+}
+.stats-table-row.highlighted,
+.stats-table-row:not(.table-header):hover {
+  background: #f3f8ff;
+}
+.heat-bar {
+  height: 4px;
+  border-radius: 4px;
+  background: #e9eef6;
+}
+.heat-bar i {
+  display: block;
+  height: 100%;
+  background: #2e3e5a;
+  border-radius: 4px;
+}
+.state-label {
+  width: max-content;
+  background: #edf1f5;
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+.state-label.live {
+  background: #e7f7ed;
+  color: #279063;
+}
+.recent-activity {
+  border: 1px solid #dce5f1;
+  border-radius: 8px;
+  margin-top: 15px;
+  padding: 11px;
+}
+.recent-activity > div:nth-child(2) {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+.recent-activity button {
+  border: 0;
+  background: none;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.recent-activity small {
+  font-size: 9px;
+  color: #8190a4;
+}
+.recent-activity em {
+  background: #eef1f6;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-style: normal;
+}
+.recent-activity strong {
+  font-size: 10px;
+}
+.recent-activity span {
+  font-size: 9px;
+  color: #8795a8;
+}
+
+@media (max-width: 750px) {
+  .stats-table-row {
+    grid-template-columns: 18px 1.5fr 1fr 24px 36px;
+    gap: 4px;
+  }
+  .stats-table-row > span:nth-last-child(-n + 2) {
+    display: none;
+  }
+  .statistics-surface {
+    padding: 10px;
+  }
+  .stats-metrics {
+    gap: 4px;
+  }
+  .stats-metrics > div {
+    padding: 8px;
+  }
+  .category-chips button {
+    font-size: 8px;
+  }
+}

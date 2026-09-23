@@ -1,54 +1,4 @@
-export type CategoryId =
-  | 'code'
-  | 'text'
-  | 'community'
-  | 'cloud'
-  | 'files'
-  | 'backend'
-  | 'release'
-  | 'other';
-export type DetailTab = 'overview' | 'events' | 'connections';
-export type Selection =
-  | { kind: 'category'; id: CategoryId }
-  | { kind: 'platform'; id: string }
-  | null;
-export type RelationStatus = 'verified' | 'candidate' | 'excluded';
-
-export interface Category {
-  id: CategoryId;
-  name: string;
-  color: string;
-  light: string;
-  count: number;
-  badge: [number, number];
-  center: [number, number];
-  rows: number[];
-  description: string;
-}
-
-export interface Platform {
-  id: string;
-  name: string;
-  category: CategoryId;
-  x: number;
-  y: number;
-  domain: string;
-  description: string;
-  featured?: boolean;
-}
-
-export interface Relation {
-  id: string;
-  source: string;
-  target: string;
-  type: string;
-  status: RelationStatus;
-  confidence: '높음' | '중간' | '낮음';
-  evidence: number;
-  firstSeen: string;
-  lastSeen: string;
-  note: string;
-}
+import type { Category, Platform, Relation, EcosystemEvent, ExposureRow } from './ecosystem-types';
 
 export const categories: Category[] = [
   {
@@ -241,6 +191,28 @@ export const platforms: Platform[] = [
     featured: true,
     description: '공개 커뮤니티 플랫폼입니다.',
   },
+  {
+    id: 'xianyu',
+    name: '시엔위',
+    aliases: ['Xianyu', '闲鱼'],
+    category: 'community',
+    x: 547,
+    y: 400,
+    domain: 'goofish.com',
+    featured: true,
+    description: '중고 물품을 거래하고 이용자가 정보를 나누는 공개 플랫폼입니다.',
+  },
+  {
+    id: 'taobao',
+    name: '타오바오',
+    aliases: ['Taobao', '淘宝'],
+    category: 'community',
+    x: 607,
+    y: 399,
+    domain: 'taobao.com',
+    featured: true,
+    description: '판매자와 이용자가 상품 정보를 공유하는 공개 쇼핑 플랫폼입니다.',
+  },
 ];
 
 export const relations: Relation[] = [
@@ -294,38 +266,46 @@ export const relations: Relation[] = [
   },
 ];
 
-export const events = [
+export const events: EcosystemEvent[] = [
   {
-    date: '08-31',
+    id: 'gist-coupang-api',
+    date: '2026-08-31',
     type: '등록',
     title: '쿠팡 API 관련 코드 게시',
     meta: 'GitHub Gist · 소스코드',
     platform: 'github-gist',
+    exposures: ['소스코드·IP', 'API 키', '비밀키'],
   },
   {
-    date: '09-06',
+    id: 'telegram-jb-auto',
+    date: '2026-09-06',
     type: '등록',
     title: 'JB오토리스할부 DB 유출',
     meta: 'Telegram · 계정정보',
     platform: 'telegram',
+    exposures: ['계정정보'],
   },
   {
-    date: '09-03',
+    id: 'telegram-nexon',
+    date: '2026-09-03',
     type: '등록',
     title: '한국 nexon 계정 판매',
     meta: '타다바야 · 계정정보',
     platform: 'telegram',
+    exposures: ['계정정보'],
   },
   {
-    date: '09-01',
+    id: 'pastebin-namyangju',
+    date: '2026-09-01',
     type: '등록',
     title: '남양주요양원진료주소',
     meta: 'Pastebin · 이메일',
     platform: 'pastebin',
+    exposures: ['이메일'],
   },
 ];
 
-export const exposureRows = [
+export const exposureRows: ExposureRow[] = [
   { name: '계정정보', heat: 50, count: 8, date: '09-06', state: '활성' },
   { name: '이메일', heat: 25, count: 4, date: '09-01', state: '활성' },
   { name: 'API 키', heat: 6, count: 1, date: '08-31', state: '등록' },
@@ -333,10 +313,3 @@ export const exposureRows = [
   { name: '본인인증', heat: 6, count: 1, date: '08-31', state: '등록' },
   { name: '소스코드·IP', heat: 13, count: 2, date: '09-01', state: '등록' },
 ];
-
-export function getCategory(id: CategoryId) {
-  return categories.find((item) => item.id === id)!;
-}
-export function getPlatform(id: string) {
-  return platforms.find((item) => item.id === id);
-}
