@@ -6,15 +6,15 @@ type Props = {
   fill: string;
 };
 
-export function HexTileSides({ cell, fill }: Props) {
+export function HexTileSides({ cell, fill, depth }: Props & { depth: number }) {
   const tileColor = d3Color(fill);
-  const left = tileColor?.darker(0.8).formatHex() ?? fill;
-  const right = tileColor?.darker(1.35).formatHex() ?? fill;
+  const left = tileColor?.darker(0.95).formatHex() ?? fill;
+  const right = tileColor?.darker(1.55).formatHex() ?? fill;
 
   return (
     <g transform={`translate(${cell.x},${cell.y})`} aria-hidden="true">
-      <polygon points="-8.75,5.05 0,10.1 0,15.1 -8.75,10.05" fill={left} />
-      <polygon points="0,10.1 8.75,5.05 8.75,10.05 0,15.1" fill={right} />
+      <polygon points={`-8.75,5.05 0,10.1 0,${10.1 + depth} -8.75,${5.05 + depth}`} fill={left} />
+      <polygon points={`0,10.1 8.75,5.05 8.75,${5.05 + depth} 0,${10.1 + depth}`} fill={right} />
     </g>
   );
 }

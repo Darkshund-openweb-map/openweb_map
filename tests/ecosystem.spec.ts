@@ -15,8 +15,16 @@ test('hex faces remain clickable and stationary on hover; zoom, pan and reset wo
   page.on('pageerror', (error) => errors.push(error.message));
   await openMap(page);
   const island = page.getByRole('button', { name: '코드 저장소 섬 선택', exact: true });
+  expect(await island.locator('[data-map-layer="sides"] polygon').count()).toBeGreaterThan(0);
   // Click an actual top face, not a badge or a forced event.
   await island.locator('[data-map-layer="tops"] polygon').first().click();
+  await expect(page.getByRole('complementary', { name: '코드 저장소 상세 패널' })).toBeVisible();
+  await page.getByRole('button', { name: '상세 패널 접기' }).click();
+  const detailButton = page.getByRole('button', { name: '상세 보기', exact: false });
+  await expect(detailButton).toBeVisible();
+  const detailButtonBox = (await detailButton.boundingBox())!;
+  expect(detailButtonBox.width).toBeGreaterThan(detailButtonBox.height);
+  await detailButton.click();
   await expect(page.getByRole('complementary', { name: '코드 저장소 상세 패널' })).toBeVisible();
   const top = island.locator('[data-map-layer="tops"] polygon').first();
   const before = await top.boundingBox();
@@ -43,6 +51,21 @@ test('hex faces remain clickable and stationary on hover; zoom, pan and reset wo
   await expect(page.getByLabel('확대 배율')).toHaveText('100%');
   await expect(page.getByRole('heading', { name: '전체 오픈웹', exact: true })).toBeVisible();
   expect(errors).toEqual([]);
+});
+
+test('selecting Pastebin does not raise the related code repository island', async ({ page }) => {
+  await openMap(page);
+  await page.getByRole('combobox').fill('Pastebin');
+  await page.getByRole('option', { name: /Pastebin/ }).click();
+
+  const codeIsland = page.getByRole('button', { name: '코드 저장소 섬 선택', exact: true });
+  const textIsland = page.getByRole('button', { name: '텍스트 호스팅 섬 선택', exact: true });
+  expect(await codeIsland.evaluate((node) => node.parentElement?.getAttribute('opacity'))).toBe(
+    '0.35',
+  );
+  await expect(codeIsland.locator('[data-map-layer="sides"] polygon')).toHaveCount(0);
+  expect(await textIsland.locator('[data-map-layer="sides"] polygon').count()).toBeGreaterThan(0);
+  await expect(page.getByRole('complementary', { name: 'Pastebin 상세 패널' })).toBeVisible();
 });
 
 test('platform territory is contiguous and only relevant events appear; date filters apply', async ({
@@ -160,6 +183,10 @@ test('statistics selection opens its own platform and mobile has no horizontal o
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await page.getByRole('combobox').fill('Pastebin');
   await page.getByRole('option', { name: /Pastebin/ }).click();
+  await expect(page.getByRole('complementary', { name: 'Pastebin 상세 패널' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await page.getByRole('button', { name: '상세 패널 접기' }).click();
+  await page.getByRole('button', { name: /상세 보기/ }).click();
   await expect(page.getByRole('complementary', { name: 'Pastebin 상세 패널' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await page.getByRole('button', { name: '다크웹', exact: true }).click();

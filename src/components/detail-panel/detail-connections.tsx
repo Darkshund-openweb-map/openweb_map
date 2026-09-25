@@ -99,9 +99,13 @@ export function DetailConnections({
         </div>
       )}
       {categoryIds.map((id) => (
-        <button key={id} className={styles['relation-card']} onClick={() => onSelectCategory(id)}>
+        <button
+          key={id}
+          className={[styles['relation-card'], styles['category-link']].join(' ')}
+          onClick={() => onSelectCategory(id)}
+        >
           <b>{getCategory(id)?.name ?? id}</b>
-          <small>플랫폼 유형 상세 보기 →</small>
+          <small>상세 보기 →</small>
         </button>
       ))}
     </>

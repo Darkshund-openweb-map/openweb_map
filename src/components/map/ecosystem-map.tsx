@@ -36,7 +36,6 @@ export function EcosystemMap({
     relation,
     activeCategory,
     selectedPlatform,
-    relatedCategories,
     tileGroups,
     title,
     verifiedCount,
@@ -72,8 +71,14 @@ export function EcosystemMap({
           <pattern id="map-dots" width="18" height="18" patternUnits="userSpaceOnUse">
             <circle cx="1" cy="1" r=".55" fill="#d8e0ed" />
           </pattern>
-          <filter id="island-shadow" x="-20%" y="-20%" width="140%" height="150%">
-            <feDropShadow dx="0" dy="4" stdDeviation="3" floodColor="#233856" floodOpacity=".2" />
+          <filter id="island-shadow" x="-20%" y="-20%" width="140%" height="160%">
+            <feDropShadow
+              dx="0"
+              dy="5"
+              stdDeviation="3.5"
+              floodColor="#233856"
+              floodOpacity=".28"
+            />
           </filter>
           <filter id="badge-shadow" x="-20%" y="-40%" width="140%" height="190%">
             <feDropShadow
@@ -94,11 +99,7 @@ export function EcosystemMap({
             onSelectRelation={onSelectRelation}
           />
           {tileGroups.map(({ category, cells }) => {
-            const relatedIsland =
-              selected?.kind === 'platform' && relatedCategories.has(category.id);
-            const dimmed = Boolean(
-              activeCategory && activeCategory !== category.id && !relatedIsland,
-            );
+            const dimmed = Boolean(activeCategory && activeCategory !== category.id);
             return (
               <IslandGroup
                 key={category.id}

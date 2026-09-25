@@ -53,8 +53,10 @@ function ExplorerContent() {
             name={name}
             tab={state.tab}
             selectedRelation={state.selectedRelation}
+            detailOpen={state.detailOpen}
             onClear={state.clearSelection}
             onSelectCategory={() => category && state.selectCategory(category.id)}
+            onOpenDetail={() => state.setDetailOpen(true)}
             onView={(view) => {
               state.setView(view);
               if (view === 'statistics') state.setDetailOpen(false);
@@ -85,7 +87,7 @@ function ExplorerContent() {
             />
           )}
         </section>
-        {!statistics && state.selected && state.detailOpen ? (
+        {!statistics && state.selected && state.detailOpen && (
           <>
             <button
               className={[styles['panel-handle'], styles['open']].join(' ')}
@@ -104,17 +106,6 @@ function ExplorerContent() {
               onSelectRelation={state.selectRelation}
             />
           </>
-        ) : (
-          <div className={styles['collapsed-panel']}>
-            <button
-              className={styles['panel-handle']}
-              aria-label="상세 패널 펼치기"
-              onClick={() => state.setDetailOpen(true)}
-            >
-              ‹
-            </button>
-            <span>상세 패널</span>
-          </div>
         )}
       </div>
     </ExplorerShell>
