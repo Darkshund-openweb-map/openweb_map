@@ -25,6 +25,15 @@ export function IslandGroup({
   onSelectCategory,
   onSelectPlatform,
 }: Props) {
+  const badgeWidth = Math.max(
+    70,
+    Array.from(category.name).reduce(
+      (width, char) => width + (/[가-힣]/.test(char) ? 10.2 : 5.8),
+      0,
+    ) +
+      String(category.count).length * 6 +
+      32,
+  );
   const selectCategory = () => onSelectCategory(category.id);
   const onCategoryKeyDown = (event: KeyboardEvent<SVGGElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -62,9 +71,17 @@ export function IslandGroup({
         }}
         onKeyDown={onCategoryKeyDown}
       >
-        <rect x="-62" y="-12" width="124" height="24" fill="transparent" aria-hidden="true" />
+        <rect
+          className={styles['island-title-box']}
+          x={-badgeWidth / 2}
+          y="-12"
+          width={badgeWidth}
+          height="24"
+          rx="4"
+          aria-hidden="true"
+        />
         <text
-          className={styles['map-label-text']}
+          className={styles['island-title-text']}
           textAnchor="middle"
           y="3"
           fontSize="10.2"

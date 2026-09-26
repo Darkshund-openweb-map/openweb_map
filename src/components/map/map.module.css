@@ -28,6 +28,15 @@
 .platform-label:hover text {
   text-decoration: underline;
 }
+.island-title-box {
+  fill: #fff;
+  stroke: #dce5f1;
+  stroke-width: 0.8px;
+  filter: drop-shadow(0 1px 2px #23385614);
+}
+.island-title-text {
+  pointer-events: none;
+}
 .map-label-text {
   paint-order: stroke fill;
   stroke: #fff;

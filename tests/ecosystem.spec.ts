@@ -53,6 +53,47 @@ test('hex faces remain clickable and stationary on hover; zoom, pan and reset wo
   expect(errors).toEqual([]);
 });
 
+test('code and text hex spacing matches community in flat and raised views', async ({ page }) => {
+  await openMap(page);
+  const getSpacing = async (id: string) =>
+    page
+      .locator(`[data-island-id="${id}"] [data-map-layer="tops"] polygon`)
+      .evaluateAll((nodes) => {
+        const cells = nodes.map((node) => {
+          const [x, y] = node
+            .getAttribute('transform')!
+            .match(/-?\d+(?:\.\d+)?/g)!
+            .map(Number);
+          return {
+            x,
+            y: y + Number(node.getAttribute('data-elevation')),
+            row: Number(node.getAttribute('data-cell-key')!.split('-')[0]),
+          };
+        });
+        const firstRow = cells.filter((cell) => cell.row === 0).sort((a, b) => a.x - b.x);
+        const secondRow = cells.filter((cell) => cell.row === 1);
+        return { column: firstRow[1].x - firstRow[0].x, row: secondRow[0].y - firstRow[0].y };
+      });
+  const community = await getSpacing('community');
+  expect(community.column).toBeCloseTo(17.6);
+  expect(community.row).toBeCloseTo(15.2);
+  for (const [id, label] of [
+    ['code', '코드 저장소 섬 선택'],
+    ['text', '텍스트 호스팅 섬 선택'],
+  ]) {
+    const flat = await getSpacing(id);
+    expect(flat.column).toBeCloseTo(community.column);
+    expect(flat.row).toBeCloseTo(community.row);
+    const island = page.getByRole('button', { name: label, exact: true });
+    await island.locator('[data-elevation="0"]').first().click();
+    const raised = await getSpacing(id);
+    expect(raised.column).toBeCloseTo(community.column);
+    expect(raised.row).toBeCloseTo(community.row);
+    expect(await island.locator('[data-map-layer="sides"] polygon').count()).toBeGreaterThan(0);
+    await page.getByRole('button', { name: '전체 보기' }).click();
+  }
+});
+
 test('selecting Pastebin does not raise the related code repository island', async ({ page }) => {
   await openMap(page);
   await page.getByRole('combobox').fill('Pastebin');
@@ -195,7 +236,7 @@ test('statistics selection opens its own platform and mobile has no horizontal o
   ).toBeVisible();
 });
 
-test('full viewport starts flat and labels use outlines instead of visible boxes', async ({
+test('full viewport starts flat with boxed island titles and outlined platform labels', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
@@ -211,6 +252,13 @@ test('full viewport starts flat and labels use outlines instead of visible boxes
   await expect(label.locator('rect')).toHaveAttribute('fill', 'transparent');
   expect(await label.locator('text').evaluate((node) => getComputedStyle(node).paintOrder)).toBe(
     'stroke',
+  );
+  const title = page.getByRole('button', { name: /클라우드 스토리지 \d+건/, exact: true });
+  expect(await title.locator('rect').evaluate((node) => getComputedStyle(node).fill)).toBe(
+    'rgb(255, 255, 255)',
+  );
+  expect((await title.locator('rect').boundingBox())!.width).toBeGreaterThan(
+    (await title.locator('text').boundingBox())!.width,
   );
   await page.getByRole('button', { name: /클라우드 스토리지 \d+건/, exact: true }).click();
   await expect(

@@ -2,6 +2,12 @@ import { range } from 'd3';
 import { type Category, type Platform, type Selection } from '@/lib/ecosystem-types';
 
 export const MAP_ELEVATION = 7;
+const HEX_COLUMN_GAP = 17.6;
+const HEX_ROW_GAP = 15.2;
+
+function getColumnGap(category: Category) {
+  return category.id === 'cloud' ? 19 : HEX_COLUMN_GAP;
+}
 
 export const HEX_POINTS = range(6)
   .map((index) => {
@@ -22,15 +28,14 @@ export type HexCell = {
 export function getCategoryTiles(category: Category): HexCell[] {
   const [centerX, centerY] = category.center;
   const middle = (category.rows.length - 1) / 2;
-  const columnGap = category.id === 'cloud' ? 19 : 17.6;
-  const rowGap = category.id === 'code' || category.id === 'text' ? 17.3 : 15.2;
+  const columnGap = getColumnGap(category);
 
   return category.rows.flatMap((count, row) =>
     range(count).map((col) => ({
       key: `${row}-${col}`,
       // Keep each row on the same hex lattice, even when its cell count changes parity.
       x: centerX + (col + Math.round(-(count - 1) / 2 - (row % 2) / 2) + (row % 2) / 2) * columnGap,
-      y: centerY + (row - middle) * rowGap,
+      y: centerY + (row - middle) * HEX_ROW_GAP,
       row,
       col,
       count,
@@ -56,13 +61,12 @@ export function isTileActive(
 }
 
 export function getExposedFrontEdges(category: Category, cell: HexCell, raisedCells: HexCell[]) {
-  const halfColumnGap = (category.id === 'cloud' ? 19 : 17.6) / 2;
-  const rowGap = category.id === 'code' || category.id === 'text' ? 17.3 : 15.2;
+  const halfColumnGap = getColumnGap(category) / 2;
   const hasNeighbor = (direction: number) =>
     raisedCells.some(
       (neighbor) =>
         Math.abs(neighbor.x - cell.x - direction * halfColumnGap) < 0.05 &&
-        Math.abs(neighbor.y - cell.y - rowGap) < 0.05,
+        Math.abs(neighbor.y - cell.y - HEX_ROW_GAP) < 0.05,
     );
   return { left: !hasNeighbor(-1), right: !hasNeighbor(1) };
 }
