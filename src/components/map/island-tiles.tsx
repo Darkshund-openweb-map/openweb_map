@@ -1,7 +1,9 @@
-import styles from '@/components/map/map.module.css';
+// 선택 상태에 따라 섬 타일의 색상과 높이를 구성하는 컴포넌트
+import styles from '@/styles/map.module.css';
 import type { Category, Platform, Selection } from '@/lib/ecosystem-types';
 import { getExposedFrontEdges, isTileActive, MAP_ELEVATION, type HexCell } from './geometry';
-import { HexTileSides, HexTileTop } from './hex-tile';
+import { HexTileSides } from './hex-tile-sides';
+import { HexTileTop } from './hex-tile-top';
 
 type Props = {
   category: Category;

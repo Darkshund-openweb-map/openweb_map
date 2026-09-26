@@ -94,7 +94,7 @@ export const categories: Category[] = [
 export const platforms: Platform[] = [
   {
     id: 'github-gist',
-    name: 'GitHub Gist',
+    name: 'Github Gist',
     category: 'code',
     x: 244,
     y: 216,
@@ -105,7 +105,7 @@ export const platforms: Platform[] = [
   },
   {
     id: 'github',
-    name: 'GitHub',
+    name: 'Github',
     category: 'code',
     x: 220,
     y: 194,
@@ -272,7 +272,7 @@ export const events: EcosystemEvent[] = [
     date: '2026-08-31',
     type: '등록',
     title: '쿠팡 API 관련 코드 게시',
-    meta: 'GitHub Gist · 소스코드',
+    meta: 'Github Gist · 소스코드',
     platform: 'github-gist',
     exposures: ['소스코드·IP', 'API 키', '비밀키'],
   },

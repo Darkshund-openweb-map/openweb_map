@@ -5,10 +5,6 @@ export const MAP_ELEVATION = 7;
 const HEX_COLUMN_GAP = 17.6;
 const HEX_ROW_GAP = 15.2;
 
-function getColumnGap(category: Category) {
-  return category.id === 'cloud' ? 19 : HEX_COLUMN_GAP;
-}
-
 export const HEX_POINTS = range(6)
   .map((index) => {
     const angle = ((index * 60 - 90) * Math.PI) / 180;
@@ -28,7 +24,7 @@ export type HexCell = {
 export function getCategoryTiles(category: Category): HexCell[] {
   const [centerX, centerY] = category.center;
   const middle = (category.rows.length - 1) / 2;
-  const columnGap = getColumnGap(category);
+  const columnGap = HEX_COLUMN_GAP;
 
   return category.rows.flatMap((count, row) =>
     range(count).map((col) => ({
@@ -61,7 +57,7 @@ export function isTileActive(
 }
 
 export function getExposedFrontEdges(category: Category, cell: HexCell, raisedCells: HexCell[]) {
-  const halfColumnGap = getColumnGap(category) / 2;
+  const halfColumnGap = HEX_COLUMN_GAP / 2;
   const hasNeighbor = (direction: number) =>
     raisedCells.some(
       (neighbor) =>

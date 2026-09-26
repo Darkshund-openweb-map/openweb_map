@@ -1,12 +1,16 @@
+// 생태계 섬·플랫폼·관계선과 지도 조작 UI를 조합하는 지도 컴포넌트
 'use client';
 
-import styles from '@/components/map/map.module.css';
+import styles from '@/styles/map.module.css';
 import { type CategoryId, type DetailTab, type Selection } from '@/lib/ecosystem-types';
 import { IslandGroup } from './island-group';
-import { MapBottomControls, MapEmptyState, RelationToggle } from './map-controls';
-import { RelationEvidence, RelationLayer } from './relation-layer';
-import { useMapZoom } from './use-map-zoom';
-import { useMapData } from './use-map-data';
+import { MapBottomControls } from './map-bottom-controls';
+import { MapEmptyState } from './map-empty-state';
+import { RelationToggle } from './relation-toggle';
+import { RelationEvidence } from './relation-evidence';
+import { RelationLayer } from './relation-layer';
+import { useMapZoom } from '@/hooks/use-map-zoom';
+import { useMapData } from '@/hooks/use-map-data';
 
 type Props = {
   selected: Selection;
@@ -62,6 +66,9 @@ export function EcosystemMap({
         viewBox={selected ? '0 0 650 614' : '0 0 846 614'}
         preserveAspectRatio="xMidYMid meet"
         role="img"
+        onClick={(event) => {
+          if (event.target === event.currentTarget) reset();
+        }}
         aria-label="오픈웹 생태계 육각형 지도: 섬과 플랫폼을 선택할 수 있습니다"
       >
         <defs>
@@ -71,8 +78,34 @@ export function EcosystemMap({
           <filter id="island-shadow" x="-20%" y="-20%" width="140%" height="160%">
             <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#233856" floodOpacity=".2" />
           </filter>
+          {tileGroups.map(({ category }) => (
+            <filter
+              key={category.id}
+              id={`island-glow-${category.id}`}
+              x="-15%"
+              y="-15%"
+              width="130%"
+              height="130%"
+            >
+              <feDropShadow
+                dx="0"
+                dy="0"
+                stdDeviation="1.4"
+                floodColor={category.color}
+                floodOpacity=".18"
+              />
+            </filter>
+          ))}
         </defs>
-        <rect width="846" height="614" fill="url(#map-dots)" pointerEvents="none" />
+        <rect
+          width="846"
+          height="614"
+          fill="url(#map-dots)"
+          onClick={(event) => {
+            event.stopPropagation();
+            reset();
+          }}
+        />
         <g data-map-scene transform={`${transform.toString()} translate(${selected ? -75 : 5},0)`}>
           <RelationLayer
             selected={selected}
