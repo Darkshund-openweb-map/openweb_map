@@ -218,7 +218,7 @@ test('full viewport starts flat and labels use outlines instead of visible boxes
   ).toBeVisible();
 });
 
-test('AWS S3 keeps its original color and depth through central and side clicks', async ({
+test('AWS S3 stays blue with gray surroundings and keeps depth through repeated clicks', async ({
   page,
 }) => {
   await openMap(page);
@@ -228,10 +228,12 @@ test('AWS S3 keeps its original color and depth through central and side clicks'
   const sides = island.locator('[data-map-layer="sides"] polygon');
   const initialCount = await raised.count();
   expect(initialCount).toBeGreaterThan(0);
+  const surroundings = island.locator('[data-elevation="0"]');
+  expect(await surroundings.count()).toBeGreaterThan(0);
   expect(
-    await island
-      .locator('[data-map-layer="tops"] polygon')
-      .evaluateAll((nodes) => nodes.every((node) => node.getAttribute('fill') === '#4cc4f9')),
+    await surroundings.evaluateAll((nodes) =>
+      nodes.every((node) => node.getAttribute('fill') === '#d0d9e4'),
+    ),
   ).toBe(true);
   expect(await sides.count()).toBeLessThan(initialCount * 2);
   expect(
@@ -250,8 +252,18 @@ test('AWS S3 keeps its original color and depth through central and side clicks'
   await sides.first().click();
   await expect(detail).toBeVisible();
   await expect(raised).toHaveCount(initialCount);
+  expect(
+    await surroundings.evaluateAll((nodes) =>
+      nodes.every((node) => node.getAttribute('fill') === '#d0d9e4'),
+    ),
+  ).toBe(true);
   await page.getByRole('button', { name: '전체 보기' }).click();
   await expect(page.locator('[data-map-layer="sides"] polygon')).toHaveCount(0);
+  expect(
+    await island
+      .locator('[data-elevation="0"]')
+      .evaluateAll((nodes) => nodes.every((node) => node.getAttribute('fill') === '#4cc4f9')),
+  ).toBe(true);
 });
 
 test('platform actions validate, add, edit, move and delete local data', async ({ page }) => {
