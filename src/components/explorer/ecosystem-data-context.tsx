@@ -1,12 +1,20 @@
 'use client';
 
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import type { CategoryId } from '@/lib/ecosystem-types';
+import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import type { CategoryId, Platform } from '@/lib/ecosystem-types';
 import type { EcosystemSnapshot } from '@/lib/ecosystem-types';
+import {
+  removePlatformData,
+  replacePlatformData,
+  validatePlatform,
+} from '@/lib/platform-mutations';
 
 type EcosystemData = EcosystemSnapshot & {
   getCategory: (id: CategoryId) => EcosystemSnapshot['categories'][number];
   getPlatform: (id: string) => EcosystemSnapshot['platforms'][number] | undefined;
+  addPlatform: (platform: Platform) => void;
+  updatePlatform: (platform: Platform) => void;
+  deletePlatform: (id: string) => void;
 };
 
 const EcosystemDataContext = createContext<EcosystemData | null>(null);
@@ -18,13 +26,23 @@ export function EcosystemDataProvider({
   data: EcosystemSnapshot;
   children: ReactNode;
 }) {
+  const [snapshot, setSnapshot] = useState(data);
   const value = useMemo<EcosystemData>(
     () => ({
-      ...data,
-      getCategory: (id) => data.categories.find((item) => item.id === id)!,
-      getPlatform: (id) => data.platforms.find((item) => item.id === id),
+      ...snapshot,
+      getCategory: (id) => snapshot.categories.find((item) => item.id === id)!,
+      getPlatform: (id) => snapshot.platforms.find((item) => item.id === id),
+      addPlatform: (platform) => {
+        const validated = validatePlatform(platform, snapshot);
+        setSnapshot((current) => ({ ...current, platforms: [...current.platforms, validated] }));
+      },
+      updatePlatform: (platform) => {
+        const validated = validatePlatform(platform, snapshot);
+        setSnapshot((current) => replacePlatformData(current, validated));
+      },
+      deletePlatform: (id) => setSnapshot((current) => removePlatformData(current, id)),
     }),
-    [data],
+    [snapshot],
   );
 
   return <EcosystemDataContext.Provider value={value}>{children}</EcosystemDataContext.Provider>;

@@ -28,6 +28,16 @@
 .platform-label:hover text {
   text-decoration: underline;
 }
+.map-label-text {
+  paint-order: stroke fill;
+  stroke: #fff;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.platform-label[data-selected='true'] .map-label-text {
+  stroke-width: 3.5px;
+}
 .map-top-control {
   position: absolute;
   top: 11px;
@@ -221,7 +231,7 @@
 }
 
 .island-side-layer {
-  pointer-events: none;
+  pointer-events: visiblePainted;
 }
 
 .island-top-layer {

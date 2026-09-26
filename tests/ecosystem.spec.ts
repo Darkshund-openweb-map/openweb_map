@@ -15,7 +15,7 @@ test('hex faces remain clickable and stationary on hover; zoom, pan and reset wo
   page.on('pageerror', (error) => errors.push(error.message));
   await openMap(page);
   const island = page.getByRole('button', { name: '코드 저장소 섬 선택', exact: true });
-  expect(await island.locator('[data-map-layer="sides"] polygon').count()).toBeGreaterThan(0);
+  await expect(island.locator('[data-map-layer="sides"] polygon')).toHaveCount(0);
   // Click an actual top face, not a badge or a forced event.
   await island.locator('[data-map-layer="tops"] polygon').first().click();
   await expect(page.getByRole('complementary', { name: '코드 저장소 상세 패널' })).toBeVisible();
@@ -193,4 +193,149 @@ test('statistics selection opens its own platform and mobile has no horizontal o
   await expect(
     page.getByRole('heading', { name: '등록된 다크웹 플랫폼이 없습니다' }),
   ).toBeVisible();
+});
+
+test('full viewport starts flat and labels use outlines instead of visible boxes', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await openMap(page);
+  expect(await page.locator('[data-web-scope-shell]').boundingBox()).toEqual({
+    x: 0,
+    y: 0,
+    width: 1920,
+    height: 1080,
+  });
+  await expect(page.locator('[data-map-layer="sides"] polygon')).toHaveCount(0);
+  const label = page.getByRole('button', { name: 'AWS S3 영토 선택', exact: true });
+  await expect(label.locator('rect')).toHaveAttribute('fill', 'transparent');
+  expect(await label.locator('text').evaluate((node) => getComputedStyle(node).paintOrder)).toBe(
+    'stroke',
+  );
+  await page.getByRole('button', { name: /클라우드 스토리지 \d+건/, exact: true }).click();
+  await expect(
+    page.getByRole('complementary', { name: '클라우드 스토리지 상세 패널' }),
+  ).toBeVisible();
+});
+
+test('AWS S3 keeps its original color and depth through central and side clicks', async ({
+  page,
+}) => {
+  await openMap(page);
+  await page.getByRole('button', { name: 'AWS S3 영토 선택', exact: true }).click();
+  const island = page.getByRole('button', { name: '클라우드 스토리지 섬 선택', exact: true });
+  const raised = island.locator('[data-elevation="7"]');
+  const sides = island.locator('[data-map-layer="sides"] polygon');
+  const initialCount = await raised.count();
+  expect(initialCount).toBeGreaterThan(0);
+  expect(
+    await island
+      .locator('[data-map-layer="tops"] polygon')
+      .evaluateAll((nodes) => nodes.every((node) => node.getAttribute('fill') === '#4cc4f9')),
+  ).toBe(true);
+  expect(await sides.count()).toBeLessThan(initialCount * 2);
+  expect(
+    await raised.evaluateAll((nodes) =>
+      nodes.every((node) => node.getAttribute('fill') === '#4cc4f9'),
+    ),
+  ).toBe(true);
+  const detail = page.getByRole('complementary', { name: 'AWS S3 상세 패널' });
+  await page.getByRole('tab', { name: /^사건/ }).click();
+  // The label's transparent hit target covers some central faces; both targets preserve selection.
+  await page.getByRole('button', { name: 'AWS S3 영토 선택', exact: true }).click();
+  await raised.first().click();
+  await expect(detail).toBeVisible();
+  await expect(page.getByRole('tab', { name: /^사건/ })).toHaveAttribute('aria-selected', 'true');
+  await expect(raised).toHaveCount(initialCount);
+  await sides.first().click();
+  await expect(detail).toBeVisible();
+  await expect(raised).toHaveCount(initialCount);
+  await page.getByRole('button', { name: '전체 보기' }).click();
+  await expect(page.locator('[data-map-layer="sides"] polygon')).toHaveCount(0);
+});
+
+test('platform actions validate, add, edit, move and delete local data', async ({ page }) => {
+  await openMap(page);
+  await page.getByRole('button', { name: 'AWS S3 영토 선택', exact: true }).click();
+  await page.getByRole('button', { name: '데이터 추가', exact: true }).click();
+  let dialog = page.getByRole('dialog', { name: '플랫폼 추가', exact: true });
+  await dialog.getByLabel('플랫폼 이름').fill('AWS S3');
+  await dialog.getByLabel('도메인', { exact: true }).fill('example.com');
+  await dialog.getByRole('button', { name: '추가', exact: true }).click();
+  await expect(dialog.getByRole('alert')).toHaveText('같은 이름의 플랫폼이 이미 있습니다.');
+  await dialog.getByLabel('플랫폼 이름').fill('새 플랫폼');
+  await dialog.getByLabel('도메인', { exact: true }).fill('not-a-domain');
+  await dialog.getByRole('button', { name: '추가', exact: true }).click();
+  await expect(dialog.getByRole('alert')).toHaveText(
+    '도메인은 example.com 형식으로 입력해 주세요.',
+  );
+  await dialog.getByLabel('도메인', { exact: true }).fill('https://example.com');
+  await dialog.getByLabel('설명', { exact: true }).fill('로컬 관리 테스트');
+  await dialog.getByRole('button', { name: '추가', exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole('complementary', { name: '새 플랫폼 상세 패널' })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: '새 플랫폼 영토 선택', exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: '데이터 수정', exact: true }).click();
+  dialog = page.getByRole('dialog', { name: '플랫폼 수정', exact: true });
+  await dialog.getByLabel('플랫폼 이름').fill('수정 플랫폼');
+  await dialog.getByLabel('도메인', { exact: true }).fill('updated.example.com');
+  await dialog.getByLabel('플랫폼 유형').selectOption('community');
+  await dialog.getByRole('button', { name: '저장', exact: true }).click();
+  const detail = page.getByRole('complementary', { name: '수정 플랫폼 상세 패널' });
+  await expect(detail).toBeVisible();
+  await expect(detail.getByText('updated.example.com')).toBeVisible();
+  await expect(
+    page
+      .locator('[data-island-id="community"]')
+      .getByRole('button', { name: '수정 플랫폼 영토 선택', exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: '데이터 삭제', exact: true }).click();
+  dialog = page.getByRole('dialog', { name: '플랫폼 삭제', exact: true });
+  await dialog.getByRole('button', { name: '취소', exact: true }).click();
+  await expect(detail).toBeVisible();
+  await page.getByRole('button', { name: '데이터 삭제', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: '삭제 확인', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '전체 오픈웹', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: '수정 플랫폼 영토 선택', exact: true }),
+  ).toHaveCount(0);
+  await page.getByRole('combobox').fill('수정 플랫폼');
+  await expect(page.getByText('검색 결과가 없습니다.')).toBeVisible();
+});
+
+test('deleting a platform clears its events and relations; reload restores fixtures', async ({
+  page,
+}) => {
+  await openMap(page);
+  await page.getByRole('button', { name: 'GitHub Gist 영토 선택', exact: true }).click();
+  await page.getByRole('button', { name: '데이터 삭제', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: '플랫폼 삭제', exact: true });
+  await expect(dialog.getByText(/연결된 사건 [1-9]\d*개와 관계/)).toBeVisible();
+  await dialog.getByRole('button', { name: '삭제 확인', exact: true }).click();
+  await page.getByRole('switch', { name: '전체 관계 보기' }).click();
+  await expect(page.locator('[data-relation-id="gist-mega"]')).toHaveCount(0);
+  await page.getByRole('button', { name: '통계', exact: true }).click();
+  await expect(page.getByText('쿠팡 API 관련 코드 게시')).toHaveCount(0);
+  await openMap(page);
+  await expect(
+    page.getByRole('button', { name: 'GitHub Gist 영토 선택', exact: true }),
+  ).toBeVisible();
+});
+
+test('platform editor fits mobile and short viewports', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 650 });
+  await openMap(page);
+  await page.getByRole('combobox').fill('AWS S3');
+  await page.getByRole('option', { name: /AWS S3/ }).click();
+  await page.getByRole('button', { name: '데이터 수정', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: '플랫폼 수정', exact: true });
+  const bounds = (await dialog.boundingBox())!;
+  expect(bounds.x).toBeGreaterThanOrEqual(0);
+  expect(bounds.y).toBeGreaterThanOrEqual(0);
+  expect(bounds.x + bounds.width).toBeLessThanOrEqual(390);
+  expect(bounds.y + bounds.height).toBeLessThanOrEqual(650);
+  await dialog.getByRole('button', { name: '취소', exact: true }).click();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });

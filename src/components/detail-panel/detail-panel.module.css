@@ -71,6 +71,7 @@
   margin-left: 2px;
 }
 .detail-scroll {
+  flex: 1;
   overflow: auto;
   padding: 11px 13px 20px;
   min-height: 0;
