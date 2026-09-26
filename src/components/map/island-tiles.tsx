@@ -1,82 +1,77 @@
 import styles from '@/components/map/map.module.css';
-import {
-  type Category,
-  type DetailTab,
-  type Platform,
-  type Selection,
-} from '@/lib/ecosystem-types';
-import { isTileActive, type HexCell } from './geometry';
+import type { Category, Platform, Selection } from '@/lib/ecosystem-types';
+import { getExposedFrontEdges, isTileActive, MAP_ELEVATION, type HexCell } from './geometry';
 import { HexTileSides, HexTileTop } from './hex-tile';
 
 type Props = {
   category: Category;
   cells: HexCell[];
   selected: Selection;
-  tab: DetailTab;
   dimmed: boolean;
   selectedPlatform?: Platform;
+  onSelectCategory: () => void;
 };
 
-function getTileAppearance(
-  category: Category,
-  cell: HexCell,
-  selected: Selection,
-  tab: DetailTab,
-  dimmed: boolean,
-  selectedPlatform?: Platform,
-) {
-  const active = isTileActive(category, cell, selected, selectedPlatform);
-  const raised = Boolean(
-    !dimmed &&
-      (!selected ||
-        (selected.kind === 'category'
-          ? selected.id === category.id
-          : selectedPlatform?.category === category.id && active)),
-  );
-  const related =
-    selected?.kind === 'platform' &&
-    tab !== 'connections' &&
-    (category.id === 'cloud' || category.id === 'files') &&
-    active;
-  const fill = active
-    ? related
-      ? category.id === 'cloud'
-        ? '#a8e2f8'
-        : '#cdb8fa'
-      : category.color
-    : category.light;
-
-  return { fill, raised };
-}
-
-export function IslandTiles({ category, cells, selected, tab, dimmed, selectedPlatform }: Props) {
-  const rendered = cells.map((cell) => ({
-    cell,
-    ...getTileAppearance(category, cell, selected, tab, dimmed, selectedPlatform),
-  }));
-
+export function IslandTiles({
+  category,
+  cells,
+  selected,
+  dimmed,
+  selectedPlatform,
+  onSelectCategory,
+}: Props) {
+  const tiles = cells.map((cell) => {
+    const active = isTileActive(category, cell, selected, selectedPlatform);
+    const raised = Boolean(selected && active && !dimmed);
+    const inactiveFill = category.id === 'cloud' ? '#d0d9e4' : category.light;
+    const fill = !selected || dimmed || active ? category.color : inactiveFill;
+    const onSelect = () => {
+      // A selected top/side must not turn a platform selection into an island selection.
+      if (selected && active && !dimmed) return;
+      onSelectCategory();
+    };
+    return { cell, raised, fill, onSelect };
+  });
+  const raisedCells = tiles.filter((tile) => tile.raised).map((tile) => tile.cell);
   return (
     <>
+      <g className={styles['island-top-layer']} data-map-layer="tops">
+        {tiles
+          .filter((tile) => !tile.raised)
+          .map(({ cell, fill, onSelect }) => (
+            <HexTileTop key={cell.key} cell={cell} fill={fill} onSelect={onSelect} />
+          ))}
+      </g>
       <g
         className={styles['island-side-layer']}
         data-map-layer="sides"
         filter="url(#island-shadow)"
       >
-        {rendered.map(({ cell, fill, raised }) =>
-          raised ? (
+        {tiles
+          .filter((tile) => tile.raised)
+          .map(({ cell, fill, onSelect }) => (
             <HexTileSides
-              key={`side-${cell.key}`}
+              key={cell.key}
               cell={cell}
               fill={fill}
-              depth={selected ? 9 : 6.5}
+              depth={MAP_ELEVATION}
+              edges={getExposedFrontEdges(category, cell, raisedCells)}
+              onSelect={onSelect}
             />
-          ) : null,
-        )}
+          ))}
       </g>
       <g className={styles['island-top-layer']} data-map-layer="tops">
-        {rendered.map(({ cell, fill }) => (
-          <HexTileTop key={`top-${cell.key}`} cell={cell} fill={fill} />
-        ))}
+        {tiles
+          .filter((tile) => tile.raised)
+          .map(({ cell, fill, onSelect }) => (
+            <HexTileTop
+              key={cell.key}
+              cell={cell}
+              fill={fill}
+              elevation={MAP_ELEVATION}
+              onSelect={onSelect}
+            />
+          ))}
       </g>
     </>
   );

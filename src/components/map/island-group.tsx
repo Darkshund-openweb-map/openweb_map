@@ -1,25 +1,8 @@
 import styles from '@/components/map/map.module.css';
 import type { KeyboardEvent } from 'react';
-import {
-  type Category,
-  type CategoryId,
-  type DetailTab,
-  type Platform,
-  type Selection,
-} from '@/lib/ecosystem-types';
-import type { HexCell } from './geometry';
+import type { Category, CategoryId, Platform, Selection } from '@/lib/ecosystem-types';
+import { MAP_ELEVATION, type HexCell } from './geometry';
 import { IslandTiles } from './island-tiles';
-
-const badgeWidths: Record<CategoryId, number> = {
-  code: 90,
-  text: 108,
-  community: 82,
-  cloud: 118,
-  files: 92,
-  backend: 98,
-  release: 94,
-  other: 66,
-};
 
 type Props = {
   category: Category;
@@ -27,7 +10,6 @@ type Props = {
   platforms: Platform[];
   selected: Selection;
   selectedPlatform?: Platform;
-  tab: DetailTab;
   dimmed: boolean;
   onSelectCategory: (id: CategoryId) => void;
   onSelectPlatform: (id: string) => void;
@@ -39,12 +21,19 @@ export function IslandGroup({
   platforms,
   selected,
   selectedPlatform,
-  tab,
   dimmed,
   onSelectCategory,
   onSelectPlatform,
 }: Props) {
-  const badgeWidth = badgeWidths[category.id];
+  const badgeWidth = Math.max(
+    70,
+    Array.from(category.name).reduce(
+      (width, char) => width + (/[가-힣]/.test(char) ? 10.2 : 5.8),
+      0,
+    ) +
+      String(category.count).length * 6 +
+      32,
+  );
   const selectCategory = () => onSelectCategory(category.id);
   const onCategoryKeyDown = (event: KeyboardEvent<SVGGElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -52,27 +41,22 @@ export function IslandGroup({
       selectCategory();
     }
   };
-
   return (
-    <g opacity={dimmed ? 0.35 : 1}>
+    <g opacity={dimmed ? 0.35 : 1} data-island-id={category.id}>
       <g
         className={styles['island-tiles']}
         role="button"
         tabIndex={0}
         aria-label={`${category.name} 섬 선택`}
-        onClick={(event) => {
-          event.stopPropagation();
-          selectCategory();
-        }}
         onKeyDown={onCategoryKeyDown}
       >
         <IslandTiles
           category={category}
           cells={cells}
           selected={selected}
-          tab={tab}
           dimmed={dimmed}
           selectedPlatform={selectedPlatform}
+          onSelectCategory={selectCategory}
         />
       </g>
       <g
@@ -88,48 +72,28 @@ export function IslandGroup({
         onKeyDown={onCategoryKeyDown}
       >
         <rect
+          className={styles['island-title-box']}
           x={-badgeWidth / 2}
-          y="-10"
+          y="-12"
           width={badgeWidth}
-          height="21"
-          rx="10"
-          fill="white"
-          stroke="#dde6f2"
-          filter="url(#badge-shadow)"
+          height="24"
+          rx="4"
+          aria-hidden="true"
         />
-        <circle cx={-badgeWidth / 2 + 10} cy="0" r="3.1" fill={category.color} />
         <text
-          x={-badgeWidth / 2 + 18}
+          className={styles['island-title-text']}
+          textAnchor="middle"
           y="3"
-          fontSize={
-            category.id === 'code' || category.id === 'cloud' || category.id === 'backend' ? 8.2 : 9
-          }
-          fontWeight="600"
-          fill="#1b2536"
+          fontSize="10.2"
+          fontWeight="700"
+          fill="#24344b"
         >
           {category.name}
-        </text>
-        <text x={badgeWidth / 2 - 8} y="3" fontSize="9" textAnchor="end" fill="#62718b">
-          {category.count}건
+          <tspan dx="6" fontWeight="500" fill="#62718b">
+            {category.count}건
+          </tspan>
         </text>
       </g>
-      {category.id === 'code' && selected?.kind === 'category' && selected.id === 'code' && (
-        <g transform="translate(245,160)">
-          <rect
-            x="-14"
-            y="-8"
-            width="28"
-            height="16"
-            rx="3"
-            fill="white"
-            stroke="#a9b5c8"
-            strokeWidth=".6"
-          />
-          <text textAnchor="middle" y="3" fontSize="9" fontWeight="600" fill="#1e293b">
-            기타
-          </text>
-        </g>
-      )}
       {platforms
         .filter(
           (item) =>
@@ -138,42 +102,50 @@ export function IslandGroup({
         )
         .map((platform) => {
           if (selected?.kind === 'category' && selected.id !== category.id) return null;
-          const label = platform.id === 'github-gist' ? 'GitHub' : platform.name;
-          const width = Math.max(23, label.length * (/[가-힣]/.test(label) ? 9 : 5.3) + 10);
+          const active = selected?.kind === 'platform' && selected.id === platform.id;
+          const elevated = active || (selected?.kind === 'category' && selected.id === category.id);
+          const fullLabel = platform.id === 'github-gist' ? 'GitHub' : platform.name;
+          const label = fullLabel.length > 18 ? `${fullLabel.slice(0, 17)}…` : fullLabel;
+          const width = Math.max(28, label.length * (/[가-힣]/.test(label) ? 10 : 6) + 12);
           return (
             <g
               key={platform.id}
               className={styles['platform-label']}
-              transform={`translate(${platform.x},${platform.y})`}
+              data-platform-id={platform.id}
+              data-selected={active}
+              transform={`translate(${platform.x},${platform.y - (elevated ? MAP_ELEVATION : 0)})`}
               role="button"
               tabIndex={0}
               aria-label={`${platform.name} 영토 선택`}
               onClick={(event) => {
                 event.stopPropagation();
-                onSelectPlatform(platform.id);
+                if (!active) onSelectPlatform(platform.id);
               }}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault();
-                  onSelectPlatform(platform.id);
+                  event.stopPropagation();
+                  if (!active) onSelectPlatform(platform.id);
                 }
               }}
             >
+              <title>{platform.name}</title>
               <rect
                 x={-width / 2}
-                y="-8"
+                y="-12"
                 width={width}
-                height="17"
-                rx="3"
-                fill="#fff"
-                stroke={
-                  selected?.kind === 'platform' && selected.id === platform.id
-                    ? '#172a4d'
-                    : '#a9b5c8'
-                }
-                strokeWidth=".6"
+                height="24"
+                fill="transparent"
+                aria-hidden="true"
               />
-              <text textAnchor="middle" y="3.3" fontSize="9.4" fontWeight="600" fill="#1e293b">
+              <text
+                className={styles['map-label-text']}
+                textAnchor="middle"
+                y="3.3"
+                fontSize="10.4"
+                fontWeight={active ? '800' : '700'}
+                fill="#1e293b"
+              >
                 {label}
               </text>
             </g>

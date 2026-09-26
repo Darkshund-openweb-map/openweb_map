@@ -7,6 +7,7 @@ import { DetailOverview } from './detail-overview';
 import { DetailTabs } from './detail-tabs';
 import { EventTimeline } from './event-timeline';
 import { useDetailData } from './use-detail-data';
+import { PlatformActions } from '../platform-editor/platform-actions';
 
 type Props = {
   selected: Selection;
@@ -16,6 +17,7 @@ type Props = {
   onSelectPlatform: (id: string) => void;
   onSelectCategory: (id: CategoryId) => void;
   onSelectRelation: (id: string | null) => void;
+  onDeleted: () => void;
 };
 
 export function DetailPanel({
@@ -26,6 +28,7 @@ export function DetailPanel({
   onSelectPlatform,
   onSelectCategory,
   onSelectRelation,
+  onDeleted,
 }: Props) {
   const data = useDetailData(selected);
   if (!selected || !data.category) return null;
@@ -98,6 +101,14 @@ export function DetailPanel({
           />
         )}
       </div>
+      {platform && (
+        <PlatformActions
+          key={platform.id}
+          platform={platform}
+          onSelectPlatform={onSelectPlatform}
+          onDeleted={onDeleted}
+        />
+      )}
     </aside>
   );
 }

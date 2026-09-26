@@ -104,6 +104,7 @@ function ExplorerContent() {
               onSelectCategory={state.selectCategory}
               onSelectPlatform={state.selectPlatform}
               onSelectRelation={state.selectRelation}
+              onDeleted={state.clearSelection}
             />
           </>
         )}

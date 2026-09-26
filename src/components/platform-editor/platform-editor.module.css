@@ -1,0 +1,123 @@
+.actions {
+  flex: none;
+  border-top: 1px solid #e1e8f2;
+  padding: 12px 13px;
+  background: #fff;
+}
+.buttons {
+  display: flex;
+  gap: 6px;
+}
+.buttons button {
+  min-height: 32px;
+  flex: 1;
+  white-space: nowrap;
+  padding: 6px;
+}
+.actions > p {
+  margin: 7px 0 0;
+  font-size: 9px;
+  color: #7d8ba0;
+}
+.delete-button {
+  color: #bf3434;
+}
+.dialog {
+  width: min(480px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 24px;
+  margin: auto;
+  border: 1px solid #dce4ef;
+  border-radius: 14px;
+  box-shadow: 0 24px 70px #152a4c33;
+  color: #172033;
+  background: #fff;
+  overflow: auto;
+}
+.dialog::backdrop {
+  background: #172a4d66;
+}
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.heading h2 {
+  margin: 0;
+  font-size: 19px;
+}
+.heading button {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  background: #f1f4f9;
+  color: #607086;
+  border-radius: 6px;
+  font-size: 21px;
+}
+.hint {
+  color: #748298;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 10px 0 20px;
+}
+.fields {
+  display: grid;
+  gap: 14px;
+}
+.fields label {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.fields input,
+.fields select,
+.fields textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #dce4ef;
+  border-radius: 6px;
+  padding: 9px 10px;
+  font: inherit;
+  font-weight: 400;
+  background: #fff;
+  color: #172033;
+}
+.fields textarea {
+  resize: vertical;
+}
+.fields input:focus-visible,
+.fields select:focus-visible,
+.fields textarea:focus-visible {
+  outline: 2px solid #176bfa;
+  outline-offset: 2px;
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 22px;
+}
+.dialog-actions button {
+  min-width: 64px;
+  min-height: 34px;
+  font-size: 12px;
+}
+.danger {
+  background: #c93535;
+  border-color: #c93535;
+}
+.delete-summary {
+  font-size: 13px;
+  line-height: 1.7;
+}
+.delete-summary p:last-child {
+  color: #7b8799;
+}
+.error {
+  color: #bf3434;
+  font-size: 12px;
+  margin: 14px 0 0;
+}

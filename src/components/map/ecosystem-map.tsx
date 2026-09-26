@@ -63,31 +63,13 @@ export function EcosystemMap({
         preserveAspectRatio="xMidYMid meet"
         role="img"
         aria-label="오픈웹 생태계 육각형 지도: 섬과 플랫폼을 선택할 수 있습니다"
-        onClick={(event) => {
-          if (event.target === event.currentTarget) onClear();
-        }}
       >
         <defs>
           <pattern id="map-dots" width="18" height="18" patternUnits="userSpaceOnUse">
             <circle cx="1" cy="1" r=".55" fill="#d8e0ed" />
           </pattern>
           <filter id="island-shadow" x="-20%" y="-20%" width="140%" height="160%">
-            <feDropShadow
-              dx="0"
-              dy="5"
-              stdDeviation="3.5"
-              floodColor="#233856"
-              floodOpacity=".28"
-            />
-          </filter>
-          <filter id="badge-shadow" x="-20%" y="-40%" width="140%" height="190%">
-            <feDropShadow
-              dx="0"
-              dy="1"
-              stdDeviation="1.5"
-              floodColor="#7183a2"
-              floodOpacity=".18"
-            />
+            <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#233856" floodOpacity=".2" />
           </filter>
         </defs>
         <rect width="846" height="614" fill="url(#map-dots)" pointerEvents="none" />
@@ -108,7 +90,6 @@ export function EcosystemMap({
                 platforms={platforms}
                 selected={selected}
                 selectedPlatform={selectedPlatform}
-                tab={tab}
                 dimmed={dimmed}
                 onSelectCategory={onSelectCategory}
                 onSelectPlatform={onSelectPlatform}
