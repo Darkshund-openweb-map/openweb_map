@@ -19,12 +19,20 @@ npm run dev
 
 ## 코드 위치
 
-- `src/components/explorer/`: 헤더, 레이아웃, 검색·화면 상태 훅
-- `src/components/map/`: 육각형 좌표·면 렌더링, 섬, 관계선, 지도 제어, 확대·축소 훅
-- `src/components/detail-panel/`: 상세 패널, 개요·연결·사건 탭, 날짜 필터 훅
-- `src/components/platform-editor/`: 플랫폼 추가·수정·삭제 화면과 입력 상태 훅
-- `src/components/statistics/`: 통계 화면과 필터 훅
-- `src/components/ui/`: 공통 UI 요소
+- `src/components/button/`: 공통 버튼과 상세 패널 토글
+- `src/components/chart/`: 지표, 비율 막대와 미니 차트
+- `src/components/detail/`: 상세 패널, 개요·연결·사건 탭
+- `src/components/header/`: 앱 헤더, 콘텐츠 헤더와 브랜드 마크
+- `src/components/layout/`: 탐색 화면, 셸과 빈 상태 레이아웃
+- `src/components/legend/`: 지도 범례와 색상 스와치
+- `src/components/map/`: 육각형 좌표·면 렌더링, 섬, 관계선과 지도 제어
+- `src/components/platform/`: 플랫폼 추가·수정·삭제 화면
+- `src/components/provider/`: 생태계 데이터 공급자
+- `src/components/statistics/`: 통계 화면
+- `src/hooks/`: 검색, 화면 상태, 지도, 상세 패널, 편집기와 통계 커스텀 훅
+- `src/contexts/`: 생태계 데이터 컨텍스트 계약
+- `src/styles/`: 컴포넌트에서 공유하는 CSS 모듈
+- `src/types/`: 화면 영역에서 공유하는 타입
 - `src/lib/ecosystem-types.ts`: 화면에서 사용하는 공통 데이터 타입
 - `src/lib/fixture.ts`: 로컬 테스트 fixture
 - `src/lib/fixture-source.ts`: 서버에서 fixture를 읽는 데이터 소스
@@ -32,7 +40,7 @@ npm run dev
 - `src/app/globals.css`: Tailwind CSS, 디자인 토큰, 전역 기본값
 - `tests/ecosystem.spec.ts`: 지도·검색·사건 필터·관계 상태·모바일 회귀 테스트
 
-각 기능 폴더의 `.tsx`는 화면 표시, `use-*.ts`는 상태와 파생 데이터, `.module.css`는 해당 기능의 스타일을 담당합니다. 육각형 좌표 계산은 `map/geometry.ts`, SVG 면 렌더링은 `map/hex-tile.tsx`에 있습니다. 전역 CSS에는 개별 화면의 디자인을 넣지 않습니다.
+`src/components`는 버튼·헤더·레이아웃·지도처럼 UI 요소 종류별로 구분하며 `.tsx` 한 파일당 하나의 화면 컴포넌트를 둡니다. `src/hooks/use-*.ts`는 상태와 파생 데이터, `src/styles/*.module.css`는 기존 컴포넌트 스타일을 담당합니다. 육각형 좌표 계산은 `map/geometry.ts`, SVG 면 렌더링은 `map/hex-tile-top.tsx`와 `map/hex-tile-sides.tsx`에 있습니다. 전역 CSS에는 개별 화면의 디자인을 넣지 않습니다.
 
 ## 기술 구성
 

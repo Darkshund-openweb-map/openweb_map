@@ -1,4 +1,5 @@
-import styles from '@/components/map/map.module.css';
+// 하나의 생태계 섬에 타일·이름표·플랫폼 라벨을 묶어 표시하는 컴포넌트
+import styles from '@/styles/map.module.css';
 import type { KeyboardEvent } from 'react';
 import type { Category, CategoryId, Platform, Selection } from '@/lib/ecosystem-types';
 import { MAP_ELEVATION, type HexCell } from './geometry';
@@ -34,6 +35,16 @@ export function IslandGroup({
       String(category.count).length * 6 +
       32,
   );
+  const tileBounds = cells.reduce(
+    (bounds, cell) => ({
+      minX: Math.min(bounds.minX, cell.x),
+      maxX: Math.max(bounds.maxX, cell.x),
+      minY: Math.min(bounds.minY, cell.y),
+    }),
+    { minX: Infinity, maxX: -Infinity, minY: Infinity },
+  );
+  const badgeX = (tileBounds.minX + tileBounds.maxX) / 2;
+  const badgeY = tileBounds.minY - 32;
   const selectCategory = () => onSelectCategory(category.id);
   const onCategoryKeyDown = (event: KeyboardEvent<SVGGElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -45,6 +56,7 @@ export function IslandGroup({
     <g opacity={dimmed ? 0.35 : 1} data-island-id={category.id}>
       <g
         className={styles['island-tiles']}
+        filter={`url(#island-glow-${category.id})`}
         role="button"
         tabIndex={0}
         aria-label={`${category.name} 섬 선택`}
@@ -61,7 +73,7 @@ export function IslandGroup({
       </g>
       <g
         className={styles['island-badge']}
-        transform={`translate(${category.badge[0]},${category.badge[1]})`}
+        transform={`translate(${badgeX},${badgeY})`}
         role="button"
         tabIndex={0}
         aria-label={`${category.name} ${category.count}건`}
@@ -77,7 +89,7 @@ export function IslandGroup({
           y="-12"
           width={badgeWidth}
           height="24"
-          rx="4"
+          rx="12"
           aria-hidden="true"
         />
         <text
@@ -86,7 +98,7 @@ export function IslandGroup({
           y="3"
           fontSize="10.2"
           fontWeight="700"
-          fill="#24344b"
+          fill={category.color}
         >
           {category.name}
           <tspan dx="6" fontWeight="500" fill="#62718b">
@@ -104,7 +116,7 @@ export function IslandGroup({
           if (selected?.kind === 'category' && selected.id !== category.id) return null;
           const active = selected?.kind === 'platform' && selected.id === platform.id;
           const elevated = active || (selected?.kind === 'category' && selected.id === category.id);
-          const fullLabel = platform.id === 'github-gist' ? 'GitHub' : platform.name;
+          const fullLabel = platform.id === 'github-gist' ? 'Github' : platform.name;
           const label = fullLabel.length > 18 ? `${fullLabel.slice(0, 17)}…` : fullLabel;
           const width = Math.max(28, label.length * (/[가-힣]/.test(label) ? 10 : 6) + 12);
           return (

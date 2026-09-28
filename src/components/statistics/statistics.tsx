@@ -1,9 +1,10 @@
+// 카테고리별 노출·사건·관계 통계를 요약해 표시하는 컴포넌트
 'use client';
 
-import styles from '@/components/statistics/statistics.module.css';
-import sharedStyles from '@/components/ui/shared.module.css';
+import styles from '@/styles/statistics.module.css';
+import sharedStyles from '@/styles/shared.module.css';
 import { type CategoryId } from '@/lib/ecosystem-types';
-import { useStatistics } from './use-statistics';
+import { useStatistics } from '@/hooks/use-statistics';
 
 export function Statistics({
   onSelectCategory,

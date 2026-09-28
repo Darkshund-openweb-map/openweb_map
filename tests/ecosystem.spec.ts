@@ -113,7 +113,7 @@ test('platform territory is contiguous and only relevant events appear; date fil
   page,
 }) => {
   await openMap(page);
-  await page.getByRole('button', { name: 'GitHub Gist 영토 선택', exact: true }).click();
+  await page.getByRole('button', { name: 'Github Gist 영토 선택', exact: true }).click();
   const island = page.getByRole('button', { name: '코드 저장소 섬 선택', exact: true });
   const centers = await island
     .locator('[data-map-layer="tops"] polygon[fill="#447aff"]')
@@ -140,7 +140,7 @@ test('platform territory is contiguous and only relevant events appear; date fil
   }
   expect(visited.size).toBe(centers.length);
   await page.getByRole('tab', { name: /^사건/ }).click();
-  const detail = page.getByRole('complementary', { name: 'GitHub Gist 상세 패널' });
+  const detail = page.getByRole('complementary', { name: 'Github Gist 상세 패널' });
   await expect(detail.getByText('쿠팡 API 관련 코드 게시')).toBeVisible();
   await detail.getByRole('button', { name: '7일', exact: true }).click();
   await expect(detail.getByText('이 기간에 등록된 사건이 없습니다.')).toBeVisible();
@@ -172,7 +172,7 @@ test('candidate relations remain unverified when selected, and search handles no
   const relation = page.locator('[data-relation-id="gist-mega"]');
   await relation.focus();
   await page.keyboard.press('Enter');
-  const detail = page.getByRole('complementary', { name: 'GitHub Gist 상세 패널' });
+  const detail = page.getByRole('complementary', { name: 'Github Gist 상세 패널' });
   await expect(detail.getByRole('heading', { name: '동일 파일 1건' })).toBeVisible();
   await expect(detail.getByText('선택한 관계 · 신뢰도 중간 · 검증 대기')).toBeVisible();
   await expect(page.getByRole('tab', { name: '연결 0', exact: true })).toBeVisible();
@@ -369,7 +369,7 @@ test('deleting a platform clears its events and relations; reload restores fixtu
   page,
 }) => {
   await openMap(page);
-  await page.getByRole('button', { name: 'GitHub Gist 영토 선택', exact: true }).click();
+  await page.getByRole('button', { name: 'Github Gist 영토 선택', exact: true }).click();
   await page.getByRole('button', { name: '데이터 삭제', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '플랫폼 삭제', exact: true });
   await expect(dialog.getByText(/연결된 사건 [1-9]\d*개와 관계/)).toBeVisible();
@@ -380,7 +380,7 @@ test('deleting a platform clears its events and relations; reload restores fixtu
   await expect(page.getByText('쿠팡 API 관련 코드 게시')).toHaveCount(0);
   await openMap(page);
   await expect(
-    page.getByRole('button', { name: 'GitHub Gist 영토 선택', exact: true }),
+    page.getByRole('button', { name: 'Github Gist 영토 선택', exact: true }),
   ).toBeVisible();
 });
 

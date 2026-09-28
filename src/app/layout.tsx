@@ -1,3 +1,4 @@
+// 모든 페이지에 전역 스타일과 문서 메타데이터를 적용하는 루트 레이아웃 컴포넌트
 import type { Metadata } from 'next';
 import './globals.css';
 
