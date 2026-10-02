@@ -13,7 +13,7 @@ npm run dev
 
 개발 서버 주소는 실행 시 터미널에 표시됩니다.
 
-실행 환경에는 `.env.example`의 `NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`가 필요합니다. 실제 키를 담은 `.env`는 Git 추적 대상에서 제외합니다.
+실행 환경에는 `NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`가 필요합니다. 환경 파일은 별도로 관리하며 `.env`와 `.env.*`는 예시 파일까지 모두 Git 추적 대상에서 제외합니다.
 
 ## 화면 구성
 
