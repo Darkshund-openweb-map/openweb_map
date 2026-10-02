@@ -18,18 +18,21 @@ export function useStatistics() {
   const rows =
     active === 'all'
       ? exposureRows
-      : exposureRows.flatMap((row) => {
-          const matching = visibleEvents.filter((event) => event.exposures.includes(row.name));
-          if (!matching.length) return [];
-          return [
-            {
-              ...row,
-              count: matching.length,
-              date: matching[0].date.slice(5),
-              heat: Math.round((matching.length / visibleEvents.length) * 100),
-            },
-          ];
-        });
+      : exposureRows
+          .flatMap((row) => {
+            const matching = visibleEvents.filter((event) => event.exposures.includes(row.name));
+            if (!matching.length) return [];
+            return [
+              {
+                ...row,
+                count: matching.length,
+                date: matching[0].date.slice(5),
+                state: matching[0].type,
+                heat: Math.round((matching.length / visibleEvents.length) * 100),
+              },
+            ];
+          })
+          .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'ko'));
   const selectCategory = (id: CategoryId) => setActive(active === id ? 'all' : id);
   const platformCounts = new Map(
     categories.map((category) => [

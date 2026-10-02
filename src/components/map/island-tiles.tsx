@@ -25,7 +25,7 @@ export function IslandTiles({
   const tiles = cells.map((cell) => {
     const active = isTileActive(category, cell, selected, selectedPlatform);
     const raised = Boolean(selected && active && !dimmed);
-    const inactiveFill = category.id === 'cloud' ? '#d0d9e4' : category.light;
+    const inactiveFill = category.id === 'files' ? '#d0d9e4' : category.light;
     const fill = !selected || dimmed || active ? category.color : inactiveFill;
     const onSelect = () => {
       // A selected top/side must not turn a platform selection into an island selection.

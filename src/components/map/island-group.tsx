@@ -29,11 +29,11 @@ export function IslandGroup({
   const badgeWidth = Math.max(
     70,
     Array.from(category.name).reduce(
-      (width, char) => width + (/[가-힣]/.test(char) ? 10.2 : 5.8),
+      (width, char) => width + (/[가-힣]/.test(char) ? 11.5 : 6.5),
       0,
     ) +
-      String(category.count).length * 6 +
-      32,
+      String(category.count).length * 7 +
+      40,
   );
   const tileBounds = cells.reduce(
     (bounds, cell) => ({
@@ -44,7 +44,7 @@ export function IslandGroup({
     { minX: Infinity, maxX: -Infinity, minY: Infinity },
   );
   const badgeX = (tileBounds.minX + tileBounds.maxX) / 2;
-  const badgeY = tileBounds.minY - 32;
+  const badgeY = tileBounds.minY - 36;
   const selectCategory = () => onSelectCategory(category.id);
   const onCategoryKeyDown = (event: KeyboardEvent<SVGGElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -86,22 +86,22 @@ export function IslandGroup({
         <rect
           className={styles['island-title-box']}
           x={-badgeWidth / 2}
-          y="-12"
+          y="-14"
           width={badgeWidth}
-          height="24"
-          rx="12"
+          height="28"
+          rx="14"
           aria-hidden="true"
         />
         <text
           className={styles['island-title-text']}
           textAnchor="middle"
-          y="3"
-          fontSize="10.2"
+          y="4"
+          fontSize="11.5"
           fontWeight="700"
           fill={category.color}
         >
           {category.name}
-          <tspan dx="6" fontWeight="500" fill="#62718b">
+          <tspan dx="9" fontWeight="500" fill="#62718b">
             {category.count}건
           </tspan>
         </text>
@@ -116,9 +116,9 @@ export function IslandGroup({
           if (selected?.kind === 'category' && selected.id !== category.id) return null;
           const active = selected?.kind === 'platform' && selected.id === platform.id;
           const elevated = active || (selected?.kind === 'category' && selected.id === category.id);
-          const fullLabel = platform.id === 'github-gist' ? 'Github' : platform.name;
+          const fullLabel = platform.name;
           const label = fullLabel.length > 18 ? `${fullLabel.slice(0, 17)}…` : fullLabel;
-          const width = Math.max(28, label.length * (/[가-힣]/.test(label) ? 10 : 6) + 12);
+          const width = Math.max(32, label.length * (/[가-힣]/.test(label) ? 11.5 : 6.8) + 16);
           return (
             <g
               key={platform.id}
@@ -153,9 +153,9 @@ export function IslandGroup({
               <text
                 className={styles['map-label-text']}
                 textAnchor="middle"
-                y="3.3"
-                fontSize="10.4"
-                fontWeight={active ? '800' : '700'}
+                y="4"
+                fontSize="11.5"
+                fontWeight={active ? '700' : '600'}
                 fill="#1e293b"
               >
                 {label}

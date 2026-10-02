@@ -39,34 +39,37 @@ export function ContentHeader({
   const summary = useHeaderSummary(selected, tab, selectedRelation);
   return (
     <div className={styles['content-header']}>
-      <div className={styles['content-path']}>
-        {selected && !statistics ? (
-          <>
-            <button onClick={onClear}>전체 오픈웹</button>
-            <span>›</span>
-            {platformName && (
-              <>
-                <button onClick={onSelectCategory}>{category?.name}</button>
-                <span>›</span>
-              </>
-            )}
-            <h1>{name}</h1>
-            <p>{summary}</p>
-          </>
-        ) : (
-          <>
-            <h1>
-              {statistics
-                ? '오픈웹 분석'
-                : scope === 'dark'
-                  ? '전체 다크웹'
-                  : scope === 'connected'
-                    ? '연결 생태계'
-                    : '전체 오픈웹'}
-            </h1>
-            <p>{scope === 'dark' ? '등록된 다크웹 데이터가 없습니다.' : summary}</p>
-          </>
-        )}
+      <div className={styles['content-heading']}>
+        <div className={styles['content-path']}>
+          {selected && !statistics ? (
+            <>
+              <button onClick={onClear}>전체 오픈웹</button>
+              <span>›</span>
+              {platformName && (
+                <>
+                  <button onClick={onSelectCategory}>{category?.name}</button>
+                  <span>›</span>
+                </>
+              )}
+              <h1>{name}</h1>
+            </>
+          ) : (
+            <>
+              <h1>
+                {statistics
+                  ? '오픈웹 분석'
+                  : scope === 'dark'
+                    ? '전체 다크웹'
+                    : scope === 'connected'
+                      ? '연결 생태계'
+                      : '전체 오픈웹'}
+              </h1>
+            </>
+          )}
+        </div>
+        <p className={styles['content-summary']}>
+          {scope === 'dark' ? '등록된 다크웹 데이터가 없습니다.' : summary}
+        </p>
       </div>
       <div className={styles['content-actions']}>
         {selected && !statistics && !detailOpen && (

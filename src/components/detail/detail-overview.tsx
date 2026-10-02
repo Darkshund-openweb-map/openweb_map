@@ -31,38 +31,23 @@ export function DetailOverview({
         <Metric label="전체 사건" value={`${eventCount}건`} caption="등록 사건 기준" />
         <Metric label="최근 관측일" value={latestDate?.slice(5) ?? '—'} caption="최근 등록" />
       </div>
-      <div className={styles['detail-section']}>
-        <div className={sharedStyles['block-heading']}>
-          {platform ? '영토 설명' : '생태계 역할'}
+      {(platform?.description || category.description) && (
+        <div className={styles['detail-section']}>
+          <div className={sharedStyles['block-heading']}>
+            {platform ? '영토 설명' : '생태계 역할'}
+          </div>
+          <p className={styles['body-copy']}>{platform?.description ?? category.description}</p>
         </div>
-        <p className={styles['body-copy']}>{platform?.description ?? category.description}</p>
-      </div>
+      )}
       <Bars caption={platform ? '노출 정보 유형' : '플랫폼 사건 비중'} items={bars} />
       <MiniChart
         title={platform ? '등록 추이 · 최근 4개월' : '사건 추이 · 최근 12개월'}
         points={trend}
       />
-      <div className={styles['detail-section']}>
-        <div className={sharedStyles['block-heading']}>
-          {platform ? '플랫폼 정보' : '포함 플랫폼'}
-        </div>
-        {platform ? (
-          <>
-            <div className={styles['info-row']}>
-              <span>도메인</span>
-              <strong>{platform.domain}</strong>
-            </div>
-            <div className={styles['info-row']}>
-              <span>플랫폼 유형</span>
-              <strong>{category.name}</strong>
-            </div>
-            <div className={styles['info-row']}>
-              <span>수집 상태</span>
-              <strong>등록 중</strong>
-            </div>
-          </>
-        ) : (
-          platforms.map((item) => (
+      {!platform && (
+        <div className={styles['detail-section']}>
+          <div className={sharedStyles['block-heading']}>포함 플랫폼</div>
+          {platforms.map((item) => (
             <button
               key={item.id}
               className={styles['platform-list-row']}
@@ -71,9 +56,9 @@ export function DetailOverview({
               <span>{item.name}</span>
               <span>→</span>
             </button>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </>
   );
 }

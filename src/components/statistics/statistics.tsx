@@ -47,7 +47,7 @@ export function Statistics({
         <div>
           <span>실제 연결</span>
           <strong>{verifiedCount}건</strong>
-          <small>샘플 관계 제외</small>
+          <small>검증 완료 관계 기준</small>
         </div>
       </div>
       <div className={styles['stats-table-heading']}>
@@ -60,11 +60,12 @@ export function Statistics({
           <span>#</span>
           <span>노출 유형</span>
           <span>활동도</span>
-          <span>30일</span>
+          <span>비중</span>
           <span>상태</span>
           <span>사건</span>
           <span>최근 관측</span>
         </div>
+        {!rows.length && <p className={styles['empty-state']}>등록된 노출 유형이 없습니다.</p>}
         {rows.map((row, index) => (
           <button
             key={row.name}
@@ -81,11 +82,11 @@ export function Statistics({
             }
           >
             <span>{index + 1}</span>
-            <strong>{row.name}</strong>
+            <strong title={row.name}>{row.name}</strong>
             <span className={styles['heat-bar']}>
-              <i style={{ width: `${Math.min(100, row.heat * 2)}%` }} />
+              <i style={{ width: `${Math.min(100, row.heat)}%` }} />
             </span>
-            <b>{row.heat}</b>
+            <b>{row.heat}%</b>
             <span
               className={[styles['state-label'], row.state === '활성' ? styles['live'] : '', '']
                 .filter(Boolean)
@@ -104,6 +105,7 @@ export function Statistics({
           <span>사건 선택 → 상세 · 실제 관계 데이터가 있을 때만 연결 표시</span>
         </div>
         <div>
+          {!events.length && <p className={styles['empty-state']}>등록된 사건이 없습니다.</p>}
           {events.slice(0, 3).map((event) => (
             <button key={event.id} onClick={() => onSelectPlatform(event.platform)}>
               <small>

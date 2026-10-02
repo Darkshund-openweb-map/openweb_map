@@ -2,11 +2,10 @@ export type CategoryId =
   | 'code'
   | 'text'
   | 'community'
-  | 'cloud'
   | 'files'
   | 'backend'
-  | 'release'
-  | 'other';
+  | 'marketplace'
+  | 'official';
 export type DetailTab = 'overview' | 'events' | 'connections';
 export type Selection =
   | { kind: 'category'; id: CategoryId }
@@ -16,6 +15,7 @@ export type RelationStatus = 'verified' | 'candidate' | 'excluded';
 
 export interface Category {
   id: CategoryId;
+  sourceId?: number;
   name: string;
   color: string;
   light: string;
@@ -44,7 +44,7 @@ export interface Relation {
   target: string;
   type: string;
   status: RelationStatus;
-  confidence: '높음' | '중간' | '낮음';
+  confidence: '높음' | '중간' | '낮음' | '미평가';
   evidence: number;
   firstSeen: string;
   lastSeen: string;
@@ -71,6 +71,7 @@ export interface ExposureRow {
 
 export type EcosystemSnapshot = {
   updatedAt: string;
+  readOnly?: boolean;
   categories: Category[];
   platforms: Platform[];
   relations: Relation[];

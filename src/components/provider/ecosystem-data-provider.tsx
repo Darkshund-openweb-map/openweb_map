@@ -24,14 +24,19 @@ export function EcosystemDataProvider({
       getCategory: (id) => snapshot.categories.find((item) => item.id === id)!,
       getPlatform: (id) => snapshot.platforms.find((item) => item.id === id),
       addPlatform: (platform) => {
+        if (snapshot.readOnly) throw new Error('현재 데이터는 조회 전용입니다.');
         const validated = validatePlatform(platform, snapshot);
         setSnapshot((current) => ({ ...current, platforms: [...current.platforms, validated] }));
       },
       updatePlatform: (platform) => {
+        if (snapshot.readOnly) throw new Error('현재 데이터는 조회 전용입니다.');
         const validated = validatePlatform(platform, snapshot);
         setSnapshot((current) => replacePlatformData(current, validated));
       },
-      deletePlatform: (id) => setSnapshot((current) => removePlatformData(current, id)),
+      deletePlatform: (id) => {
+        if (snapshot.readOnly) throw new Error('현재 데이터는 조회 전용입니다.');
+        setSnapshot((current) => removePlatformData(current, id));
+      },
     }),
     [snapshot],
   );

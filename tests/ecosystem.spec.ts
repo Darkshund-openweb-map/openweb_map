@@ -8,24 +8,60 @@ async function openMap(page: Page) {
   });
 }
 
+test('map shows the seven Korean island categories without Other', async ({ page }) => {
+  await openMap(page);
+  await expect(page.locator('[data-island-id]')).toHaveCount(7);
+  for (const name of [
+    '코드 호스팅',
+    '오픈마켓',
+    '텍스트 호스팅',
+    '백엔드 서비스',
+    '공식 웹사이트',
+    '파일 호스팅',
+    '커뮤니티',
+  ]) {
+    await expect(page.getByRole('button', { name: `${name} 섬 선택`, exact: true })).toBeVisible();
+  }
+  await expect(page.getByRole('button', { name: '기타 섬 선택', exact: true })).toHaveCount(0);
+});
+
+test('overview limits exposure types to the selected platform and empty statistics stay empty', async ({
+  page,
+}) => {
+  await openMap(page);
+  await page.getByRole('button', { name: 'Pastebin 영토 선택', exact: true }).click();
+  const details = page.getByRole('complementary', { name: 'Pastebin 상세 패널' });
+  const bars = details.locator('[class*="bars-block"]');
+  await expect(bars.locator('[class*="bar-row"]')).toHaveCount(1);
+  await expect(bars.getByText('이메일', { exact: true })).toBeVisible();
+  await expect(bars.getByText('계정정보', { exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: '통계', exact: true }).click();
+  await page
+    .locator('[class*="category-chips"]')
+    .getByRole('button', { name: /오픈마켓/ })
+    .click();
+  await expect(page.getByText('등록된 노출 유형이 없습니다.', { exact: true })).toBeVisible();
+  await expect(page.getByText('등록된 사건이 없습니다.', { exact: true })).toBeVisible();
+});
+
 test('hex faces remain clickable and stationary on hover; zoom, pan and reset work', async ({
   page,
 }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await openMap(page);
-  const island = page.getByRole('button', { name: '코드 저장소 섬 선택', exact: true });
+  const island = page.getByRole('button', { name: '코드 호스팅 섬 선택', exact: true });
   await expect(island.locator('[data-map-layer="sides"] polygon')).toHaveCount(0);
   // Click an actual top face, not a badge or a forced event.
   await island.locator('[data-map-layer="tops"] polygon').first().click();
-  await expect(page.getByRole('complementary', { name: '코드 저장소 상세 패널' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: '코드 호스팅 상세 패널' })).toBeVisible();
   await page.getByRole('button', { name: '상세 패널 접기' }).click();
   const detailButton = page.getByRole('button', { name: '상세 보기', exact: false });
   await expect(detailButton).toBeVisible();
   const detailButtonBox = (await detailButton.boundingBox())!;
   expect(detailButtonBox.width).toBeGreaterThan(detailButtonBox.height);
   await detailButton.click();
-  await expect(page.getByRole('complementary', { name: '코드 저장소 상세 패널' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: '코드 호스팅 상세 패널' })).toBeVisible();
   const top = island.locator('[data-map-layer="tops"] polygon').first();
   const before = await top.boundingBox();
   const scene = page.locator('[data-map-scene]');
@@ -78,7 +114,7 @@ test('code and text hex spacing matches community in flat and raised views', asy
   expect(community.column).toBeCloseTo(17.6);
   expect(community.row).toBeCloseTo(15.2);
   for (const [id, label] of [
-    ['code', '코드 저장소 섬 선택'],
+    ['code', '코드 호스팅 섬 선택'],
     ['text', '텍스트 호스팅 섬 선택'],
   ]) {
     const flat = await getSpacing(id);
@@ -99,7 +135,7 @@ test('selecting Pastebin does not raise the related code repository island', asy
   await page.getByRole('combobox').fill('Pastebin');
   await page.getByRole('option', { name: /Pastebin/ }).click();
 
-  const codeIsland = page.getByRole('button', { name: '코드 저장소 섬 선택', exact: true });
+  const codeIsland = page.getByRole('button', { name: '코드 호스팅 섬 선택', exact: true });
   const textIsland = page.getByRole('button', { name: '텍스트 호스팅 섬 선택', exact: true });
   expect(await codeIsland.evaluate((node) => node.parentElement?.getAttribute('opacity'))).toBe(
     '0.35',
@@ -114,7 +150,7 @@ test('platform territory is contiguous and only relevant events appear; date fil
 }) => {
   await openMap(page);
   await page.getByRole('button', { name: 'Github Gist 영토 선택', exact: true }).click();
-  const island = page.getByRole('button', { name: '코드 저장소 섬 선택', exact: true });
+  const island = page.getByRole('button', { name: '코드 호스팅 섬 선택', exact: true });
   const centers = await island
     .locator('[data-map-layer="tops"] polygon[fill="#447aff"]')
     .evaluateAll((nodes) =>
@@ -186,7 +222,7 @@ test('candidate relations remain unverified when selected, and search handles no
   expect(errors).toEqual([]);
 });
 
-test('community shows Xianyu and Taobao without inventing incidents', async ({ page }) => {
+test('open marketplace shows Xianyu and Taobao without inventing incidents', async ({ page }) => {
   await openMap(page);
   const xianyu = page.getByRole('button', { name: '시엔위 영토 선택', exact: true });
   const taobao = page.getByRole('button', { name: '타오바오 영토 선택', exact: true });
@@ -199,7 +235,7 @@ test('community shows Xianyu and Taobao without inventing incidents', async ({ p
   await xianyu.click();
   const details = page.getByRole('complementary', { name: '시엔위 상세 패널' });
   await expect(details).toBeVisible();
-  await expect(details.getByText('goofish.com')).toBeVisible();
+  await expect(details.getByText('오픈마켓 > 시엔위 · 사건 0건')).toBeVisible();
   await details.getByRole('tab', { name: '사건 0', exact: true }).click();
   await expect(details.getByText('이 기간에 등록된 사건이 없습니다.')).toBeVisible();
 
@@ -207,7 +243,6 @@ test('community shows Xianyu and Taobao without inventing incidents', async ({ p
   await page.getByRole('option', { name: /타오바오/ }).click();
   const taobaoDetails = page.getByRole('complementary', { name: '타오바오 상세 패널' });
   await expect(taobaoDetails).toBeVisible();
-  await expect(taobaoDetails.getByText('taobao.com')).toBeVisible();
   await expect(taobaoDetails.getByRole('tab', { name: '사건 0', exact: true })).toBeVisible();
 });
 
@@ -253,17 +288,15 @@ test('full viewport starts flat with boxed island titles and outlined platform l
   expect(await label.locator('text').evaluate((node) => getComputedStyle(node).paintOrder)).toBe(
     'stroke',
   );
-  const title = page.getByRole('button', { name: /클라우드 스토리지 \d+건/, exact: true });
+  const title = page.getByRole('button', { name: /파일 호스팅 \d+건/, exact: true });
   expect(await title.locator('rect').evaluate((node) => getComputedStyle(node).fill)).toBe(
     'rgb(255, 255, 255)',
   );
   expect((await title.locator('rect').boundingBox())!.width).toBeGreaterThan(
     (await title.locator('text').boundingBox())!.width,
   );
-  await page.getByRole('button', { name: /클라우드 스토리지 \d+건/, exact: true }).click();
-  await expect(
-    page.getByRole('complementary', { name: '클라우드 스토리지 상세 패널' }),
-  ).toBeVisible();
+  await page.getByRole('button', { name: /파일 호스팅 \d+건/, exact: true }).click();
+  await expect(page.getByRole('complementary', { name: '파일 호스팅 상세 패널' })).toBeVisible();
 });
 
 test('AWS S3 stays blue with gray surroundings and keeps depth through repeated clicks', async ({
@@ -271,7 +304,7 @@ test('AWS S3 stays blue with gray surroundings and keeps depth through repeated 
 }) => {
   await openMap(page);
   await page.getByRole('button', { name: 'AWS S3 영토 선택', exact: true }).click();
-  const island = page.getByRole('button', { name: '클라우드 스토리지 섬 선택', exact: true });
+  const island = page.getByRole('button', { name: '파일 호스팅 섬 선택', exact: true });
   const raised = island.locator('[data-elevation="7"]');
   const sides = island.locator('[data-map-layer="sides"] polygon');
   const initialCount = await raised.count();
@@ -345,7 +378,10 @@ test('platform actions validate, add, edit, move and delete local data', async (
   await dialog.getByRole('button', { name: '저장', exact: true }).click();
   const detail = page.getByRole('complementary', { name: '수정 플랫폼 상세 패널' });
   await expect(detail).toBeVisible();
-  await expect(detail.getByText('updated.example.com')).toBeVisible();
+  await page.getByRole('button', { name: '데이터 수정', exact: true }).click();
+  dialog = page.getByRole('dialog', { name: '플랫폼 수정', exact: true });
+  await expect(dialog.getByLabel('도메인', { exact: true })).toHaveValue('updated.example.com');
+  await dialog.getByRole('button', { name: '취소', exact: true }).click();
   await expect(
     page
       .locator('[data-island-id="community"]')
