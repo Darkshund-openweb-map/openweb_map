@@ -15,6 +15,7 @@ export function Bars({
         {caption}
         <span>전체 대비</span>
       </div>
+      {!items.length && <p className={styles['body-copy']}>등록된 데이터가 없습니다.</p>}
       {items.map((item, index) => (
         <div className={styles['bar-row']} key={item.name}>
           <div>

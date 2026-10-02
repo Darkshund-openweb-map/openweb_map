@@ -5,41 +5,35 @@
   background: #fff;
   border: 1px solid #dce5f1;
   border-radius: 9px;
-  padding: 19px 18px;
+  padding: 24px;
+  line-height: var(--leading-copy);
 }
 .stats-heading h2 {
-  font-size: 15px;
-  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 18px;
 }
 .category-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0;
+  gap: 8px;
+  max-width: 100%;
+}
+.category-chips button {
   border: 1px solid #dce4ef;
   border-radius: 7px;
   background: #f6f9fe;
-  width: max-content;
-  max-width: 100%;
-  overflow: hidden;
-}
-.category-chips button {
-  border: 0;
-  border-right: 1px solid #e2e8f1;
-  background: none;
-  font-size: 9px;
+  font-size: var(--text-caption);
   color: #66758a;
   display: flex;
-  gap: 5px;
+  gap: 8px;
   align-items: center;
-  padding: 6px 8px;
+  padding: 7px 11px;
 }
 .category-chips button.active,
 .category-chips button:hover {
   background: #e8f2ff;
   color: #176bfa;
-}
-.category-chips button:last-child {
-  border: 0;
 }
 .category-chips i {
   width: 6px;
@@ -52,34 +46,35 @@
 .stats-metrics {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin: 16px 0;
+  gap: 16px;
+  margin: 24px 0;
 }
 .stats-metrics > div {
   border: 1px solid #dce5ef;
   border-radius: 8px;
   background: #f9fbff;
-  padding: 12px 13px;
-  min-height: 80px;
+  padding: 18px;
+  min-height: 110px;
   display: flex;
   flex-direction: column;
+  gap: 5px;
 }
 .stats-metrics span {
-  font-size: 10px;
+  font-size: var(--text-caption);
   color: #6f7e92;
 }
 .stats-metrics strong {
-  font-size: 23px;
+  font-size: 28px;
   line-height: 1.4;
 }
 .stats-metrics small {
-  font-size: 9px;
+  font-size: 11px;
   color: #176bfa;
 }
 .stats-table-heading {
-  font-size: 11px;
+  font-size: var(--text-body);
   font-weight: 700;
-  margin: 15px 0 9px;
+  margin: 24px 0 12px;
 }
 .stats-table {
   border: 1px solid #dce5f1;
@@ -89,27 +84,40 @@
 .stats-table-row {
   width: 100%;
   display: grid;
-  grid-template-columns: 25px 1.6fr 1fr 35px 48px 45px 60px;
+  grid-template-columns: 28px minmax(0, 2fr) minmax(60px, 1fr) 48px 64px 48px 70px;
   align-items: center;
-  gap: 9px;
-  min-height: 31px;
+  gap: 14px;
+  min-height: 54px;
   border: 0;
   border-bottom: 1px solid #e8edf4;
   background: #fff;
   text-align: left;
-  padding: 0 10px;
-  font-size: 9px;
+  padding: 12px 16px;
+  font-size: var(--text-caption);
   color: #728199;
 }
 .stats-table-row:last-child {
   border-bottom: 0;
 }
+.empty-state {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 20px 10px;
+  font-size: 11px;
+  color: #728199;
+  text-align: center;
+}
 .stats-table-row strong {
   color: #202d41;
+  min-width: 0;
+  font-weight: 600;
+  line-height: var(--leading-copy);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 .stats-table-row.table-header {
   background: #f8faff;
-  font-size: 9px;
+  font-size: 11px;
   color: #7d8ba0;
 }
 .stats-table-row.highlighted,
@@ -130,7 +138,7 @@
 .state-label {
   width: max-content;
   background: #edf1f5;
-  padding: 2px 5px;
+  padding: 3px 7px;
   border-radius: 3px;
 }
 .state-label.live {
@@ -140,13 +148,13 @@
 .recent-activity {
   border: 1px solid #dce5f1;
   border-radius: 8px;
-  margin-top: 15px;
-  padding: 11px;
+  margin-top: 24px;
+  padding: 18px;
 }
 .recent-activity > div:nth-child(2) {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 9px;
+  gap: 16px;
 }
 .recent-activity button {
   border: 0;
@@ -154,10 +162,14 @@
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px 0;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 .recent-activity small {
-  font-size: 9px;
+  font-size: 11px;
   color: #8190a4;
 }
 .recent-activity em {
@@ -167,31 +179,59 @@
   font-style: normal;
 }
 .recent-activity strong {
-  font-size: 10px;
+  font-size: var(--text-body);
 }
 .recent-activity span {
-  font-size: 9px;
+  font-size: var(--text-caption);
   color: #8795a8;
 }
 
+@media (max-width: 1100px) {
+  .stats-table-row {
+    grid-template-columns: 24px minmax(0, 1fr) 44px 64px 48px;
+    gap: 10px;
+  }
+  .stats-table-row > :nth-child(3),
+  .stats-table-row > :nth-child(7) {
+    display: none;
+  }
+}
 @media (max-width: 750px) {
   .stats-table-row {
-    grid-template-columns: 18px 1.5fr 1fr 24px 36px;
-    gap: 4px;
+    grid-template-columns: minmax(0, 1fr) 34px 54px 36px;
+    gap: 8px;
+    padding: 12px 10px;
   }
-  .stats-table-row > span:nth-last-child(-n + 2) {
+  .stats-table-row > :first-child {
     display: none;
   }
   .statistics-surface {
-    padding: 10px;
+    padding: 14px;
   }
   .stats-metrics {
-    gap: 4px;
+    gap: 8px;
   }
   .stats-metrics > div {
-    padding: 8px;
+    padding: 12px 10px;
+    min-width: 0;
+    word-break: keep-all;
+  }
+  .stats-metrics strong {
+    font-size: 24px;
   }
   .category-chips button {
-    font-size: 8px;
+    font-size: 11px;
+    padding: 6px 9px;
+  }
+  .stats-heading h2 {
+    font-size: 16px;
+  }
+  .recent-activity > div:nth-child(2) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .recent-activity button + button {
+    border-top: 1px solid #e8edf4;
+    padding-top: 16px;
   }
 }

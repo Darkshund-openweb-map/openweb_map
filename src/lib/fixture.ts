@@ -1,94 +1,16 @@
-import type { Category, Platform, Relation, EcosystemEvent, ExposureRow } from './ecosystem-types';
+import type { Platform, Relation, EcosystemEvent, ExposureRow } from './ecosystem-types';
+import { createIslandCategories, type IslandRow } from './island-categories';
 
-export const categories: Category[] = [
-  {
-    id: 'code',
-    name: '코드 저장소',
-    color: '#447aff',
-    light: '#edf3ff',
-    count: 1,
-    badge: [245, 115],
-    center: [245, 212],
-    rows: [5, 7, 8, 9, 10, 9, 8, 7, 5],
-    description: '공개 코드와 스니펫에서 인증정보가 확인되는 영역입니다.',
-  },
-  {
-    id: 'text',
-    name: '텍스트 호스팅',
-    color: '#2cbfaf',
-    light: '#e7f8f7',
-    count: 3,
-    badge: [555, 99],
-    center: [555, 192],
-    rows: [3, 5, 7, 8, 8, 7, 6, 5, 3],
-    description: '텍스트 기반 자료가 공개되는 플랫폼 유형입니다.',
-  },
-  {
-    id: 'community',
-    name: '커뮤니티',
-    color: '#fa812d',
-    light: '#fff0e7',
-    count: 9,
-    badge: [584, 349],
-    center: [582, 425],
-    rows: [3, 5, 6, 6, 5, 4, 3],
-    description: '사용자 간 정보가 공유되는 공개 커뮤니티입니다.',
-  },
-  {
-    id: 'cloud',
-    name: '클라우드 스토리지',
-    color: '#4cc4f9',
-    light: '#eaf8ff',
-    count: 0,
-    badge: [247, 375],
-    center: [239, 445],
-    rows: [2, 3, 4, 5, 4, 4],
-    description: '파일과 객체를 공개 링크로 공유하는 공간입니다.',
-  },
-  {
-    id: 'files',
-    name: '파일 공유',
-    color: '#976cf7',
-    light: '#f3eeff',
-    count: 0,
-    badge: [419, 433],
-    center: [417, 497],
-    rows: [2, 3, 4, 3, 2],
-    description: '공개 파일 공유 서비스입니다.',
-  },
-  {
-    id: 'backend',
-    name: '백엔드 서비스',
-    color: '#38cb6e',
-    light: '#eaf9f0',
-    count: 0,
-    badge: [405, 282],
-    center: [404, 329],
-    rows: [2, 3, 2],
-    description: '백엔드 플랫폼과 API 서비스입니다.',
-  },
-  {
-    id: 'release',
-    name: '리서치 소스',
-    color: '#ecbb21',
-    light: '#fff8dd',
-    count: 0,
-    badge: [409, 75],
-    center: [408, 124],
-    rows: [2, 1],
-    description: '분석 및 조사에 사용하는 공개 출처입니다.',
-  },
-  {
-    id: 'other',
-    name: '기타',
-    color: '#d0d9e4',
-    light: '#f5f7fb',
-    count: 0,
-    badge: [138, 295],
-    center: [128, 337],
-    rows: [1, 2],
-    description: '그 외 공개 플랫폼입니다.',
-  },
+// 오프라인 테스트에서만 사용하는 island 응답 예시.
+export const fixtureIslandRows: IslandRow[] = [
+  { id: 1, name: 'Code Hosting' },
+  { id: 2, name: 'Open Marketplace' },
+  { id: 3, name: 'Text Hosting' },
+  { id: 4, name: 'Backend Service' },
+  { id: 5, name: 'Other' },
+  { id: 6, name: 'Official Website' },
+  { id: 7, name: 'File Hosting' },
+  { id: 8, name: 'Community' },
 ];
 
 export const platforms: Platform[] = [
@@ -145,7 +67,7 @@ export const platforms: Platform[] = [
   {
     id: 'mega',
     name: 'MEGA',
-    category: 'cloud',
+    category: 'files',
     x: 255,
     y: 458,
     domain: 'mega.nz',
@@ -154,7 +76,7 @@ export const platforms: Platform[] = [
   {
     id: 'aws-s3',
     name: 'AWS S3',
-    category: 'cloud',
+    category: 'files',
     x: 249,
     y: 468,
     domain: 'aws.amazon.com',
@@ -195,9 +117,9 @@ export const platforms: Platform[] = [
     id: 'xianyu',
     name: '시엔위',
     aliases: ['Xianyu', '闲鱼'],
-    category: 'community',
-    x: 547,
-    y: 400,
+    category: 'marketplace',
+    x: 377,
+    y: 124,
     domain: 'goofish.com',
     featured: true,
     description: '중고 물품을 거래하고 이용자가 정보를 나누는 공개 플랫폼입니다.',
@@ -206,9 +128,9 @@ export const platforms: Platform[] = [
     id: 'taobao',
     name: '타오바오',
     aliases: ['Taobao', '淘宝'],
-    category: 'community',
-    x: 607,
-    y: 399,
+    category: 'marketplace',
+    x: 440,
+    y: 139,
     domain: 'taobao.com',
     featured: true,
     description: '판매자와 이용자가 상품 정보를 공유하는 공개 쇼핑 플랫폼입니다.',
@@ -313,3 +235,11 @@ export const exposureRows: ExposureRow[] = [
   { name: '본인인증', heat: 6, count: 1, date: '08-31', state: '등록' },
   { name: '소스코드·IP', heat: 13, count: 2, date: '09-01', state: '등록' },
 ];
+
+export const categories = createIslandCategories(fixtureIslandRows).map((category) => ({
+  ...category,
+  count: events.filter(
+    (event) =>
+      platforms.find((platform) => platform.id === event.platform)?.category === category.id,
+  ).length,
+}));

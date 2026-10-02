@@ -13,6 +13,8 @@ npm run dev
 
 개발 서버 주소는 실행 시 터미널에 표시됩니다.
 
+실행 환경에는 `.env.example`의 `NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`가 필요합니다. 실제 키를 담은 `.env`는 Git 추적 대상에서 제외합니다.
+
 ## 화면 구성
 
 지도 기본 화면, 섬/영토의 개요·사건·연결 탭, 후보 관계와 검증 관계의 표시, 관계선 근거 카드, 통계 화면을 한 페이지에서 탐색할 수 있습니다. 섬 또는 영토를 누르면 해당 상세 패널이 열립니다. 지도에서 휠/트랙패드로 확대·축소하고 드래그로 이동할 수 있습니다. 검색은 `Ctrl+K` 또는 `⌘K`로 엽니다.
@@ -37,6 +39,10 @@ npm run dev
 - `src/lib/fixture.ts`: 로컬 테스트 fixture
 - `src/lib/fixture-source.ts`: 서버에서 fixture를 읽는 데이터 소스
 - `src/lib/ecosystem-source.ts`: 화면과 데이터 소스를 분리하는 인터페이스
+- `src/lib/supabase-ecosystem-source.ts`: 실제 Supabase 테이블 조회와 데이터 소스 구성
+- `src/lib/supabase/`: 환경 설정 검증, 페이지 단위 REST 조회, DB 응답 변환
+- `src/lib/island-categories.ts`: DB 섬 이름의 한국어 표시와 Other 제외
+- `src/lib/island-layouts.ts`, `src/lib/platform-layout.ts`: 데이터와 분리된 지도 배치 설정
 - `src/app/globals.css`: Tailwind CSS, 디자인 토큰, 전역 기본값
 - `tests/ecosystem.spec.ts`: 지도·검색·사건 필터·관계 상태·모바일 회귀 테스트
 
@@ -51,18 +57,24 @@ npm run dev
 - Prettier: 작은따옴표, 세미콜론, 100자 폭
 - ESLint: Next.js Core Web Vitals, TypeScript
 
-현재 데이터 소스는 로컬 fixture이며, 실제 Supabase에는 연결되지 않았습니다. 서버 페이지가 `EcosystemSource.load()`로 읽은 데이터를 화면에 전달합니다. 백엔드 연동 시 Supabase 응답을 `EcosystemSnapshot`으로 변환하는 데이터 소스를 구현하고 서버 페이지의 소스를 교체합니다. 테이블 구조와 인증 방식은 백엔드와 협의 후 확정합니다.
+기본 데이터 소스는 실제 Supabase입니다. 서버 페이지가 `EcosystemSource.load()`로 `island`, `platforms`, `incidents`, `incidents_data_types`, `platform_connections`를 조회하고, `EcosystemSnapshot`으로 변환해 지도·상세 패널·통계에 전달합니다. 페이지를 새로 불러올 때 DB를 조회하며, 실시간 구독 방식은 아닙니다. 조회 실패 시 오류 화면을 표시하고 fixture로 대체하지 않습니다.
 
-플랫폼 상세 패널 아래에서 이름·도메인·설명·유형을 추가하거나 수정하고, 플랫폼과 연결된 예시 사건·관계를 삭제할 수 있습니다. 변경은 현재 탭의 메모리에만 반영되며 새로고침하면 초기화됩니다. 서버 저장 및 권한 검증은 백엔드 연동 시 별도로 구현해야 합니다.
+섬 이름은 한국어로 표시하고 `Other`는 제외합니다. 플랫폼 이름과 섬 소속은 DB의 `name`, `island_id`를 사용합니다. 사건 수는 `incidents` 레코드로 집계하고 노출 유형은 `incidents_data_types.incident_id`로 연결합니다. 같은 사건에 중복 등록된 동일 노출 유형은 한 번만 집계합니다. 관계가 없으면 관계선을 만들지 않으며, 검증 정보가 없는 관계를 검증 완료로 처리하지 않습니다.
 
-fixture의 섬·노출 집계는 화면 검토용 예시이며 사건 목록은 일부 예시 레코드만 포함합니다. 조사 플랫폼 재구성과 미조사 섬 제거는 DB 연결 후 실제 목록을 기준으로 진행합니다. 지도 입체감은 SVG 상단면·측면·그림자로 표현하며, 별도 WebGL 3D 엔진을 사용하지 않습니다.
+현재 실제 DB 화면은 조회 전용이며 데이터 추가·수정·삭제 버튼은 비활성화되어 있습니다. 영구 저장에는 관리자 인증 및 쓰기 권한 연동이 필요합니다. 서비스 역할 키를 프론트엔드에 사용하지 않습니다.
+
+fixture는 `ECOSYSTEM_DATA_SOURCE=fixture`를 명시한 테스트 환경에서만 사용합니다. 이 모드의 플랫폼 편집은 메모리에만 반영되고 새로고침하면 초기화됩니다. 지도 입체감은 SVG 상단면·측면·그림자로 표현하며, 별도 WebGL 3D 엔진을 사용하지 않습니다.
 
 ## 배포 계획
 
 GitHub 저장소를 Vercel에 연결해 배포할 예정입니다. 배포 주소가 생성되면 이 문서에 추가합니다.
+
+Vercel에도 동일한 Supabase 환경 변수를 설정하며, 배포 환경에는 테스트용 `ECOSYSTEM_DATA_SOURCE=fixture`를 설정하지 않습니다.
 
 ## 검증
 
 검증 명령: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm run build`.
 
 브라우저 회귀 테스트는 `npx playwright install chromium`으로 브라우저를 설치하고, `npm run build` 후 `npm run test:e2e`로 실행합니다. 테스트 서버는 로컬 3100 포트를 사용합니다.
+
+회귀 테스트는 고정 fixture를 사용하며 실제 DB를 변경하지 않습니다. 별도로 DB 응답 매핑, 중복 노출 유형 집계, 빈 데이터, 조회 오류 및 페이지 단위 조회를 검증합니다.

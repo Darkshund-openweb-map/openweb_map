@@ -11,6 +11,9 @@
 }
 
 :root {
+  --text-body: 0.8125rem;
+  --text-caption: 0.75rem;
+  --leading-copy: 1.7;
   --ink: #172033;
   --muted: #78869c;
   --line: #dce4ef;
@@ -30,6 +33,7 @@ body {
   font-family: Arial, 'Noto Sans KR', 'Malgun Gothic', sans-serif;
   color: var(--ink);
   background: #fff;
+  line-height: 1.5;
 }
 
 button,

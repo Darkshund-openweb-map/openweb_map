@@ -58,7 +58,7 @@ export function MapLegend({ category, selected, tab, statistics, onSelectCategor
         <span>영토 배치는 유지 · 수치는 현재 DB 기준</span>
         <span>
           {statistics
-            ? '샘플 관계는 제외하고 실제 등록된 관계만 집계'
+            ? '실제 등록된 사건과 검증 완료 관계만 집계'
             : '사건 선택 시 발생 위치와 연결 경로 표시'}
         </span>
       </div>

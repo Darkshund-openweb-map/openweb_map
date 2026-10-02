@@ -19,10 +19,12 @@ export function useDetailData(selected: Selection) {
   const percent = (count: number) =>
     events.length ? Math.round((count / events.length) * 100) : 0;
   const bars = platform
-    ? data.exposureRows.map((row) => ({
-        name: row.name,
-        value: percent(events.filter((event) => event.exposures.includes(row.name)).length),
-      }))
+    ? [...new Set(events.flatMap((event) => event.exposures))]
+        .map((name) => ({
+          name,
+          value: percent(events.filter((event) => event.exposures.includes(name)).length),
+        }))
+        .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name, 'ko'))
     : platforms.map((item) => ({
         name: item.name,
         value: percent(events.filter((event) => event.platform === item.id).length),
