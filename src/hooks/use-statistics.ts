@@ -33,13 +33,7 @@ export function useStatistics() {
             ];
           })
           .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'ko'));
-  const selectCategory = (id: CategoryId) => setActive(active === id ? 'all' : id);
-  const platformCounts = new Map(
-    categories.map((category) => [
-      category.id,
-      platforms.filter((item) => item.category === category.id).length,
-    ]),
-  );
+  const selectCategory = (id: CategoryId | 'all') => setActive(id);
   const verifiedCount = relations.filter(
     (relation) =>
       relation.status === 'verified' && (ids.has(relation.source) || ids.has(relation.target)),
@@ -49,7 +43,6 @@ export function useStatistics() {
     active,
     rows,
     events: visibleEvents,
-    platformCounts,
     verifiedCount,
     selectCategory,
   };

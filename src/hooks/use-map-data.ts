@@ -5,15 +5,33 @@ import { useMemo } from 'react';
 import type { Selection } from '@/lib/ecosystem-types';
 import { useEcosystemData } from '@/hooks/use-ecosystem-data';
 import { getSizedCategoryTiles } from '@/lib/hex-layout';
+import { getIncidentMapData } from '@/lib/incident-map-data';
 import {
   assignTerritoryCells,
   BASE_ISLAND_TILES,
   getPlatformTileQuotas,
 } from '@/lib/island-territories';
 
-export function useMapData(selected: Selection, selectedRelation: string | null) {
-  const { categories, platforms, events, relations, getPlatform } = useEcosystemData();
-  const selectedPlatform = selected?.kind === 'platform' ? getPlatform(selected.id) : undefined;
+export function useMapData(requestedSelection: Selection, selectedRelation: string | null) {
+  const snapshot = useEcosystemData();
+  const { categories, platforms, events, relations } = useMemo(
+    () => getIncidentMapData(snapshot),
+    [snapshot],
+  );
+  // 숨겨진 섬의 선택 정보는 상위 화면에 보존하되 지도에서는 강조하지 않는다.
+  const selected: Selection =
+    requestedSelection?.kind === 'category'
+      ? categories.some((category) => category.id === requestedSelection.id)
+        ? requestedSelection
+        : null
+      : requestedSelection?.kind === 'platform' &&
+          platforms.some((platform) => platform.id === requestedSelection.id)
+        ? requestedSelection
+        : null;
+  const selectedPlatform =
+    selected?.kind === 'platform'
+      ? platforms.find((platform) => platform.id === selected.id)
+      : undefined;
   const activeCategory = selected?.kind === 'category' ? selected.id : selectedPlatform?.category;
   const relation = relations.find((item) => item.id === selectedRelation);
   const ids = new Set(
@@ -42,6 +60,7 @@ export function useMapData(selected: Selection, selectedRelation: string | null)
     [categories, platforms, events],
   );
   return {
+    selected,
     platforms,
     events,
     relations,

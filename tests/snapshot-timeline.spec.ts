@@ -105,17 +105,22 @@ test('dragging the timeline updates map counts and baseline restores all fixture
   const slider = timeline.getByRole('slider', { name: '지도 기준 시점' });
   await expect(timeline.getByLabel('선택한 분기')).toHaveText('2026 Q3');
   await expect(timeline).toContainText('누적 사건 4건');
+  await expect(page.locator('[data-island-id]')).toHaveCount(3);
   const bounds = (await slider.boundingBox())!;
   await page.mouse.move(bounds.x + bounds.width - 8, bounds.y + bounds.height / 2);
   await page.mouse.down();
   await page.mouse.move(bounds.x + bounds.width * 0.3, bounds.y + bounds.height / 2, { steps: 12 });
   await page.mouse.up();
   await expect(timeline).toContainText('누적 사건 0건');
-  await expect(page.getByRole('button', { name: '코드 호스팅 0건', exact: true })).toBeVisible();
+  await expect(page.locator('[data-island-id]')).toHaveCount(0);
+  await expect(page.locator('[data-relation-id]')).toHaveCount(0);
+  await expect(page.getByRole('status', { name: '사건 없는 지도' })).toBeVisible();
   await expect(slider).not.toHaveValue('20');
   await timeline.getByRole('button', { name: '기준일로' }).click();
   await expect(slider).toHaveValue('20');
   await expect(timeline).toContainText('2026-09-20까지 누적 사건 4건');
+  await expect(page.locator('[data-island-id]')).toHaveCount(3);
+  await expect(page.getByRole('status', { name: '사건 없는 지도' })).toHaveCount(0);
 });
 
 test('historical dates synchronize detail periods and statistics while preserving selection, depth and zoom', async ({
@@ -136,10 +141,15 @@ test('historical dates synchronize detail periods and statistics while preservin
   await expect(detail).toBeVisible();
   await expect(detail.getByText('이 기간에 등록된 사건이 없습니다.')).toBeVisible();
   await expect(detail.getByRole('button', { name: /변경/ })).toContainText('2021-09-30');
+  await expect(page.locator('[data-island-id]')).toHaveCount(0);
+  await expect(page.locator('[data-relation-id]')).toHaveCount(0);
+  await expect(page.getByLabel('확대 배율')).toHaveText('125%');
+  await slider.press('End');
   await expect(
     page.locator('[data-island-id="code"] [data-map-layer="sides"] polygon'),
   ).toHaveCount(raisedCount);
   await expect(page.getByLabel('확대 배율')).toHaveText('125%');
+  await slider.press('Home');
   await page.getByRole('button', { name: '통계', exact: true }).click();
   await expect(page.getByText('등록된 노출 유형이 없습니다.')).toBeVisible();
   await page.getByRole('button', { name: '기준일로' }).click();
@@ -194,8 +204,10 @@ test('timeline stays within narrow layouts with touch input and an open desktop 
   const bounds = (await slider.boundingBox())!;
   await page.touchscreen.tap(bounds.x + bounds.width * 0.3, bounds.y + bounds.height / 2);
   await expect(page.getByRole('region', { name: '지도 타임라인' })).toContainText('누적 사건 0건');
+  await expect(page.locator('[data-island-id]')).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await page.setViewportSize({ width: 980, height: 720 });
+  await page.getByRole('button', { name: '기준일로' }).click();
   await page.getByRole('button', { name: 'Github Gist 영토 선택', exact: true }).click();
   expect((await slider.boundingBox())!.width).toBeGreaterThan(200);
   const reset = (await page.getByRole('button', { name: '기준일로' }).boundingBox())!;

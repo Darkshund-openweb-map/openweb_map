@@ -5,6 +5,7 @@ import styles from '@/styles/statistics.module.css';
 import sharedStyles from '@/styles/shared.module.css';
 import { type CategoryId } from '@/lib/ecosystem-types';
 import { useStatistics } from '@/hooks/use-statistics';
+import { StatisticsCategoryFilter } from './statistics-category-filter';
 
 export function Statistics({
   onSelectCategory,
@@ -13,25 +14,16 @@ export function Statistics({
   onSelectCategory: (id: CategoryId) => void;
   onSelectPlatform: (id: string) => void;
 }) {
-  const { categories, events, rows, active, platformCounts, verifiedCount, selectCategory } =
-    useStatistics();
+  const { categories, events, rows, active, verifiedCount, selectCategory } = useStatistics();
   return (
     <div className={styles['statistics-surface']}>
       <div className={styles['stats-heading']}>
         <h2>오픈웹 노출 분포 분석</h2>
-        <div className={styles['category-chips']}>
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              className={active === category.id ? styles['active'] : ''}
-              aria-pressed={active === category.id}
-              onClick={() => selectCategory(category.id)}
-            >
-              <i style={{ background: category.color }} />
-              {category.name} <span>{platformCounts.get(category.id) ?? 0}</span>
-            </button>
-          ))}
-        </div>
+        <StatisticsCategoryFilter
+          categories={categories}
+          active={active}
+          onSelect={selectCategory}
+        />
       </div>
       <div className={styles['stats-metrics']}>
         <div>
