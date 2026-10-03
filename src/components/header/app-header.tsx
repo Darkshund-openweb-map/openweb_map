@@ -91,7 +91,6 @@ export function AppHeader({ scope, onScope, onHome, onSelectCategory, onSelectPl
             aria-controls="search-results"
             aria-autocomplete="list"
           />
-          <kbd>⌘K</kbd>
         </div>
         {open && (
           <div className={styles['search-results']} id="search-results" role="listbox">

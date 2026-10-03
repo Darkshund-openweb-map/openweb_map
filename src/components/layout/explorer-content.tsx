@@ -39,9 +39,7 @@ export function ExplorerContent() {
       />
       <div className={styles['app-body']}>
         <MapLegend
-          category={category}
-          selected={Boolean(state.selected)}
-          tab={state.tab}
+          category={statistics ? null : category}
           statistics={statistics}
           onSelectCategory={state.selectCategory}
         />

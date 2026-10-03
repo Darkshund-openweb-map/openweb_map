@@ -30,18 +30,24 @@
   align-items: center;
   padding: 7px 11px;
 }
-.category-chips button.active,
 .category-chips button:hover {
-  background: #e8f2ff;
-  color: #176bfa;
+  background: #f0f4f9;
+  color: #263c58;
+}
+.category-chips button.active {
+  border-color: #9abced;
+  background: #edf4fd;
+  color: #1d58b7;
+  font-weight: 600;
+}
+.category-chips button:focus-visible {
+  outline: 2px solid #176bfa;
+  outline-offset: 2px;
 }
 .category-chips i {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-}
-.category-chips span {
-  color: #8b9aab;
 }
 .stats-metrics {
   display: grid;

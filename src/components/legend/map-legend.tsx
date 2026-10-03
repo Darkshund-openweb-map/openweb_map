@@ -1,96 +1,78 @@
-// 섬 색상과 관계선 의미를 설명하고 카테고리 선택을 제공하는 지도 범례 컴포넌트
-import styles from '@/styles/explorer.module.css';
-import { type Category, type CategoryId, type DetailTab } from '@/lib/ecosystem-types';
+// 플랫폼 유형 탐색과 지도·통계 해석에 필요한 범례를 제공하는 사이드바
+import styles from '@/styles/map-legend.module.css';
+import { type Category, type CategoryId } from '@/lib/ecosystem-types';
 import { useEcosystemData } from '@/hooks/use-ecosystem-data';
 import { HexSwatch } from './hex-swatch';
 
 type Props = {
   category: Category | null;
-  selected: boolean;
-  tab: DetailTab;
   statistics: boolean;
   onSelectCategory: (id: CategoryId) => void;
 };
 
-export function MapLegend({ category, selected, tab, statistics, onSelectCategory }: Props) {
+export function MapLegend({ category, statistics, onSelectCategory }: Props) {
   const { categories } = useEcosystemData();
-  const showRelationDetails = !statistics && (!selected || tab === 'connections');
   return (
-    <aside className={styles['legend']}>
-      <h2>범례</h2>
-      <p className={styles['legend-subtitle']}>섬 색 = 영역 (유형)</p>
-      <div className={styles['legend-list']}>
+    <aside className={styles.sidebar} aria-label="플랫폼 탐색">
+      <h2 className={styles.heading}>지도 안내</h2>
+      <p className={styles.subtitle}>플랫폼 유형</p>
+      <nav className={styles.list} aria-label="플랫폼 유형">
         {categories.map((item) => (
           <button
             key={item.id}
-            className={category?.id === item.id ? styles['active'] : ''}
+            type="button"
+            className={category?.id === item.id ? styles.active : ''}
+            aria-pressed={category?.id === item.id}
             onClick={() => onSelectCategory(item.id)}
           >
             <HexSwatch color={item.color} />
-            {item.name}
+            <span>{item.name}</span>
           </button>
         ))}
-      </div>
-      <div className={styles['legend-section']}>
-        <p>
+      </nav>
+      <section className={styles.section} aria-label="연결 상태">
+        <h3>연결 상태</h3>
+        <div className={styles.connectionRow}>
+          <i aria-hidden="true" />
+          <span>검증 완료</span>
+        </div>
+        <div className={styles.connectionRow}>
+          <i className={styles.dashed} aria-hidden="true" />
+          <span>검증 전</span>
+        </div>
+      </section>
+      <section className={styles.section} aria-label="지도 구성">
+        <h3>지도 구성</h3>
+        <dl className={styles.definitions}>
+          <div>
+            <dt>섬</dt>
+            <dd>플랫폼 유형</dd>
+          </div>
+          <div>
+            <dt>영토</dt>
+            <dd>개별 플랫폼</dd>
+          </div>
+          <div>
+            <dt>기준일</dt>
+            <dd>사건 집계 시점</dd>
+          </div>
+        </dl>
+        <p className={styles.note}>
           {statistics
-            ? '연결선 · 실제 관계 데이터'
-            : selected
-              ? '연결선 · 신뢰도'
-              : '선 스타일 = 신뢰도'}
+            ? '선택한 날짜까지 집계하며, 실제 연결은 검증 완료 관계만 포함합니다.'
+            : '플랫폼을 누르면 관련 사건과 연결 관계를 볼 수 있습니다.'}
         </p>
-        <div>
-          <i className={styles['line-solid']} />
-          {statistics ? '직접 근거' : '높음'}
-        </div>
-        <div>
-          <i className={styles['line-dashed']} />
-          {statistics ? '복수 정황' : '중간'}
-        </div>
-        <div>
-          <i className={styles['line-dotted']} />
-          {statistics ? '참고 신호' : '낮음'}
-        </div>
-      </div>
-      <div className={[styles['legend-section'], styles['legend-reading']].join(' ')}>
-        <p>읽는 법</p>
-        <span>섬 = 플랫폼 유형 · 영토 = 공개 플랫폼</span>
-        <span>영토 배치는 유지 · 수치는 현재 DB 기준</span>
-        <span>
-          {statistics
-            ? '실제 등록된 사건과 검증 완료 관계만 집계'
-            : '사건 선택 시 발생 위치와 연결 경로 표시'}
-        </span>
-      </div>
-      {showRelationDetails && (
-        <>
-          <div className={[styles['legend-section'], styles['relation-legend']].join(' ')}>
-            <p>관계선 = 검증된 관계 레코드</p>
-            <div>
-              <i className={styles['dot']} style={{ background: '#f26420' }} />
-              재게시 <i className={styles['dot']} style={{ background: '#139e77' }} />
-              미러링
-            </div>
-            <div>
-              <i className={styles['dot']} style={{ background: '#176bfa' }} />
-              직접 링크 <i className={styles['dot']} style={{ background: '#8053e9' }} />
-              동일 파일
-            </div>
-            <div>
-              <i className={styles['dot']} style={{ background: '#f1a512' }} />
-              동일 콘텐츠
-            </div>
-          </div>
-          <div className={styles['legend-footer']}>
-            굵기 = 관계 레코드 수<br />
-            화살표 = 먼저 관측된 쪽 → 나중
-            <br />
-            검증 완료만 표시 · 후보/제외는 숨김
-            <br />
-            같은 플랫폼 안의 재게시 선이 아니라 영토 사건
-          </div>
-        </>
-      )}
+      </section>
+      <section className={styles.section} aria-label="관계 유형">
+        <h3>관계 유형</h3>
+        <ul className={styles.relationTypes}>
+          <li>재게시</li>
+          <li>미러링</li>
+          <li>직접 링크</li>
+          <li>동일 파일</li>
+          <li>동일 콘텐츠</li>
+        </ul>
+      </section>
     </aside>
   );
 }

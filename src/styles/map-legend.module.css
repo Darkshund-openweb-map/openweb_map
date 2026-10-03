@@ -1,0 +1,155 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 216px;
+  flex: none;
+  min-height: 0;
+  padding: 26px 14px 24px;
+  border-right: 1px solid #e2e8f1;
+  background: #fff;
+  overflow: auto;
+}
+
+.heading {
+  margin: 0 10px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #263042;
+}
+
+.subtitle {
+  margin: 0 10px 6px;
+  font-size: var(--text-caption);
+  color: #637084;
+}
+
+.list {
+  display: grid;
+  gap: 3px;
+}
+
+.list button {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  text-align: left;
+  font-size: var(--text-body);
+  line-height: 1.6;
+  color: #39475b;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.list button:hover {
+  background: #f6f7f9;
+}
+
+.list button.active {
+  background: #eef1f5;
+  color: #202d41;
+  font-weight: 600;
+}
+
+.list button:focus-visible {
+  outline: 2px solid #176bfa;
+  outline-offset: 2px;
+}
+
+.section {
+  margin: 24px 10px 0;
+  color: #637084;
+  font-size: var(--text-caption);
+  line-height: var(--leading-copy);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.list + .section {
+  padding-top: 20px;
+  border-top: 1px solid #e8ebf0;
+}
+
+.section h3 {
+  margin: 0 0 10px;
+  color: #637084;
+  font-size: var(--text-caption);
+  font-weight: 500;
+}
+
+.connectionRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 28px;
+  color: #637084;
+  font-size: var(--text-caption);
+}
+
+.connectionRow i {
+  width: 24px;
+  flex: none;
+  border-top: 2px solid #f05a16;
+}
+
+.connectionRow .dashed {
+  border-top-style: dashed;
+}
+
+.definitions {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.definitions > div {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.definitions dt {
+  color: #39475b;
+}
+
+.definitions dd {
+  margin: 0;
+}
+
+.note {
+  margin: 12px 0 0;
+}
+
+.relationTypes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (max-width: 1100px) {
+  .sidebar {
+    width: 180px;
+    padding: 22px 8px 20px;
+  }
+
+  .list button {
+    gap: 8px;
+    padding-inline: 8px;
+    font-size: var(--text-caption);
+  }
+}
+
+@media (max-width: 750px) {
+  .sidebar {
+    display: none;
+  }
+}

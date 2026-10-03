@@ -13,6 +13,19 @@
   display: block;
   touch-action: none;
 }
+.timeline-empty-state {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 60px 24px;
+  color: #637084;
+  font-size: var(--text-body);
+  line-height: var(--leading-copy);
+  text-align: center;
+  word-break: keep-all;
+  pointer-events: none;
+}
 .admin-button-edge {
   position: absolute;
   top: 12px;

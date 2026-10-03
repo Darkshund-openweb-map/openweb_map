@@ -8,6 +8,7 @@ import { type CategoryId, type DetailTab, type Selection } from '@/lib/ecosystem
 import { IslandGroup } from './island-group';
 import { MapBottomControls } from './map-bottom-controls';
 import { MapEmptyState } from './map-empty-state';
+import { MapTimelineEmptyState } from './map-timeline-empty-state';
 import { RelationToggle } from './relation-toggle';
 import { RelationEvidence } from './relation-evidence';
 import { RelationLayer } from './relation-layer';
@@ -29,7 +30,7 @@ type Props = {
 };
 
 export function EcosystemMap({
-  selected,
+  selected: requestedSelection,
   tab,
   showAllRelations,
   selectedRelation,
@@ -40,6 +41,7 @@ export function EcosystemMap({
   onShowAllRelations,
 }: Props) {
   const {
+    selected,
     platforms,
     events,
     relations,
@@ -50,7 +52,7 @@ export function EcosystemMap({
     verifiedCount,
     selectedVerifiedCount,
     candidateCount,
-  } = useMapData(selected, selectedRelation);
+  } = useMapData(requestedSelection, selectedRelation);
   const { svgRef, transform, zoomBy, resetView } = useMapZoom();
   const [adminDialogOpen, setAdminDialogOpen] = useState(false);
   const [hoveredPlatformId, setHoveredPlatformId] = useState<string | null>(null);
@@ -211,6 +213,7 @@ export function EcosystemMap({
             );
           })}
           <RelationLayer
+            relations={relations}
             selected={selected}
             activePlatformIds={activePlatformIds}
             platformAnchors={platformAnchors}
@@ -256,7 +259,9 @@ export function EcosystemMap({
           )}
         </g>
       </svg>
-      {selected &&
+      {!tileGroups.length && <MapTimelineEmptyState />}
+      {tileGroups.length > 0 &&
+        selected &&
         tab === 'connections' &&
         !selectedVerifiedCount &&
         !relation &&
@@ -269,8 +274,9 @@ export function EcosystemMap({
           />
         )}
       <MapBottomControls
+        empty={!tileGroups.length}
         selected={selected}
-        selectedRelation={selectedRelation}
+        selectedRelation={relation?.id ?? null}
         zoom={transform.k}
         onZoom={zoomBy}
         onReset={reset}

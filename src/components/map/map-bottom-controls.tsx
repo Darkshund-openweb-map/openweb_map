@@ -5,12 +5,14 @@ import type { Selection } from '@/lib/ecosystem-types';
 export function MapBottomControls({
   selected,
   selectedRelation,
+  empty = false,
   zoom,
   onZoom,
   onReset,
 }: {
   selected: Selection;
   selectedRelation: string | null;
+  empty?: boolean;
   zoom: number;
   onZoom: (factor: number) => void;
   onReset: () => void;
@@ -18,12 +20,14 @@ export function MapBottomControls({
   return (
     <div className={styles['map-bottom-bar']}>
       <span>
-        <i className={styles['hint-dot']} />
-        {selectedRelation
-          ? '선택한 관계선 강조 · 근거(Evidence) 팝업 표시'
-          : selected
-            ? '플랫폼을 선택해 사건과 외부 연결을 확인하세요'
-            : '섬을 선택해 플랫폼 유형을 탐색하세요'}
+        {!empty && <i className={styles['hint-dot']} />}
+        {empty
+          ? null
+          : selectedRelation
+            ? '선택한 관계선 강조 · 근거(Evidence) 팝업 표시'
+            : selected
+              ? '플랫폼을 선택해 사건과 외부 연결을 확인하세요'
+              : '섬을 선택해 플랫폼 유형을 탐색하세요'}
       </span>
       <div className={styles['map-actions']}>
         <div className={styles['zoom-buttons']}>
