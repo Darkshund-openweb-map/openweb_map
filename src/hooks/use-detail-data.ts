@@ -30,7 +30,7 @@ export function useDetailData(selected: Selection) {
         value: percent(events.filter((event) => event.platform === item.id).length),
       }));
   const months = platform ? 4 : 12;
-  const reference = new Date(`${data.updatedAt}T00:00:00Z`);
+  const reference = new Date(`${data.timeline.current.date}T00:00:00Z`);
   const trend = Array.from({ length: months }, (_, index) => {
     const month = new Date(
       Date.UTC(reference.getUTCFullYear(), reference.getUTCMonth() - months + index + 1, 1),
@@ -48,7 +48,7 @@ export function useDetailData(selected: Selection) {
     latestEvent,
     bars,
     trend,
-    referenceDate: data.updatedAt,
+    referenceDate: data.timeline.current.date,
     title: platform?.name ?? category?.name ?? '',
     eventCount: platform ? events.length : (category?.count ?? 0),
     verifiedCount: relations.filter((item) => item.status === 'verified').length,

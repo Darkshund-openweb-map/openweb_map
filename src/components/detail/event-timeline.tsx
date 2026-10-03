@@ -4,6 +4,7 @@
 import styles from '@/styles/detail-panel.module.css';
 import type { EcosystemEvent } from '@/lib/ecosystem-types';
 import { EVENT_PERIODS, useEventTimeline } from '@/hooks/use-event-timeline';
+import { EventList } from './event-list';
 
 export function EventTimeline({
   title,
@@ -69,37 +70,12 @@ export function EventTimeline({
           </div>
         )}
       </div>
-      <div className={styles['timeline']}>
-        {[...state.groups].map(([month, entries]) => (
-          <div key={month}>
-            <div className={styles['timeline-month']}>{month}</div>
-            {entries.map((event) => (
-              <button
-                key={event.id}
-                className={[
-                  styles['timeline-item'],
-                  state.selectedId === event.id ? styles['active'] : '',
-                  '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-                aria-pressed={state.selectedId === event.id}
-                onClick={() => state.setSelectedId(event.id)}
-              >
-                <span className={styles['timeline-dot']} />
-                <small>
-                  {event.date.slice(5)} <em>{event.type}</em>
-                </small>
-                <strong>{event.title}</strong>
-                <span>{event.meta}</span>
-              </button>
-            ))}
-          </div>
-        ))}
-        {!state.visibleCount && (
-          <div className={styles['empty-inline']}>이 기간에 등록된 사건이 없습니다.</div>
-        )}
-      </div>
+      <EventList
+        key={`${referenceDate}:${state.range.start}:${state.range.end}`}
+        groups={state.groups}
+        selectedId={state.selectedId}
+        onSelect={state.setSelectedId}
+      />
     </>
   );
 }

@@ -7,7 +7,7 @@ import type { Scope, View } from '@/types/explorer';
 import { useEcosystemData } from '@/hooks/use-ecosystem-data';
 
 export function useExplorerState() {
-  const { relations } = useEcosystemData();
+  const { relations, timeline } = useEcosystemData();
   const [scope, setScope] = useState<Scope>('open');
   const [view, setView] = useState<View>('map');
   const [selected, setSelected] = useState<Selection>(null);
@@ -62,6 +62,7 @@ export function useExplorerState() {
   };
 
   const changeScope = (nextScope: Scope) => {
+    if (nextScope === 'dark') timeline.pause();
     setScope(nextScope);
     setView('map');
     setSelected(null);
@@ -78,7 +79,9 @@ export function useExplorerState() {
     tab,
     detailOpen,
     showAllRelations,
-    selectedRelation,
+    selectedRelation: relations.some((relation) => relation.id === selectedRelation)
+      ? selectedRelation
+      : null,
     setView,
     setDetailOpen,
     setShowAllRelations,

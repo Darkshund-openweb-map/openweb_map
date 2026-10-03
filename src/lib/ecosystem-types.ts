@@ -48,7 +48,15 @@ export interface Relation {
   evidence: number;
   firstSeen: string;
   lastSeen: string;
+  recordedAt?: string;
   note: string;
+}
+
+export interface IncidentDataType {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
 }
 
 export interface EcosystemEvent {
@@ -59,6 +67,7 @@ export interface EcosystemEvent {
   meta: string;
   platform: string;
   exposures: string[];
+  dataTypes: IncidentDataType[];
 }
 
 export interface ExposureRow {

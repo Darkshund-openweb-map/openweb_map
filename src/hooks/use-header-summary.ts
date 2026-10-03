@@ -9,7 +9,8 @@ export function useHeaderSummary(
   tab: DetailTab,
   selectedRelation: string | null,
 ) {
-  const { categories, platforms, relations, events, getPlatform } = useEcosystemData();
+  const { categories, platforms, relations, events, getPlatform, timeline } = useEcosystemData();
+  const snapshotLabel = timeline.isLatest ? '' : ` · ${timeline.current.label} 기준`;
   const relation = relations.find((item) => item.id === selectedRelation);
   if (relation)
     return `관계선 선택됨 · 근거 ${relation.evidence}건 · ${relation.status === 'verified' ? '검증 완료' : '검증 대기'}`;
@@ -23,5 +24,5 @@ export function useHeaderSummary(
   );
   if (selected && tab === 'connections')
     return `검증 완료 ${relevant.filter((item) => item.status === 'verified').length}건 · 후보 ${relevant.filter((item) => item.status === 'candidate').length}건 · 제외 ${relevant.filter((item) => item.status === 'excluded').length}건`;
-  return `플랫폼 유형 ${categories.length}개 · 공개 플랫폼 ${platforms.length}곳 · 조회 가능 사건 ${events.length}건`;
+  return `플랫폼 유형 ${categories.length}개 · 공개 플랫폼 ${platforms.length}곳 · 조회 가능 사건 ${events.length}건${snapshotLabel}`;
 }

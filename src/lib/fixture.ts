@@ -197,6 +197,20 @@ export const events: EcosystemEvent[] = [
     meta: 'Github Gist · 소스코드',
     platform: 'github-gist',
     exposures: ['소스코드·IP', 'API 키', '비밀키'],
+    dataTypes: [
+      {
+        id: 'fixture-data-type-1',
+        name: 'API 키',
+        category: '인증정보',
+        description: '테스트용 사건 설명입니다.\n원문에 있는 줄바꿈을 그대로 표시합니다.',
+      },
+      {
+        id: 'fixture-data-type-2',
+        name: 'API 키',
+        category: '인증정보',
+        description: '같은 사건에 별도로 등록된 두 번째 테스트 설명입니다.',
+      },
+    ],
   },
   {
     id: 'telegram-jb-auto',
@@ -206,6 +220,14 @@ export const events: EcosystemEvent[] = [
     meta: 'Telegram · 계정정보',
     platform: 'telegram',
     exposures: ['계정정보'],
+    dataTypes: [
+      {
+        id: 'fixture-data-type-3',
+        name: '계정정보',
+        category: '개인정보',
+        description: '첫 번째 Telegram 사건의 테스트 설명입니다.',
+      },
+    ],
   },
   {
     id: 'telegram-nexon',
@@ -215,6 +237,14 @@ export const events: EcosystemEvent[] = [
     meta: '타다바야 · 계정정보',
     platform: 'telegram',
     exposures: ['계정정보'],
+    dataTypes: [
+      {
+        id: 'fixture-data-type-4',
+        name: '계정정보',
+        category: '개인정보',
+        description: '두 번째 Telegram 사건의 테스트 설명입니다.',
+      },
+    ],
   },
   {
     id: 'pastebin-namyangju',
@@ -224,6 +254,7 @@ export const events: EcosystemEvent[] = [
     meta: 'Pastebin · 이메일',
     platform: 'pastebin',
     exposures: ['이메일'],
+    dataTypes: [],
   },
 ];
 

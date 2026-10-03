@@ -13,6 +13,7 @@ import { DetailPanelToggle } from '@/components/button/detail-panel-toggle';
 import { EmptyScope } from './empty-scope';
 import { ExplorerShell } from './explorer-shell';
 import { MapLegend } from '@/components/legend/map-legend';
+import { SnapshotTimeline } from '@/components/timeline/snapshot-timeline';
 
 export function ExplorerContent() {
   const state = useExplorerState();
@@ -83,6 +84,7 @@ export function ExplorerContent() {
               onShowAllRelations={() => state.setShowAllRelations((value) => !value)}
             />
           )}
+          {state.scope !== 'dark' && <SnapshotTimeline />}
         </section>
         {!statistics && state.selected && state.detailOpen && (
           <>
