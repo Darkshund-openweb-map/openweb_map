@@ -12,6 +12,7 @@ import type {
 } from '@/lib/incident-editor-types';
 import { useAdmin } from '@/hooks/use-admin';
 import { Button } from '@/components/button/button';
+import { ExposureCategorySelect } from './exposure-category-select';
 import styles from '@/styles/platform-editor.module.css';
 
 export type IncidentMode = 'add' | 'edit' | 'delete';
@@ -309,7 +310,10 @@ export function IncidentDialog({
 
           {step === 'types' && (
             <div className={styles['repeat-section']}>
-              <p>사건에 연결할 노출 유형을 입력해 주세요. 없으면 다음으로 진행하세요.</p>
+              <p>
+                노출 정보 유형은 플랫폼 개요와 통계에 표시됩니다. 기업·제품명은 상세 이름에
+                입력하세요. 연결할 유형이 없으면 다음으로 진행하세요.
+              </p>
               {dataTypes.map((row, index) => (
                 <div key={row.id ?? `new-${index}`} className={styles['repeat-card']}>
                   <div className={styles['repeat-heading']}>
@@ -323,7 +327,7 @@ export function IncidentDialog({
                   </div>
                   <div className={styles.fields}>
                     <label>
-                      이름
+                      상세 이름
                       <input
                         required
                         maxLength={200}
@@ -337,20 +341,14 @@ export function IncidentDialog({
                         }
                       />
                     </label>
-                    <label>
-                      분류
-                      <input
-                        maxLength={200}
-                        value={row.category}
-                        onChange={(event) =>
-                          setDataTypes(
-                            dataTypes.map((item, i) =>
-                              i === index ? { ...item, category: event.target.value } : item,
-                            ),
-                          )
-                        }
-                      />
-                    </label>
+                    <ExposureCategorySelect
+                      value={row.category}
+                      onChange={(category) =>
+                        setDataTypes(
+                          dataTypes.map((item, i) => (i === index ? { ...item, category } : item)),
+                        )
+                      }
+                    />
                     <label>
                       설명
                       <textarea

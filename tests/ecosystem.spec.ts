@@ -33,8 +33,8 @@ test('overview limits exposure types to the selected platform and empty statisti
   const details = page.getByRole('complementary', { name: 'Pastebin 상세 패널' });
   const bars = details.locator('[class*="bars-block"]');
   await expect(bars.locator('[class*="bar-row"]')).toHaveCount(1);
-  await expect(bars.getByText('이메일', { exact: true })).toBeVisible();
-  await expect(bars.getByText('계정정보', { exact: true })).toHaveCount(0);
+  await expect(bars.getByText('이메일 노출', { exact: true })).toBeVisible();
+  await expect(bars.getByText('계정 판매', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: '통계', exact: true }).click();
   await page
     .locator('[class*="category-chips"]')
@@ -42,6 +42,36 @@ test('overview limits exposure types to the selected platform and empty statisti
     .click();
   await expect(page.getByText('등록된 노출 유형이 없습니다.', { exact: true })).toBeVisible();
   await expect(page.getByText('등록된 사건이 없습니다.', { exact: true })).toBeVisible();
+});
+
+test('exposure bars and statistics show categories while the incident popup preserves source names', async ({
+  page,
+}) => {
+  await openMap(page);
+  await page.getByRole('button', { name: 'Github Gist 영토 선택', exact: true }).click();
+  const details = page.getByRole('complementary', { name: 'Github Gist 상세 패널' });
+  const bars = details.locator('[class*="bars-block"]');
+  await expect(bars.locator('[class*="bar-row"]')).toHaveCount(1);
+  await expect(bars.getByText('API 키 노출', { exact: true })).toBeVisible();
+  await expect(bars.getByText('100%', { exact: true })).toBeVisible();
+  await expect(bars).not.toContainText('Google');
+  await expect(bars).not.toContainText('OpenAI');
+  await page.getByRole('tab', { name: /^사건/ }).click();
+  await details.getByRole('button', { name: /쿠팡 API 관련 코드 게시/ }).click();
+  const popup = page.getByRole('dialog', { name: '쿠팡 API 관련 코드 게시' });
+  await expect(popup.getByRole('heading', { name: 'Google API key 노출' })).toBeVisible();
+  await expect(popup.getByRole('heading', { name: 'OpenAI API key 노출' })).toBeVisible();
+  await popup.getByRole('button', { name: '사건 설명 닫기' }).click();
+  await page.getByRole('button', { name: '통계', exact: true }).click();
+  const table = page
+    .locator('[class*="stats-table"]')
+    .filter({ has: page.getByRole('button', { name: /API 키 노출/ }) })
+    .last();
+  const row = table.getByRole('button', { name: /API 키 노출/ });
+  await expect(row).toHaveCount(1);
+  await expect(row).toContainText('1건');
+  await expect(table).not.toContainText('Google API');
+  await expect(table).not.toContainText('OpenAI API');
 });
 
 test('hex faces remain clickable and stationary on hover; zoom, pan and reset work', async ({
@@ -78,9 +108,17 @@ test('hex faces remain clickable and stationary on hover; zoom, pan and reset wo
   const svg = page.locator('svg[aria-label^="오픈웹 생태계"]');
   const box = (await svg.boundingBox())!;
   const transform = await scene.getAttribute('transform');
-  await page.mouse.move(box.x + 30, box.y + 30);
+  // 좌상단의 관리자 버튼 hover 영역을 피하고 실제 SVG 빈 공간을 드래그한다.
+  const dragStart = { x: box.x + 30, y: box.y + 100 };
+  expect(
+    await svg.evaluate(
+      (node, point) => document.elementFromPoint(point.x, point.y) === node,
+      dragStart,
+    ),
+  ).toBe(true);
+  await page.mouse.move(dragStart.x, dragStart.y);
   await page.mouse.down();
-  await page.mouse.move(box.x + 80, box.y + 65, { steps: 8 });
+  await page.mouse.move(box.x + 80, box.y + 135, { steps: 8 });
   await page.mouse.up();
   expect(await scene.getAttribute('transform')).not.toBe(transform);
   await page.getByRole('button', { name: '전체 보기' }).click();
@@ -350,6 +388,8 @@ test('AWS S3 stays blue with gray surroundings and keeps depth through repeated 
 test('fixture platforms do not expose database incident writes', async ({ page }) => {
   await openMap(page);
   const adminButton = page.getByRole('button', { name: '관리자 로그인' });
+  // 관리자 버튼은 지도 왼쪽 가장자리에 마우스를 올리면 나타난다.
+  await page.locator('[class*="admin-button-edge"]').hover();
   await expect(adminButton).toBeVisible();
   await adminButton.click();
   await expect(page.getByRole('dialog', { name: '관리자 로그인' })).toBeVisible();

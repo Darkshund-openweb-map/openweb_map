@@ -68,10 +68,10 @@ test('only DB platforms and incidents appear with actual names and numeric ID as
   expect(snapshot.updatedAt).toBe('2026-10-02');
 });
 
-test('exposure counts deduplicate incident type rows and exclude hidden islands', () => {
+test('exposure counts group by category, deduplicate per incident and exclude hidden islands', () => {
   const snapshot = createDatabaseSnapshot(rows);
   expect(snapshot.exposureRows).toEqual([
-    { name: '이메일', count: 2, heat: 100, date: '10-02', state: '검토중' },
+    { name: '개인정보', count: 2, heat: 100, date: '10-02', state: '검토중' },
   ]);
   expect(snapshot.events.every((event) => event.exposures.length === 1)).toBe(true);
 });
@@ -177,13 +177,77 @@ test('incident descriptions join by ID, preserve separate rows and original text
       description: '같은 유형의 별도 설명',
     },
   ]);
-  expect(first.exposures).toEqual(['이메일']);
+  expect(first.exposures).toEqual(['개인정보']);
   expect(second.dataTypes.map((item) => item.description)).toEqual(['다른 사건의 설명']);
   expect(
     snapshot.events
       .flatMap((event) => event.dataTypes)
       .some((item) => item.id === 'incident-data-type-4'),
   ).toBe(false);
+});
+
+test('company-specific names share a category without losing the original incident details', () => {
+  const snapshot = createDatabaseSnapshot({
+    ...rows,
+    dataTypes: [
+      { id: 1, incident_id: 1, name: 'Google API key 노출', category: 'API 키 노출' },
+      { id: 2, incident_id: 1, name: 'OpenAI API key 노출', category: ' API 키 노출 ' },
+      { id: 3, incident_id: 2, name: 'Stripe API key 노출', category: 'API 키 노출' },
+      { id: 4, incident_id: 1, name: 'GitHub PAT', category: '토큰 노출' },
+      { id: 5, incident_id: 1, name: 'Supabase service_role', category: 'DB 접근 권한 노출' },
+      { id: 6, incident_id: 3, name: '숨긴 플랫폼 키', category: 'API 키 노출' },
+    ],
+  });
+  const first = snapshot.events.find((event) => event.id === 'incident-1')!;
+  expect(first.exposures).toEqual(['API 키 노출', '토큰 노출', 'DB 접근 권한 노출']);
+  expect(first.dataTypes.map((item) => item.name)).toEqual([
+    'Google API key 노출',
+    'OpenAI API key 노출',
+    'GitHub PAT',
+    'Supabase service_role',
+  ]);
+  expect(first.meta).toBe('X · API 키 노출 · 토큰 노출 · DB 접근 권한 노출');
+  expect(snapshot.exposureRows).toContainEqual({
+    name: 'API 키 노출',
+    count: 2,
+    heat: 100,
+    date: '10-02',
+    state: '검토중',
+  });
+  expect(snapshot.exposureRows.find((row) => row.name === '토큰 노출')?.count).toBe(1);
+  expect(
+    snapshot.exposureRows.some((row) => /Google|OpenAI|Stripe|GitHub|Supabase/.test(row.name)),
+  ).toBe(false);
+});
+
+test('missing categories use an explicit unclassified group, never the company name', () => {
+  const snapshot = createDatabaseSnapshot({
+    ...rows,
+    dataTypes: [
+      { id: 1, incident_id: 1, name: '기업 A API 키', category: null },
+      { id: 2, incident_id: 1, name: '기업 B API 키', category: '   ' },
+      { id: 3, incident_id: 2, name: '기업 C API 키' },
+      { id: 4, incident_id: 2, name: '기업 D API 키', category: 123 },
+    ],
+  });
+  expect(snapshot.events.every((event) => event.exposures.join() === '미분류')).toBe(true);
+  expect(snapshot.exposureRows).toEqual([
+    { name: '미분류', count: 2, heat: 100, date: '10-02', state: '검토중' },
+  ]);
+});
+
+test('edited or newly registered database categories are used directly without name heuristics', () => {
+  const snapshot = createDatabaseSnapshot({
+    ...rows,
+    dataTypes: [
+      { id: 1, incident_id: 1, name: 'Google API key 노출', category: '새로 검토한 유형' },
+      { id: 2, incident_id: 1, name: '판매글에 포함된 연락처', category: '전화번호 노출' },
+    ],
+  });
+  expect(snapshot.events.find((event) => event.id === 'incident-1')?.exposures).toEqual([
+    '새로 검토한 유형',
+    '전화번호 노출',
+  ]);
 });
 
 test('missing descriptions and unlinked incidents stay empty without generated fallback text', () => {

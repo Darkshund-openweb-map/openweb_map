@@ -1,5 +1,6 @@
-import type { Platform, Relation, EcosystemEvent, ExposureRow } from './ecosystem-types';
+import type { Platform, Relation, EcosystemEvent } from './ecosystem-types';
 import { createIslandCategories, type IslandRow } from './island-categories';
+import { aggregateExposures } from './event-aggregates';
 
 // 오프라인 테스트에서만 사용하는 island 응답 예시.
 export const fixtureIslandRows: IslandRow[] = [
@@ -194,20 +195,20 @@ export const events: EcosystemEvent[] = [
     date: '2026-08-31',
     type: '등록',
     title: '쿠팡 API 관련 코드 게시',
-    meta: 'Github Gist · 소스코드',
+    meta: 'Github Gist · API 키 노출',
     platform: 'github-gist',
-    exposures: ['소스코드·IP', 'API 키', '비밀키'],
+    exposures: ['API 키 노출'],
     dataTypes: [
       {
         id: 'fixture-data-type-1',
-        name: 'API 키',
-        category: '인증정보',
+        name: 'Google API key 노출',
+        category: 'API 키 노출',
         description: '테스트용 사건 설명입니다.\n원문에 있는 줄바꿈을 그대로 표시합니다.',
       },
       {
         id: 'fixture-data-type-2',
-        name: 'API 키',
-        category: '인증정보',
+        name: 'OpenAI API key 노출',
+        category: 'API 키 노출',
         description: '같은 사건에 별도로 등록된 두 번째 테스트 설명입니다.',
       },
     ],
@@ -217,14 +218,14 @@ export const events: EcosystemEvent[] = [
     date: '2026-09-06',
     type: '등록',
     title: 'JB오토리스할부 DB 유출',
-    meta: 'Telegram · 계정정보',
+    meta: 'Telegram · 파일·덤프 노출',
     platform: 'telegram',
-    exposures: ['계정정보'],
+    exposures: ['파일·덤프 노출'],
     dataTypes: [
       {
         id: 'fixture-data-type-3',
-        name: '계정정보',
-        category: '개인정보',
+        name: '테스트 DB 덤프',
+        category: '파일·덤프 노출',
         description: '첫 번째 Telegram 사건의 테스트 설명입니다.',
       },
     ],
@@ -234,14 +235,14 @@ export const events: EcosystemEvent[] = [
     date: '2026-09-03',
     type: '등록',
     title: '한국 nexon 계정 판매',
-    meta: '타다바야 · 계정정보',
+    meta: 'Telegram · 계정 판매',
     platform: 'telegram',
-    exposures: ['계정정보'],
+    exposures: ['계정 판매'],
     dataTypes: [
       {
         id: 'fixture-data-type-4',
-        name: '계정정보',
-        category: '개인정보',
+        name: '한국 nexon 계정 판매',
+        category: '계정 판매',
         description: '두 번째 Telegram 사건의 테스트 설명입니다.',
       },
     ],
@@ -251,21 +252,14 @@ export const events: EcosystemEvent[] = [
     date: '2026-09-01',
     type: '등록',
     title: '남양주요양원진료주소',
-    meta: 'Pastebin · 이메일',
+    meta: 'Pastebin · 이메일 노출',
     platform: 'pastebin',
-    exposures: ['이메일'],
+    exposures: ['이메일 노출'],
     dataTypes: [],
   },
 ];
 
-export const exposureRows: ExposureRow[] = [
-  { name: '계정정보', heat: 50, count: 8, date: '09-06', state: '활성' },
-  { name: '이메일', heat: 25, count: 4, date: '09-01', state: '활성' },
-  { name: 'API 키', heat: 6, count: 1, date: '08-31', state: '등록' },
-  { name: '비밀키', heat: 6, count: 1, date: '08-31', state: '등록' },
-  { name: '본인인증', heat: 6, count: 1, date: '08-31', state: '등록' },
-  { name: '소스코드·IP', heat: 13, count: 2, date: '09-01', state: '등록' },
-];
+export const exposureRows = aggregateExposures(events);
 
 export const categories = createIslandCategories(fixtureIslandRows).map((category) => ({
   ...category,
