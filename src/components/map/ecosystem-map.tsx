@@ -1,6 +1,8 @@
 // 생태계 섬·플랫폼·관계선과 지도 조작 UI를 조합하는 지도 컴포넌트
 'use client';
 
+import { useState } from 'react';
+import Image from 'next/image';
 import styles from '@/styles/map.module.css';
 import { type CategoryId, type DetailTab, type Selection } from '@/lib/ecosystem-types';
 import { IslandGroup } from './island-group';
@@ -11,6 +13,8 @@ import { RelationEvidence } from './relation-evidence';
 import { RelationLayer } from './relation-layer';
 import { useMapZoom } from '@/hooks/use-map-zoom';
 import { useMapData } from '@/hooks/use-map-data';
+import { AdminLoginDialog } from './admin-login-dialog';
+import { useAdmin } from '@/hooks/use-admin';
 
 type Props = {
   selected: Selection;
@@ -47,6 +51,8 @@ export function EcosystemMap({
     candidateCount,
   } = useMapData(selected, selectedRelation);
   const { svgRef, transform, zoomBy, resetView } = useMapZoom();
+  const [adminDialogOpen, setAdminDialogOpen] = useState(false);
+  const { isAdmin } = useAdmin();
 
   const reset = () => {
     resetView();
@@ -55,6 +61,16 @@ export function EcosystemMap({
 
   return (
     <div className={styles['map-surface']}>
+      <div className={styles['admin-button-edge']}>
+        <button
+          type="button"
+          className={styles['admin-map-button']}
+          aria-label={isAdmin ? '관리자 메뉴' : '관리자 로그인'}
+          onClick={() => setAdminDialogOpen(true)}
+        >
+          <Image src="/dachshund-logo.png" alt="" width={72} height={28} priority />
+        </button>
+      </div>
       <RelationToggle
         active={showAllRelations}
         verifiedCount={verifiedCount}
@@ -153,6 +169,7 @@ export function EcosystemMap({
         onZoom={zoomBy}
         onReset={reset}
       />
+      {adminDialogOpen && <AdminLoginDialog onClose={() => setAdminDialogOpen(false)} />}
     </div>
   );
 }

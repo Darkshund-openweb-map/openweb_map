@@ -38,6 +38,21 @@
 .dialog::backdrop {
   background: #172a4d66;
 }
+.admin-dialog {
+  border-color: #e5eaf5cc;
+  background:
+    radial-gradient(circle at 95% 0%, #d4e5f52e, transparent 30%),
+    radial-gradient(circle at 0% 100%, #e4d8f429, transparent 35%),
+    #ffffff99;
+  backdrop-filter: blur(4px);
+  box-shadow:
+    0 24px 70px #152a4c24,
+    inset 0 1px #ffffffcc;
+}
+.admin-dialog::backdrop {
+  background: #243a5a3d;
+  backdrop-filter: blur(3px);
+}
 .heading {
   display: flex;
   align-items: center;
@@ -121,4 +136,66 @@
   color: #bf3434;
   font-size: 12px;
   margin: 14px 0 0;
+}
+.incident-dialog {
+  width: min(620px, calc(100vw - 32px));
+}
+.record-list {
+  display: grid;
+  gap: 8px;
+  max-height: min(420px, 55dvh);
+  overflow: auto;
+}
+.record-list button {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #dce4ef;
+  border-radius: 7px;
+  background: #fff;
+  text-align: left;
+}
+.record-list button:hover,
+.record-list button:focus-visible {
+  border-color: #176bfa;
+  background: #f5f9ff;
+}
+.record-list button strong {
+  font-size: 13px;
+}
+.record-list button span,
+.record-list > p,
+.repeat-section > p {
+  color: #748298;
+  font-size: 12px;
+}
+.repeat-section {
+  display: grid;
+  gap: 12px;
+}
+.repeat-card {
+  display: grid;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid #e1e8f2;
+  border-radius: 8px;
+  background: #fbfcff;
+}
+.repeat-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+.repeat-heading button {
+  border: 0;
+  background: none;
+  color: #bd3434;
+  font-size: 11px;
+}
+.choice-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }

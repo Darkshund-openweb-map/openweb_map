@@ -347,91 +347,15 @@ test('AWS S3 stays blue with gray surroundings and keeps depth through repeated 
   ).toBe(true);
 });
 
-test('platform actions validate, add, edit, move and delete local data', async ({ page }) => {
+test('fixture platforms do not expose database incident writes', async ({ page }) => {
   await openMap(page);
+  const adminButton = page.getByRole('button', { name: '관리자 로그인' });
+  await expect(adminButton).toBeVisible();
+  await adminButton.click();
+  await expect(page.getByRole('dialog', { name: '관리자 로그인' })).toBeVisible();
+  await page.getByRole('button', { name: '취소' }).click();
   await page.getByRole('button', { name: 'AWS S3 영토 선택', exact: true }).click();
-  await page.getByRole('button', { name: '데이터 추가', exact: true }).click();
-  let dialog = page.getByRole('dialog', { name: '플랫폼 추가', exact: true });
-  await dialog.getByLabel('플랫폼 이름').fill('AWS S3');
-  await dialog.getByLabel('도메인', { exact: true }).fill('example.com');
-  await dialog.getByRole('button', { name: '추가', exact: true }).click();
-  await expect(dialog.getByRole('alert')).toHaveText('같은 이름의 플랫폼이 이미 있습니다.');
-  await dialog.getByLabel('플랫폼 이름').fill('새 플랫폼');
-  await dialog.getByLabel('도메인', { exact: true }).fill('not-a-domain');
-  await dialog.getByRole('button', { name: '추가', exact: true }).click();
-  await expect(dialog.getByRole('alert')).toHaveText(
-    '도메인은 example.com 형식으로 입력해 주세요.',
-  );
-  await dialog.getByLabel('도메인', { exact: true }).fill('https://example.com');
-  await dialog.getByLabel('설명', { exact: true }).fill('로컬 관리 테스트');
-  await dialog.getByRole('button', { name: '추가', exact: true }).click();
-  await expect(dialog).toHaveCount(0);
-  await expect(page.getByRole('complementary', { name: '새 플랫폼 상세 패널' })).toBeVisible();
-  await expect(
-    page.getByRole('button', { name: '새 플랫폼 영토 선택', exact: true }),
-  ).toBeVisible();
-  await page.getByRole('button', { name: '데이터 수정', exact: true }).click();
-  dialog = page.getByRole('dialog', { name: '플랫폼 수정', exact: true });
-  await dialog.getByLabel('플랫폼 이름').fill('수정 플랫폼');
-  await dialog.getByLabel('도메인', { exact: true }).fill('updated.example.com');
-  await dialog.getByLabel('플랫폼 유형').selectOption('community');
-  await dialog.getByRole('button', { name: '저장', exact: true }).click();
-  const detail = page.getByRole('complementary', { name: '수정 플랫폼 상세 패널' });
-  await expect(detail).toBeVisible();
-  await page.getByRole('button', { name: '데이터 수정', exact: true }).click();
-  dialog = page.getByRole('dialog', { name: '플랫폼 수정', exact: true });
-  await expect(dialog.getByLabel('도메인', { exact: true })).toHaveValue('updated.example.com');
-  await dialog.getByRole('button', { name: '취소', exact: true }).click();
-  await expect(
-    page
-      .locator('[data-island-id="community"]')
-      .getByRole('button', { name: '수정 플랫폼 영토 선택', exact: true }),
-  ).toBeVisible();
-  await page.getByRole('button', { name: '데이터 삭제', exact: true }).click();
-  dialog = page.getByRole('dialog', { name: '플랫폼 삭제', exact: true });
-  await dialog.getByRole('button', { name: '취소', exact: true }).click();
-  await expect(detail).toBeVisible();
-  await page.getByRole('button', { name: '데이터 삭제', exact: true }).click();
-  await page.getByRole('dialog').getByRole('button', { name: '삭제 확인', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '전체 오픈웹', exact: true })).toBeVisible();
-  await expect(
-    page.getByRole('button', { name: '수정 플랫폼 영토 선택', exact: true }),
-  ).toHaveCount(0);
-  await page.getByRole('combobox').fill('수정 플랫폼');
-  await expect(page.getByText('검색 결과가 없습니다.')).toBeVisible();
-});
-
-test('deleting a platform clears its events and relations; reload restores fixtures', async ({
-  page,
-}) => {
-  await openMap(page);
-  await page.getByRole('button', { name: 'Github Gist 영토 선택', exact: true }).click();
-  await page.getByRole('button', { name: '데이터 삭제', exact: true }).click();
-  const dialog = page.getByRole('dialog', { name: '플랫폼 삭제', exact: true });
-  await expect(dialog.getByText(/연결된 사건 [1-9]\d*개와 관계/)).toBeVisible();
-  await dialog.getByRole('button', { name: '삭제 확인', exact: true }).click();
-  await page.getByRole('switch', { name: '전체 관계 보기' }).click();
-  await expect(page.locator('[data-relation-id="gist-mega"]')).toHaveCount(0);
-  await page.getByRole('button', { name: '통계', exact: true }).click();
-  await expect(page.getByText('쿠팡 API 관련 코드 게시')).toHaveCount(0);
-  await openMap(page);
-  await expect(
-    page.getByRole('button', { name: 'Github Gist 영토 선택', exact: true }),
-  ).toBeVisible();
-});
-
-test('platform editor fits mobile and short viewports', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 650 });
-  await openMap(page);
-  await page.getByRole('combobox').fill('AWS S3');
-  await page.getByRole('option', { name: /AWS S3/ }).click();
-  await page.getByRole('button', { name: '데이터 수정', exact: true }).click();
-  const dialog = page.getByRole('dialog', { name: '플랫폼 수정', exact: true });
-  const bounds = (await dialog.boundingBox())!;
-  expect(bounds.x).toBeGreaterThanOrEqual(0);
-  expect(bounds.y).toBeGreaterThanOrEqual(0);
-  expect(bounds.x + bounds.width).toBeLessThanOrEqual(390);
-  expect(bounds.y + bounds.height).toBeLessThanOrEqual(650);
-  await dialog.getByRole('button', { name: '취소', exact: true }).click();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await expect(page.getByRole('button', { name: '데이터 추가', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: '데이터 수정', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: '데이터 삭제', exact: true })).toBeDisabled();
 });

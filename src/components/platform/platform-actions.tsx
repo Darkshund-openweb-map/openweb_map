@@ -2,56 +2,83 @@
 'use client';
 
 import { useState } from 'react';
-import type { Platform } from '@/lib/ecosystem-types';
+import type { Category, Platform } from '@/lib/ecosystem-types';
 import { Button } from '@/components/button/button';
 import { PlatformDialog } from './platform-dialog';
-import type { EditorMode } from '@/hooks/use-platform-editor';
+import { IncidentDialog, type IncidentMode } from './incident-dialog';
 import styles from '@/styles/platform-editor.module.css';
 import { useEcosystemData } from '@/hooks/use-ecosystem-data';
 
-export function PlatformActions({
-  platform,
-  onSelectPlatform,
-  onDeleted,
-}: {
-  platform: Platform;
-  onSelectPlatform: (id: string) => void;
-  onDeleted: () => void;
-}) {
-  const [mode, setMode] = useState<EditorMode | null>(null);
+export function PlatformActions({ platform }: { platform: Platform }) {
+  const [mode, setMode] = useState<IncidentMode | null>(null);
   const { readOnly } = useEcosystemData();
+  const canEditIncidents = !readOnly && platform.id.startsWith('platform-');
   return (
     <div className={styles.actions}>
       <div className={styles.buttons} role="group" aria-label="플랫폼 데이터 관리">
-        <Button disabled={readOnly} onClick={() => setMode('add')}>
+        <Button disabled={!canEditIncidents} onClick={() => setMode('add')}>
           데이터 추가
         </Button>
-        <Button disabled={readOnly} variant="secondary" onClick={() => setMode('edit')}>
+        <Button disabled={!canEditIncidents} variant="secondary" onClick={() => setMode('edit')}>
           데이터 수정
         </Button>
         <Button
           variant="secondary"
-          disabled={readOnly}
+          disabled={!canEditIncidents}
           className={styles['delete-button']}
           onClick={() => setMode('delete')}
         >
           데이터 삭제
         </Button>
       </div>
-      <p>{readOnly ? '현재 조회 전용입니다.' : '로컬 임시 데이터 · 새로고침 시 초기화'}</p>
-      {!readOnly && mode && (
+      <p>
+        {readOnly
+          ? '관리자 로그인 후 편집할 수 있습니다.'
+          : canEditIncidents
+            ? '사건 변경 사항은 Supabase에 저장됩니다.'
+            : '테스트 데이터에서는 사건 편집을 사용할 수 없습니다.'}
+      </p>
+      {canEditIncidents && mode && (
+        <IncidentDialog platform={platform} mode={mode} onClose={() => setMode(null)} />
+      )}
+    </div>
+  );
+}
+
+export function CategoryPlatformAdd({
+  category,
+  onSelectPlatform,
+}: {
+  category: Category;
+  onSelectPlatform: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const { readOnly } = useEcosystemData();
+  const placeholder: Platform = {
+    id: 'local-new',
+    name: '',
+    domain: '',
+    description: '',
+    category: category.id,
+    x: category.center[0],
+    y: category.center[1],
+  };
+  return (
+    <div className={styles.actions}>
+      <Button disabled={readOnly} onClick={() => setOpen(true)}>
+        데이터 추가
+      </Button>
+      {readOnly && <p>관리자 로그인 후 편집할 수 있습니다.</p>}
+      {open && (
         <PlatformDialog
-          platform={platform}
-          mode={mode}
-          onClose={() => setMode(null)}
+          platform={placeholder}
+          mode="add"
+          onClose={() => setOpen(false)}
           onSaved={(id) => {
-            setMode(null);
+            setOpen(false);
             onSelectPlatform(id);
           }}
-          onDeleted={() => {
-            setMode(null);
-            onDeleted();
-          }}
+          onDeleted={() => setOpen(false)}
         />
       )}
     </div>

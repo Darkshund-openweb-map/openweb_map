@@ -3,12 +3,21 @@
 
 import type { EcosystemSnapshot } from '@/lib/ecosystem-types';
 import { EcosystemDataProvider } from '@/components/provider/ecosystem-data-provider';
+import { AdminProvider } from '@/components/provider/admin-provider';
 import { ExplorerContent } from './explorer-content';
 
-export function Explorer({ initialData }: { initialData: EcosystemSnapshot }) {
+export function Explorer({
+  initialData,
+  revision,
+}: {
+  initialData: EcosystemSnapshot;
+  revision: string;
+}) {
   return (
-    <EcosystemDataProvider data={initialData}>
-      <ExplorerContent />
-    </EcosystemDataProvider>
+    <AdminProvider>
+      <EcosystemDataProvider key={revision} data={initialData}>
+        <ExplorerContent />
+      </EcosystemDataProvider>
+    </AdminProvider>
   );
 }

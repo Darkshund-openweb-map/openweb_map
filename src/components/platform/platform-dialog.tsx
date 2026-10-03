@@ -49,7 +49,11 @@ export function PlatformDialog({
           </button>
         </header>
         <p id={hintId} className={styles.hint}>
-          현재 탭에만 반영됩니다. 새로고침하면 초기화되며 DB에는 저장되지 않습니다.
+          {editor.categories.some(
+            (category) => category.id === editor.fields.category && category.sourceId,
+          )
+            ? '변경 사항은 Supabase에 저장됩니다.'
+            : '테스트 데이터는 현재 탭에만 반영됩니다.'}
         </p>
         {mode === 'delete' ? (
           <div className={styles['delete-summary']}>
@@ -117,7 +121,11 @@ export function PlatformDialog({
           <Button variant="secondary" onClick={onClose}>
             취소
           </Button>
-          <Button type="submit" className={mode === 'delete' ? styles.danger : ''}>
+          <Button
+            type="submit"
+            disabled={editor.saving}
+            className={mode === 'delete' ? styles.danger : ''}
+          >
             {mode === 'delete' ? '삭제 확인' : mode === 'add' ? '추가' : '저장'}
           </Button>
         </footer>
