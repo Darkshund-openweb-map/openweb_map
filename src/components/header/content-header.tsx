@@ -13,10 +13,8 @@ type Props = {
   name: string;
   tab: DetailTab;
   selectedRelation: string | null;
-  detailOpen: boolean;
   onClear: () => void;
   onSelectCategory: () => void;
-  onOpenDetail: () => void;
   onView: (view: View) => void;
 };
 
@@ -29,10 +27,8 @@ export function ContentHeader({
   name,
   tab,
   selectedRelation,
-  detailOpen,
   onClear,
   onSelectCategory,
-  onOpenDetail,
   onView,
 }: Props) {
   const statistics = view === 'statistics';
@@ -71,11 +67,6 @@ export function ContentHeader({
         </div>
       </div>
       <div className={styles['content-actions']}>
-        {selected && !statistics && !detailOpen && (
-          <button className={styles['detail-open-button']} onClick={onOpenDetail}>
-            상세 보기 <span aria-hidden="true">›</span>
-          </button>
-        )}
         <div className={styles['view-tabs']} role="group" aria-label="지도 또는 통계 보기">
           <button className={view === 'map' ? styles['active'] : ''} onClick={() => onView('map')}>
             지도

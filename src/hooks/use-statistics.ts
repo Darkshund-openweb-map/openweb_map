@@ -20,19 +20,21 @@ export function useStatistics() {
     active === 'all'
       ? exposureRows
       : normalizeExposurePercentages(
-          exposureRows.flatMap((row) => {
-            const matching = visibleEvents.filter((event) => event.exposures.includes(row.name));
-            if (!matching.length) return [];
-            return [
-              {
-                ...row,
-                count: matching.length,
-                date: matching[0].date.slice(5),
-                state: matching[0].type,
-                heat: 0,
-              },
-            ];
-          }).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'ko')),
+          exposureRows
+            .flatMap((row) => {
+              const matching = visibleEvents.filter((event) => event.exposures.includes(row.name));
+              if (!matching.length) return [];
+              return [
+                {
+                  ...row,
+                  count: matching.length,
+                  date: matching[0].date.slice(5),
+                  state: matching[0].type,
+                  heat: 0,
+                },
+              ];
+            })
+            .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'ko')),
         );
   const selectCategory = (id: CategoryId | 'all') => setActive(id);
   const verifiedCount = relations.filter(
@@ -45,6 +47,7 @@ export function useStatistics() {
     rows,
     events: visibleEvents,
     verifiedCount,
+    relations,
     selectCategory,
   };
 }

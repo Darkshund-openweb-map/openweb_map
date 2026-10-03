@@ -15,10 +15,16 @@ function periodRange(period: Period, referenceDate: string): DateRange {
   return { start: start.toISOString().slice(0, 10), end: referenceDate };
 }
 
-export function useEventTimeline(events: EcosystemEvent[], referenceDate: string) {
-  const [period, setPeriod] = useState<Period | null>('90일');
-  const [customRange, setCustomRange] = useState(() => periodRange('90일', referenceDate));
-  const range = period ? periodRange(period, referenceDate) : customRange;
+export function useEventTimeline(
+  events: EcosystemEvent[],
+  referenceDate: string,
+  requestedEventId: string | null = null,
+) {
+  const initialPeriod: Period = requestedEventId ? '전체' : '90일';
+  const [period, setPeriod] = useState<Period | null>(initialPeriod);
+  const [customRange, setCustomRange] = useState(() => periodRange(initialPeriod, referenceDate));
+  const effectivePeriod: Period | null = requestedEventId ? '전체' : period;
+  const range = effectivePeriod ? periodRange(effectivePeriod, referenceDate) : customRange;
   const [draftRange, setDraftRange] = useState(range);
   const [dateOpen, updateDateOpen] = useState(false);
   const setDateOpen = (open: boolean) => {
@@ -55,7 +61,7 @@ export function useEventTimeline(events: EcosystemEvent[], referenceDate: string
   };
 
   return {
-    period,
+    period: effectivePeriod,
     range,
     draftRange,
     dateOpen,

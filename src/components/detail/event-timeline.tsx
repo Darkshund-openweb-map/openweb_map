@@ -13,6 +13,8 @@ export function EventTimeline({
   platforms,
   categories,
   referenceDate,
+  requestedIncidentId,
+  onIncidentClosed,
 }: {
   title: string;
   events: EcosystemEvent[];
@@ -20,8 +22,10 @@ export function EventTimeline({
   platforms: Platform[];
   categories: Category[];
   referenceDate: string;
+  requestedIncidentId: string | null;
+  onIncidentClosed: () => void;
 }) {
-  const state = useEventTimeline(events, referenceDate);
+  const state = useEventTimeline(events, referenceDate, requestedIncidentId);
   return (
     <>
       <div className={styles['section-meta']}>
@@ -84,6 +88,8 @@ export function EventTimeline({
         categories={categories}
         selectedId={state.selectedId}
         onSelect={state.setSelectedId}
+        requestedIncidentId={requestedIncidentId}
+        onIncidentClosed={onIncidentClosed}
       />
     </>
   );

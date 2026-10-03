@@ -9,6 +9,21 @@
   line-height: var(--leading-copy);
   word-break: keep-all;
   overflow-wrap: anywhere;
+  transition:
+    width 220ms ease,
+    transform 220ms ease,
+    opacity 180ms ease;
+}
+.detail-panel.closed {
+  width: 0;
+  opacity: 0;
+  transform: translateX(100%);
+  overflow: hidden;
+  pointer-events: none;
+}
+.detail-panel.open {
+  opacity: 1;
+  transform: translateX(0);
 }
 .detail-title {
   padding: 16px 20px;
@@ -98,6 +113,7 @@
   padding: 14px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 4px;
 }
 .metric > span {

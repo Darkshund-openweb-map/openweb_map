@@ -9,25 +9,31 @@ import { useRelationPopup } from '@/hooks/use-relation-popup';
 import { Metric } from '@/components/chart/metric';
 import { RelationEvidencePopup } from './relation-evidence-popup';
 
-const statusNames = { verified: '검증 완료', candidate: '검증 전', excluded: '제외' };
+const statusNames = { verified: '검토 완료', candidate: '검토 전', excluded: '제외' };
 
-export function DetailConnections({ relations, selectedRelation, onSelectRelation }: {
+export function DetailConnections({
+  relations,
+  selectedRelation,
+  onSelectRelation,
+}: {
   relations: Relation[];
   selectedRelation: string | null;
   onSelectRelation: (id: string | null) => void;
 }) {
   const { getPlatform } = useEcosystemData();
-  const { popup, popupRef, closeButtonRef, open, close } = useRelationPopup(() => onSelectRelation(null));
+  const { popup, popupRef, closeButtonRef, open, close } = useRelationPopup(() =>
+    onSelectRelation(null),
+  );
   const verified = relations.filter((item) => item.status === 'verified');
   const unverified = relations.filter((item) => item.status !== 'verified');
   const types = [...new Set(verified.map((item) => item.type))];
 
   return (
     <>
-      <div className={styles['section-meta']}>관계 요약 · 검증 상태별</div>
+      <div className={styles['section-meta']}>관계 요약 · 검토 상태별</div>
       <div className={styles['metric-grid']}>
-        <Metric label="검증 완료" value={`${verified.length}건`} />
-        <Metric label="검증 전" value={`${unverified.length}건`} />
+        <Metric label="검토 완료" value={`${verified.length}건`} />
+        <Metric label="검토 전" value={`${unverified.length}건`} />
       </div>
       <div className={styles['relation-composition']}>
         <div className={sharedStyles['block-heading']}>관계 유형 구성</div>
@@ -45,7 +51,7 @@ export function DetailConnections({ relations, selectedRelation, onSelectRelatio
       </div>
       {!verified.length && (
         <p className={styles['helper-text']}>
-          집계할 검증 관계가 없습니다. 검증 전 관계는 검증 완료 건수에 포함되지 않습니다.
+          집계할 검토 완료 관계가 없습니다. 검토 전 관계는 완료 건수에 포함되지 않습니다.
         </p>
       )}
       <div className={styles['section-meta']}>
@@ -57,7 +63,12 @@ export function DetailConnections({ relations, selectedRelation, onSelectRelatio
         return (
           <button
             key={item.id}
-            className={[styles['relation-card'], selectedRelation === item.id ? styles.selected : ''].filter(Boolean).join(' ')}
+            className={[
+              styles['relation-card'],
+              selectedRelation === item.id ? styles.selected : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
             aria-haspopup="dialog"
             aria-expanded={popup?.relation.id === item.id}
             aria-controls={popup?.relation.id === item.id ? `relation-popup-${item.id}` : undefined}
@@ -67,20 +78,23 @@ export function DetailConnections({ relations, selectedRelation, onSelectRelatio
             }}
           >
             <div>
+              <span>{item.type}</span>
               <span
                 className={[
                   sharedStyles['status-tag'],
                   item.status === 'verified' ? sharedStyles.good : '',
+                  item.status === 'candidate' ? sharedStyles.pending : '',
                 ]
                   .filter(Boolean)
                   .join(' ')}
               >
                 {statusNames[item.status]}
               </span>
-              <span>{item.type}</span>
               <strong>{item.evidence}건</strong>
             </div>
-            <b>{source?.name ?? item.source} → {target?.name ?? item.target}</b>
+            <b>
+              {source?.name ?? item.source} → {target?.name ?? item.target}
+            </b>
           </button>
         );
       })}

@@ -3,7 +3,7 @@
   flex: 1;
   min-height: 0;
   background: #fff;
-  border: 1px solid #dce5f1;
+  border: 1px solid #dce5f1b8;
   border-radius: 9px;
   overflow: hidden;
 }
@@ -16,7 +16,8 @@
 .historical-layout,
 .island-position,
 .relation-path path {
-  transition: transform 460ms cubic-bezier(0.22, 0.78, 0.24, 1),
+  transition:
+    transform 460ms cubic-bezier(0.22, 0.78, 0.24, 1),
     d 460ms cubic-bezier(0.22, 0.78, 0.24, 1);
 }
 .historical-layout,
@@ -162,9 +163,10 @@
   min-height: 164px;
   border: 1px solid #dce5f1;
   border-radius: 13px;
-  background: #fff;
-  padding: 13px 14px 12px;
-  box-shadow: 0 8px 24px #23385624;
+  background: rgb(255 255 255 / 80%);
+  padding: 16px 16px 14px;
+  backdrop-filter: blur(14px) saturate(115%);
+  box-shadow: 0 8px 24px #2338561c;
   color: #17233a;
   font-family: inherit;
 }
@@ -197,12 +199,12 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 7px;
-  margin-top: 10px;
+  margin-top: 18px;
 }
 .platform-hover-metrics > div {
   border: 1px solid #e0e7f1;
   border-radius: 8px;
-  background: #f7f9fc;
+  background: rgb(247 249 252 / 76%);
   padding: 7px 8px;
 }
 .platform-hover-metrics span {
@@ -219,7 +221,7 @@
 .platform-hover-card p {
   display: -webkit-box;
   overflow: hidden;
-  margin: 9px 1px 0;
+  margin: 10px 0 0;
   color: #4f5f76;
   font-size: 9.5px;
   line-height: 1.45;

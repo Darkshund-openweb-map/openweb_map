@@ -16,7 +16,13 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
   if (!needle) return text;
   const index = text.toLocaleLowerCase().indexOf(needle.toLocaleLowerCase());
   if (index < 0) return text;
-  return <>{text.slice(0, index)}<mark>{text.slice(index, index + needle.length)}</mark>{text.slice(index + needle.length)}</>;
+  return (
+    <>
+      {text.slice(0, index)}
+      <mark>{text.slice(index, index + needle.length)}</mark>
+      {text.slice(index + needle.length)}
+    </>
+  );
 }
 
 type Props = {
@@ -25,9 +31,19 @@ type Props = {
   onHome: () => void;
   onSelectCategory: (id: CategoryId) => void;
   onSelectPlatform: (id: string) => void;
+  onSelectIncident: (platformId: string, incidentId: string) => void;
+  onSelectRelation: (relationId: string) => void;
 };
 
-export function AppHeader({ scope, onScope, onHome, onSelectCategory, onSelectPlatform }: Props) {
+export function AppHeader({
+  scope,
+  onScope,
+  onHome,
+  onSelectCategory,
+  onSelectPlatform,
+  onSelectIncident,
+  onSelectRelation,
+}: Props) {
   const { updatedAt } = useEcosystemData();
   const {
     query,
@@ -40,7 +56,12 @@ export function AppHeader({ scope, onScope, onHome, onSelectCategory, onSelectPl
     setOpen,
     setActiveIndex,
     choose,
-  } = useEcosystemSearch({ onSelectCategory, onSelectPlatform });
+  } = useEcosystemSearch({
+    onSelectCategory,
+    onSelectPlatform,
+    onSelectIncident,
+    onSelectRelation,
+  });
   return (
     <header className={styles['app-header']}>
       <button className={styles['brand']} onClick={onHome} aria-label="WEB SCOPE 전체 오픈웹으로">
@@ -114,27 +135,44 @@ export function AppHeader({ scope, onScope, onHome, onSelectCategory, onSelectPl
               {query ? `관련 검색어 ${results.length}개` : '빠른 검색'}
               <span>ESC 닫기</span>
             </div>
-            {results.length ? (
-              results.map((item, index) => (
-                <button
-                  role="option"
-                  aria-selected={index === activeIndex}
-                  key={item.key}
-                  className={index === activeIndex ? styles['active'] : ''}
-                  onClick={() => choose(index)}
-                  onMouseEnter={() => setActiveIndex(index)}
-                >
-                  <HexSwatch color={item.color} />
-                  <span>
-                    <strong><HighlightMatch text={item.label} query={query} /></strong>
-                    <small><HighlightMatch text={item.sub} query={query} /></small>
-                  </span>
-                  <span>↗</span>
-                </button>
-              ))
-            ) : (
-              <p>검색 결과가 없습니다.</p>
-            )}
+            <div className={styles['search-result-list']}>
+              {results.length ? (
+                results.map((item, index) => (
+                  <div className={styles['search-result-group']} key={item.key}>
+                    {query && (index === 0 || results[index - 1].kind !== item.kind) && (
+                      <div className={styles['search-kind-title']}>
+                        {item.kind === 'incident'
+                          ? '사건'
+                          : item.kind === 'relation'
+                            ? '연결관계'
+                            : '플랫폼'}
+                      </div>
+                    )}
+                    <button
+                      role="option"
+                      data-search-kind={item.kind}
+                      aria-selected={index === activeIndex}
+                      className={index === activeIndex ? styles['active'] : ''}
+                      onClick={() => choose(index)}
+                      onMouseEnter={() => setActiveIndex(index)}
+                    >
+                      <HexSwatch color={item.color} />
+                      <span>
+                        <strong>
+                          <HighlightMatch text={item.label} query={query} />
+                        </strong>
+                        <small>
+                          <HighlightMatch text={item.sub} query={query} />
+                        </small>
+                      </span>
+                      <span>↗</span>
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p>검색 결과가 없습니다.</p>
+              )}
+            </div>
           </div>
         )}
       </div>

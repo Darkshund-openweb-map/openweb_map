@@ -25,6 +25,10 @@
   font-weight: 500;
 }
 .status-tag.good {
-  background: #e7f7ed;
-  color: #23885a;
+  background: #e7f7ed !important;
+  color: #23885a !important;
+}
+.status-tag.pending {
+  background: #fff0df !important;
+  color: #c36a12 !important;
 }

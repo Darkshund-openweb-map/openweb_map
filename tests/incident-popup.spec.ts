@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 async function openEvents(page: Page, platform: string) {
   await page.goto('/');
   await page.getByRole('combobox').fill(platform);
-  await page.getByRole('option', { name: new RegExp(platform) }).click();
+  await page.locator('[data-search-kind="platform"]').filter({ hasText: platform }).first().click();
   await page.getByRole('tab', { name: /^사건/ }).click();
 }
 
@@ -16,12 +16,18 @@ test('clicking an incident opens every associated description to the left and Es
   await expect(incident.locator('[data-connection-path]')).toHaveCount(3);
   const pastebinPath = incident.locator('[data-connection-path="gist-pastebin"]');
   await expect(pastebinPath).toHaveAttribute('title', 'Github Gist → Pastebin');
-  expect(await pastebinPath.locator('i').first().evaluate((node) => getComputedStyle(node).backgroundColor)).toBe(
-    'rgb(68, 122, 255)',
-  );
-  expect(await pastebinPath.locator('i').last().evaluate((node) => getComputedStyle(node).backgroundColor)).toBe(
-    'rgb(44, 191, 175)',
-  );
+  expect(
+    await pastebinPath
+      .locator('i')
+      .first()
+      .evaluate((node) => getComputedStyle(node).backgroundColor),
+  ).toBe('rgb(68, 122, 255)');
+  expect(
+    await pastebinPath
+      .locator('i')
+      .last()
+      .evaluate((node) => getComputedStyle(node).backgroundColor),
+  ).toBe('rgb(44, 191, 175)');
   await incident.click();
   const popup = page.getByRole('dialog', { name: '쿠팡 API 관련 코드 게시', exact: true });
   await expect(popup).toBeVisible();

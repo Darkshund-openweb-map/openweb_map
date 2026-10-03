@@ -36,6 +36,8 @@ export function ExplorerContent() {
         onHome={state.clearSelection}
         onSelectCategory={state.selectCategory}
         onSelectPlatform={state.selectPlatform}
+        onSelectIncident={state.selectIncident}
+        onSelectRelation={state.selectRelation}
       />
       <div className={styles['app-body']}>
         <MapLegend
@@ -52,10 +54,8 @@ export function ExplorerContent() {
             name={name}
             tab={state.tab}
             selectedRelation={state.selectedRelation}
-            detailOpen={state.detailOpen}
             onClear={state.clearSelection}
             onSelectCategory={() => category && state.selectCategory(category.id)}
-            onOpenDetail={() => state.setDetailOpen(true)}
             onView={(view) => {
               state.setView(view);
               if (view === 'statistics') state.setDetailOpen(false);
@@ -65,6 +65,7 @@ export function ExplorerContent() {
             <Statistics
               onSelectCategory={state.selectCategory}
               onSelectPlatform={state.selectPlatform}
+              onSelectIncident={state.selectIncident}
             />
           ) : state.scope === 'dark' ? (
             <EmptyScope onReturn={() => state.changeScope('open')} />
@@ -83,16 +84,22 @@ export function ExplorerContent() {
           )}
           {state.scope !== 'dark' && <SnapshotTimeline />}
         </section>
-        {!statistics && state.selected && state.detailOpen && (
+        {!statistics && state.selected && (
           <>
-            <DetailPanelToggle onClose={() => state.setDetailOpen(false)} />
+            <DetailPanelToggle
+              open={state.detailOpen}
+              onToggle={() => state.setDetailOpen((open) => !open)}
+            />
             <DetailPanel
+              open={state.detailOpen}
               selected={state.selected}
               tab={state.tab}
               selectedRelation={state.selectedRelation}
+              selectedIncidentId={state.selectedIncidentId}
               onTab={state.selectTab}
               onSelectPlatform={state.selectPlatform}
               onSelectRelation={state.selectRelation}
+              onIncidentClosed={state.clearSelectedIncident}
             />
           </>
         )}

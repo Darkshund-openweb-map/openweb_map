@@ -10,11 +10,14 @@ import { StatisticsCategoryFilter } from './statistics-category-filter';
 export function Statistics({
   onSelectCategory,
   onSelectPlatform,
+  onSelectIncident,
 }: {
   onSelectCategory: (id: CategoryId) => void;
   onSelectPlatform: (id: string) => void;
+  onSelectIncident: (platformId: string) => void;
 }) {
-  const { categories, events, rows, active, verifiedCount, selectCategory } = useStatistics();
+  const { categories, events, rows, active, verifiedCount, relations, selectCategory } =
+    useStatistics();
   return (
     <div className={styles['statistics-surface']}>
       <div className={styles['stats-heading']}>
@@ -50,7 +53,6 @@ export function Statistics({
           <span>노출 유형</span>
           <span>노출 수</span>
           <span>비중</span>
-          <span>상태</span>
           <span>사건</span>
           <span>최근 관측</span>
         </div>
@@ -76,34 +78,32 @@ export function Statistics({
               <i style={{ width: `${Math.min(100, row.heat)}%` }} />
             </span>
             <b>{row.heat}%</b>
-            <span
-              className={[styles['state-label'], row.state === '활성' ? styles['live'] : '', '']
-                .filter(Boolean)
-                .join(' ')}
-            >
-              {row.state}
-            </span>
             <span>{row.count}건</span>
             <span>{row.date}</span>
           </button>
         ))}
       </div>
       <div className={styles['recent-activity']}>
-        <div className={sharedStyles['block-heading']}>
-          최근 주요 노출 · 오픈웹{' '}
-          <span>사건 선택 → 상세 · 실제 관계 데이터가 있을 때만 연결 표시</span>
-        </div>
+        <div className={sharedStyles['block-heading']}>최근 주요 노출 · 오픈웹</div>
         <div>
           {!events.length && <p className={styles['empty-state']}>등록된 사건이 없습니다.</p>}
-          {events.slice(0, 3).map((event) => (
-            <button key={event.id} onClick={() => onSelectPlatform(event.platform)}>
-              <small>
-                {event.date.slice(5)} <em>{event.type}</em>
-              </small>
-              <strong>{event.title}</strong>
-              <span>{event.meta}</span>
-            </button>
-          ))}
+          {events.slice(0, 3).map((event) => {
+            const relationCount = relations.filter(
+              (relation) => relation.status !== 'excluded' && relation.incidentId === event.id,
+            ).length;
+            return (
+              <button
+                key={event.id}
+                title="선택하여 사건 상세 보기"
+                onClick={() => onSelectIncident(event.platform)}
+              >
+                <small>{event.date.slice(5)}</small>
+                <strong>{event.title}</strong>
+                <span>{event.meta}</span>
+                {relationCount > 0 && <small>연결 {relationCount}건</small>}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
