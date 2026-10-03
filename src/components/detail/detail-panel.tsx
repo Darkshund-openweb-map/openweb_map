@@ -11,27 +11,39 @@ import { useDetailData } from '@/hooks/use-detail-data';
 import { CategoryPlatformAdd, PlatformActions } from '@/components/platform/platform-actions';
 
 type Props = {
+  open: boolean;
   selected: Selection;
   tab: DetailTab;
   selectedRelation: string | null;
+  selectedIncidentId: string | null;
   onTab: (tab: DetailTab) => void;
   onSelectPlatform: (id: string) => void;
   onSelectRelation: (id: string | null) => void;
+  onIncidentClosed: () => void;
 };
 
 export function DetailPanel({
+  open,
   selected,
   tab,
   selectedRelation,
+  selectedIncidentId,
   onTab,
   onSelectPlatform,
   onSelectRelation,
+  onIncidentClosed,
 }: Props) {
   const data = useDetailData(selected);
   if (!selected || !data.category) return null;
   const { category, platform, title, eventCount, relations } = data;
   return (
-    <aside className={styles['detail-panel']} aria-label={`${title} 상세 패널`} data-detail-panel>
+    <aside
+      className={[styles['detail-panel'], open ? styles.open : styles.closed].join(' ')}
+      aria-label={`${title} 상세 패널`}
+      aria-hidden={!open}
+      inert={!open}
+      data-detail-panel
+    >
       <div
         className={[styles['detail-title'], platform ? styles['with-subtitle'] : '', '']
           .filter(Boolean)
@@ -39,7 +51,11 @@ export function DetailPanel({
       >
         {!platform && <span className={styles['eyebrow']}>플랫폼 유형 · 선택됨</span>}
         <h2>{title}</h2>
-        {platform && <p>{category.name} &gt; {title} · 사건 {eventCount}건</p>}
+        {platform && (
+          <p>
+            {category.name} &gt; {title} · 사건 {eventCount}건
+          </p>
+        )}
       </div>
       <DetailTabs
         tab={tab}
@@ -74,6 +90,8 @@ export function DetailPanel({
             platforms={data.allPlatforms}
             categories={data.categories}
             referenceDate={data.referenceDate}
+            requestedIncidentId={selectedIncidentId}
+            onIncidentClosed={onIncidentClosed}
           />
         )}
         {tab === 'connections' && (
@@ -85,9 +103,7 @@ export function DetailPanel({
         )}
       </div>
       {platform && <PlatformActions key={platform.id} platform={platform} />}
-      {!platform && (
-        <CategoryPlatformAdd category={category} onSelectPlatform={onSelectPlatform} />
-      )}
+      {!platform && <CategoryPlatformAdd category={category} onSelectPlatform={onSelectPlatform} />}
     </aside>
   );
 }

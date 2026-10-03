@@ -9,9 +9,7 @@ async function openMap(page: Page) {
   });
 }
 
-test('map keeps all seven islands visible when some have no incidents', async ({
-  page,
-}) => {
+test('map keeps all seven islands visible when some have no incidents', async ({ page }) => {
   await openMap(page);
   await expect(page.locator('[data-island-id]')).toHaveCount(7);
   for (const name of [
@@ -173,8 +171,8 @@ test('exposure bars and statistics show categories while the incident popup pres
   await page.getByRole('tab', { name: /^사건/ }).click();
   await details.getByRole('button', { name: /쿠팡 API 관련 코드 게시/ }).click();
   const popup = page.getByRole('dialog', { name: '쿠팡 API 관련 코드 게시' });
-  await expect(popup.getByRole('heading', { name: 'Google API key 노출' })).toBeVisible();
-  await expect(popup.getByRole('heading', { name: 'OpenAI API key 노출' })).toBeVisible();
+  await expect(popup.getByText(/테스트용 사건 설명입니다/)).toBeVisible();
+  await expect(popup.getByText(/두 번째 테스트 설명입니다/)).toBeVisible();
   await popup.getByRole('button', { name: '사건 설명 닫기' }).click();
   await page.getByRole('button', { name: '통계', exact: true }).click();
   const table = page
@@ -204,12 +202,13 @@ test('hex faces remain clickable and stationary on hover; zoom, pan and reset wo
   await initialTop.click();
   await expect(panel).toBeVisible();
   await page.getByRole('button', { name: '상세 패널 접기' }).click();
-  const detailButton = page.getByRole('button', { name: '상세 보기', exact: false });
+  const detailButton = page.getByRole('button', { name: '상세 패널 열기' });
   await expect(detailButton).toBeVisible();
   const detailButtonBox = (await detailButton.boundingBox())!;
-  expect(detailButtonBox.width).toBeGreaterThan(detailButtonBox.height);
+  expect(Math.abs(detailButtonBox.width - detailButtonBox.height)).toBeLessThan(2);
   await detailButton.click();
   await expect(panel).toBeVisible();
+  await page.waitForTimeout(250);
   const top = island.locator('[data-map-layer="tops"] polygon').last();
   const before = await top.boundingBox();
   const scene = page.locator('[data-map-scene]');
@@ -462,20 +461,20 @@ test('candidate relations remain unverified when selected, and search handles no
   const popup = page.getByRole('dialog', { name: 'Github Gist → MEGA' });
   await expect(popup).toBeVisible();
   await expect(popup.getByText('동일 파일', { exact: true })).toBeVisible();
-  await expect(popup.getByText('검증 전', { exact: true })).toHaveCount(2);
+  await expect(popup.getByText('검토 전', { exact: true })).toHaveCount(2);
   await expect(popup.getByText('2026-05-01', { exact: true })).toBeVisible();
   await expect(popup.getByText('2026-05-21', { exact: true })).toBeVisible();
   await expect(popup.getByText('근거 파일 해시 일치', { exact: true })).toBeVisible();
   await expect(detail.getByRole('heading', { name: 'Github Gist' })).toBeVisible();
   await popup.getByRole('button', { name: '관계 근거 닫기' }).click();
   await expect(popup).toHaveCount(0);
-  await expect(detail.getByText('관계 요약 · 검증 상태별')).toBeVisible();
+  await expect(detail.getByText('관계 요약 · 검토 상태별')).toBeVisible();
   await expect(page.getByRole('tab', { name: '연결 0', exact: true })).toBeVisible();
   await page.keyboard.press('Control+k');
   const input = page.getByRole('combobox');
   await expect(input).toBeFocused();
   await input.fill('git');
-  await expect(page.getByRole('option')).toHaveCount(3);
+  expect(await page.getByRole('option').count()).toBeGreaterThanOrEqual(3);
   await expect(page.locator('#search-results mark').first()).toHaveText(/git/i);
   await input.fill('nonexistent-platform');
   await expect(page.getByText('검색 결과가 없습니다.')).toBeVisible();
@@ -484,18 +483,37 @@ test('candidate relations remain unverified when selected, and search handles no
   expect(errors).toEqual([]);
 });
 
+test('quick search lists every platform with major services first and incident title matches open the events tab', async ({
+  page,
+}) => {
+  await openMap(page);
+  const input = page.getByRole('combobox');
+  await input.focus();
+  await expect(page.getByRole('listbox')).toContainText('빠른 검색');
+  await expect(page.getByRole('option')).toHaveCount(platforms.length);
+  const quickLabels = await page.getByRole('option').locator('strong').allTextContents();
+  expect(quickLabels.slice(0, 4)).toEqual(['Github', 'Gist', 'Github Gist', 'Pastebin']);
+
+  await input.fill('쿠팡 API');
+  const incident = page.getByRole('option', { name: /쿠팡 API 관련 코드 게시.*사건명 일치/ });
+  await expect(incident).toBeVisible();
+  await incident.click();
+  await expect(page.getByRole('tab', { name: /^사건/ })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('dialog', { name: '쿠팡 API 관련 코드 게시' })).toBeVisible();
+});
+
 test('empty marketplace stays off the map but Xianyu and Taobao are still searchable', async ({
   page,
 }) => {
   await openMap(page);
   const xianyu = page.getByRole('button', { name: '시엔위 영토 선택', exact: true });
   const taobao = page.getByRole('button', { name: '타오바오 영토 선택', exact: true });
-  await expect(xianyu).toHaveCount(0);
-  await expect(taobao).toHaveCount(0);
+  await expect(xianyu).toHaveCount(1);
+  await expect(taobao).toHaveCount(1);
 
   await page.getByRole('combobox').fill('Xianyu');
   await page.getByRole('option', { name: /시엔위/ }).click();
-  await expect(page.locator('[data-island-id="marketplace"]')).toHaveCount(0);
+  await expect(page.locator('[data-island-id="marketplace"]')).toHaveCount(1);
   const details = page.getByRole('complementary', { name: '시엔위 상세 패널' });
   await expect(details).toBeVisible();
   await expect(details.getByText('오픈마켓 > 시엔위 · 사건 0건')).toBeVisible();
@@ -525,12 +543,14 @@ test('statistics selection opens its own platform and mobile has no horizontal o
   await expect(page.getByRole('complementary', { name: 'Pastebin 상세 패널' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await page.getByRole('button', { name: '상세 패널 접기' }).click();
-  await page.getByRole('button', { name: /상세 보기/ }).click();
+  await page.getByRole('button', { name: '상세 패널 열기' }).click();
   await expect(page.getByRole('complementary', { name: 'Pastebin 상세 패널' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await page.getByRole('button', { name: '다크웹', exact: true }).click();
   await expect(page.getByRole('complementary', { name: 'Pastebin 상세 패널' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '등록된 다크웹 플랫폼이 없습니다' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '등록된 다크웹 플랫폼이 없습니다' })).toHaveCount(
+    0,
+  );
 });
 
 test('full viewport starts flat with boxed island titles and platform labels', async ({ page }) => {

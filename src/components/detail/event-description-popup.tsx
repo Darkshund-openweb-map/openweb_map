@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import type { CSSProperties, RefObject } from 'react';
 import type { EcosystemEvent } from '@/lib/ecosystem-types';
 import styles from '@/styles/event-description-popup.module.css';
+import sharedStyles from '@/styles/shared.module.css';
 
 type Props = {
   event: EcosystemEvent;
@@ -50,7 +51,17 @@ export function EventDescriptionPopup({
         <h2 id={`incident-popup-title-${event.id}`}>{event.title}</h2>
         <div className={styles.meta}>
           <time dateTime={event.date}>{event.date}</time>
-          <span>{event.type}</span>
+          <span
+            className={[
+              sharedStyles['status-tag'],
+              event.type === '검토완료' ? sharedStyles.good : '',
+              event.type === '검토중' ? sharedStyles.pending : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          >
+            {event.type}
+          </span>
           {exposureTags.map((tag) => (
             <span key={tag} className={styles['exposure-tag']}>
               {tag}

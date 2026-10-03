@@ -15,12 +15,14 @@ export function useExplorerState() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [showAllRelations, setShowAllRelations] = useState(false);
   const [selectedRelation, setSelectedRelation] = useState<string | null>(null);
+  const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
 
   const clearSelection = () => {
     setSelected(null);
     setTab('overview');
     setDetailOpen(false);
     setSelectedRelation(null);
+    setSelectedIncidentId(null);
     setShowAllRelations(false);
   };
 
@@ -31,6 +33,7 @@ export function useExplorerState() {
     setTab('overview');
     setDetailOpen(true);
     setSelectedRelation(null);
+    setSelectedIncidentId(null);
     setShowAllRelations(false);
   };
 
@@ -41,13 +44,21 @@ export function useExplorerState() {
     setTab('overview');
     setDetailOpen(true);
     setSelectedRelation(null);
+    setSelectedIncidentId(null);
     setShowAllRelations(false);
+  };
+
+  const selectIncident = (platformId: string, incidentId?: string) => {
+    selectPlatform(platformId);
+    setTab('events');
+    setSelectedIncidentId(incidentId ?? null);
   };
 
   const selectRelation = (id: string | null) => {
     const relation = relations.find((item) => item.id === id);
     if (id && !relation) return;
     setSelectedRelation(id);
+    setSelectedIncidentId(null);
     if (!relation) return;
     setSelected({ kind: 'platform', id: relation.source });
     setTab('connections');
@@ -58,6 +69,7 @@ export function useExplorerState() {
   const selectTab = (nextTab: DetailTab) => {
     setTab(nextTab);
     setSelectedRelation(null);
+    setSelectedIncidentId(null);
     setShowAllRelations(false);
   };
 
@@ -69,6 +81,7 @@ export function useExplorerState() {
     setTab('overview');
     setDetailOpen(false);
     setSelectedRelation(null);
+    setSelectedIncidentId(null);
     setShowAllRelations(nextScope === 'connected');
   };
 
@@ -82,12 +95,15 @@ export function useExplorerState() {
     selectedRelation: relations.some((relation) => relation.id === selectedRelation)
       ? selectedRelation
       : null,
+    selectedIncidentId,
     setView,
     setDetailOpen,
     setShowAllRelations,
     clearSelection,
     selectCategory,
     selectPlatform,
+    selectIncident,
+    clearSelectedIncident: () => setSelectedIncidentId(null),
     selectRelation,
     selectTab,
     changeScope,

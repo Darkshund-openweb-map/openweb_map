@@ -28,8 +28,8 @@ export function DetailOverview({
   return (
     <>
       <div className={styles['metric-grid']}>
-        <Metric label="전체 사건" value={`${eventCount}건`} caption="등록 사건 기준" />
-        <Metric label="최근 관측일" value={latestDate?.slice(5) ?? '—'} caption="최근 등록" />
+        <Metric label="전체 사건" value={`${eventCount}건`} />
+        <Metric label="최근 관측일" value={latestDate?.slice(5) ?? '—'} />
       </div>
       {(platform?.description || category.description) && (
         <div className={styles['detail-section']}>

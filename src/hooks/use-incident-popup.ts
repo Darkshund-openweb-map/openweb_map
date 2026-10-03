@@ -26,24 +26,28 @@ type Popup = {
 };
 
 // 팝업은 명시적인 사건 클릭으로만 열고, 목록 필터/플랫폼 전환 시 부모 목록과 함께 해제한다.
-export function useIncidentPopup() {
+export function useIncidentPopup(onPopupClose?: () => void) {
   const [popup, setPopup] = useState<Popup | null>(null);
   const popupRef = useRef<HTMLElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const eventId = popup?.event.id;
 
-  const close = useCallback((restoreFocus = true) => {
-    setPopup(null);
-    if (restoreFocus && triggerRef.current?.isConnected) {
-      triggerRef.current.focus({ preventScroll: true });
-    }
-  }, []);
+  const close = useCallback(
+    (restoreFocus = true) => {
+      setPopup(null);
+      onPopupClose?.();
+      if (restoreFocus && triggerRef.current?.isConnected) {
+        triggerRef.current.focus({ preventScroll: true });
+      }
+    },
+    [onPopupClose],
+  );
 
-  const open = (event: EcosystemEvent, trigger: HTMLButtonElement) => {
+  const open = useCallback((event: EcosystemEvent, trigger: HTMLButtonElement) => {
     triggerRef.current = trigger;
     setPopup({ event, trigger, position: popupPosition(trigger) });
-  };
+  }, []);
 
   useEffect(() => {
     if (eventId) closeButtonRef.current?.focus({ preventScroll: true });

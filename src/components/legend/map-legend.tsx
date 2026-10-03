@@ -37,7 +37,7 @@ export function MapLegend({ category, onSelectCategory }: Props) {
             <path d="M5.5 6h19" />
             <circle cx="27" cy="6" r="2.5" />
           </svg>
-          <span className={styles['verified-status']}>검증 완료 관계</span>
+          <span>검증 완료 관계</span>
         </div>
         <div className={styles.connectionRow}>
           <svg viewBox="0 0 30 12" aria-hidden="true">
