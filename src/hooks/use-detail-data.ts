@@ -3,6 +3,7 @@
 
 import type { Selection } from '@/lib/ecosystem-types';
 import { useEcosystemData } from '@/hooks/use-ecosystem-data';
+import { normalizeExposurePercentages } from '@/lib/event-aggregates';
 
 export function useDetailData(selected: Selection) {
   const data = useEcosystemData();
@@ -16,19 +17,21 @@ export function useDetailData(selected: Selection) {
     (item) => platformIds.has(item.source) || platformIds.has(item.target),
   );
   const latestEvent = events.toSorted((a, b) => b.date.localeCompare(a.date))[0];
-  const percent = (count: number) =>
-    events.length ? Math.round((count / events.length) * 100) : 0;
   const bars = platform
-    ? [...new Set(events.flatMap((event) => event.exposures))]
-        .map((name) => ({
-          name,
-          value: percent(events.filter((event) => event.exposures.includes(name)).length),
-        }))
-        .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name, 'ko'))
-    : platforms.map((item) => ({
-        name: item.name,
-        value: percent(events.filter((event) => event.platform === item.id).length),
-      }));
+    ? normalizeExposurePercentages(
+        [...new Set(events.flatMap((event) => event.exposures))]
+          .map((name) => ({
+            name,
+            count: events.filter((event) => event.exposures.includes(name)).length,
+          }))
+          .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'ko')),
+      ).map(({ name, heat }) => ({ name, value: heat }))
+    : normalizeExposurePercentages(
+        platforms.map((item) => ({
+          name: item.name,
+          count: events.filter((event) => event.platform === item.id).length,
+        })),
+      ).map(({ name, heat }) => ({ name, value: heat }));
   const months = platform ? 4 : 12;
   const reference = new Date(`${data.timeline.current.date}T00:00:00Z`);
   const trend = Array.from({ length: months }, (_, index) => {

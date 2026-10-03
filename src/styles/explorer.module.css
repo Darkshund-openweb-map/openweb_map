@@ -275,6 +275,16 @@
   overflow-wrap: anywhere;
   word-break: keep-all;
 }
+.search-results mark {
+  padding: 0;
+  background: transparent;
+  color: #176bfa;
+  font: inherit;
+}
+.content-path .content-summary {
+  margin: 0;
+  align-self: center;
+}
 .content-summary {
   font-size: var(--text-caption);
   color: #748297;

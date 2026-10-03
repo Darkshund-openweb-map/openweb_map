@@ -37,6 +37,7 @@ export function ContentHeader({
 }: Props) {
   const statistics = view === 'statistics';
   const summary = useHeaderSummary(selected, tab, selectedRelation);
+  const displayedSummary = scope === 'dark' ? '등록된 다크웹 데이터가 없습니다.' : summary;
   return (
     <div className={styles['content-header']}>
       <div className={styles['content-heading']}>
@@ -66,10 +67,8 @@ export function ContentHeader({
               </h1>
             </>
           )}
+          <p className={styles['content-summary']}>{displayedSummary}</p>
         </div>
-        <p className={styles['content-summary']}>
-          {scope === 'dark' ? '등록된 다크웹 데이터가 없습니다.' : summary}
-        </p>
       </div>
       <div className={styles['content-actions']}>
         {selected && !statistics && !detailOpen && (

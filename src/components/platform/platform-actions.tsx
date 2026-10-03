@@ -8,11 +8,14 @@ import { PlatformDialog } from './platform-dialog';
 import { IncidentDialog, type IncidentMode } from './incident-dialog';
 import styles from '@/styles/platform-editor.module.css';
 import { useEcosystemData } from '@/hooks/use-ecosystem-data';
+import { useAdmin } from '@/hooks/use-admin';
 
 export function PlatformActions({ platform }: { platform: Platform }) {
   const [mode, setMode] = useState<IncidentMode | null>(null);
   const { readOnly } = useEcosystemData();
+  const { isAdmin } = useAdmin();
   const canEditIncidents = !readOnly && platform.id.startsWith('platform-');
+  if (!isAdmin) return null;
   return (
     <div className={styles.actions}>
       <div className={styles.buttons} role="group" aria-label="플랫폼 데이터 관리">
@@ -54,6 +57,7 @@ export function CategoryPlatformAdd({
 }) {
   const [open, setOpen] = useState(false);
   const { readOnly } = useEcosystemData();
+  const { isAdmin } = useAdmin();
   const placeholder: Platform = {
     id: 'local-new',
     name: '',
@@ -63,6 +67,7 @@ export function CategoryPlatformAdd({
     x: category.center[0],
     y: category.center[1],
   };
+  if (!isAdmin) return null;
   return (
     <div className={styles.actions}>
       <Button disabled={readOnly} onClick={() => setOpen(true)}>

@@ -40,10 +40,12 @@ export function DetailOverview({
         </div>
       )}
       <Bars caption={platform ? '노출 정보 유형' : '플랫폼 사건 비중'} items={bars} />
-      <MiniChart
-        title={platform ? '등록 추이 · 최근 4개월' : '사건 추이 · 최근 12개월'}
-        points={trend}
-      />
+      {trend.some((point) => point.value > 0) && (
+        <MiniChart
+          title={platform ? '등록 추이 · 최근 4개월' : '사건 추이 · 최근 12개월'}
+          points={trend}
+        />
+      )}
       {!platform && (
         <div className={styles['detail-section']}>
           <div className={sharedStyles['block-heading']}>포함 플랫폼</div>

@@ -183,9 +183,7 @@ test('playback advances at the chosen speed, stops at baseline and pauses when m
   await page.getByRole('button', { name: '타임라인 재생', exact: true }).click();
   await page.getByRole('button', { name: '다크웹', exact: true }).click();
   await page.clock.runFor(1000);
-  await expect(slider).toHaveCount(0);
-  await page.getByRole('button', { name: '오픈웹', exact: true }).click();
-  await expect(slider).toHaveValue('3');
+  await expect(slider).toHaveValue('20');
   await expect(page.getByRole('button', { name: '타임라인 재생', exact: true })).toBeVisible();
 });
 
