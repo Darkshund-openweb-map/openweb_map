@@ -8,6 +8,7 @@ import type {
 import { createIslandCategories, parseIslandRows } from '../island-categories';
 import { layoutIslandPlatforms } from '../platform-layout';
 import { aggregateExposures } from '../event-aggregates';
+import { exposureCategory } from '../exposure-categories';
 
 type Row = Record<string, unknown>;
 export type DatabaseRows = {
@@ -90,16 +91,16 @@ export function createDatabaseSnapshot(data: DatabaseRows): EcosystemSnapshot {
   const dataTypesByIncident = new Map<number, IncidentDataType[]>();
   for (const row of typeRows) {
     const incidentId = numericId(row.incident_id);
-    const names = exposuresByIncident.get(incidentId) ?? new Set<string>();
-    const name = text(row.name, text(row.category));
-    if (name) names.add(name);
-    exposuresByIncident.set(incidentId, names);
+    const exposures = exposuresByIncident.get(incidentId) ?? new Set<string>();
+    const category = exposureCategory(row.category);
+    exposures.add(category);
+    exposuresByIncident.set(incidentId, exposures);
     const details = dataTypesByIncident.get(incidentId) ?? [];
     details.push({
       id: `incident-data-type-${numericId(row.id)}`,
-      name,
-      category: text(row.category),
-      // 집계용 이름은 중복 제거하지만 설명은 각 DB 행과 원문 줄바꿈을 보존한다.
+      name: text(row.name),
+      category,
+      // 유형은 사건별로 중복 제거하지만 상세 이름·설명은 각 DB 행을 보존한다.
       description: typeof row.description === 'string' ? row.description : '',
     });
     dataTypesByIncident.set(incidentId, details);
