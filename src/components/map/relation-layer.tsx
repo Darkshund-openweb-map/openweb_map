@@ -83,15 +83,6 @@ export function RelationLayer({
             strokeWidth={active ? 2.8 : index === 0 ? 2 : 1.5}
             strokeDasharray={item.status === 'verified' ? undefined : '6 4'}
           />
-          {active && (
-            <g transform={`translate(${midX},${midY + yBend / 2})`}>
-              <rect x="-33" y="-12" width="66" height="23" rx="11" fill="#f46a18" />
-              <circle cx="-22" cy="-1" r="3" fill="white" />
-              <text x="-15" y="3" fill="white" fontSize="9" fontWeight="700">
-                {item.type} {item.evidence}건
-              </text>
-            </g>
-          )}
         </g>
       );
     });

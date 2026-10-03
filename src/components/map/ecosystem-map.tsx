@@ -10,7 +10,6 @@ import { MapBottomControls } from './map-bottom-controls';
 import { MapEmptyState } from './map-empty-state';
 import { MapTimelineEmptyState } from './map-timeline-empty-state';
 import { RelationToggle } from './relation-toggle';
-import { RelationEvidence } from './relation-evidence';
 import { RelationLayer } from './relation-layer';
 import { useMapZoom } from '@/hooks/use-map-zoom';
 import { useMapData } from '@/hooks/use-map-data';
@@ -41,6 +40,7 @@ export function EcosystemMap({
   onShowAllRelations,
 }: Props) {
   const {
+    isLatest,
     selected,
     platforms,
     events,
@@ -69,6 +69,32 @@ export function EcosystemMap({
   const latestHoveredDate = hoveredEvents
     .map((event) => event.date)
     .sort((a, b) => b.localeCompare(a))[0];
+  const historicalLayout = useMemo(() => {
+    const offsets = new Map<string, { x: number; y: number }>();
+    if (isLatest || !tileGroups.length) return { offsets, scale: 1 };
+
+    const count = tileGroups.length;
+    const columns = count === 1 ? 1 : count <= 4 ? 2 : 3;
+    const rows = Math.ceil(count / columns);
+    const gapX = columns === 3 ? 250 : 270;
+    const gapY = 250;
+    const startY = 345 - ((rows - 1) * gapY) / 2;
+
+    tileGroups.forEach(({ category }, index) => {
+      const row = Math.floor(index / columns);
+      const itemsInRow = Math.min(columns, count - row * columns);
+      const column = index - row * columns;
+      const targetX = 455 + (column - (itemsInRow - 1) / 2) * gapX;
+      const targetY = startY + row * gapY;
+      offsets.set(category.id, {
+        x: targetX - category.center[0],
+        y: targetY - category.center[1],
+      });
+    });
+
+    const scale = count === 1 ? 1.45 : count === 2 ? 1.34 : count === 3 ? 1.22 : count === 4 ? 1.12 : 1.05;
+    return { offsets, scale };
+  }, [isLatest, tileGroups]);
   const platformAnchors = useMemo(() => {
     const anchors = new Map<string, { x: number; y: number }>();
     tileGroups.forEach(({ cells, owners }) => {
@@ -82,14 +108,18 @@ export function EcosystemMap({
         territories.set(platformId, territory);
       });
       territories.forEach((territory, platformId) => {
+        const platform = platforms.find((item) => item.id === platformId);
+        const offset = platform
+          ? historicalLayout.offsets.get(platform.category) ?? { x: 0, y: 0 }
+          : { x: 0, y: 0 };
         anchors.set(platformId, {
-          x: territory.reduce((sum, cell) => sum + cell.x, 0) / territory.length,
-          y: territory.reduce((sum, cell) => sum + cell.y, 0) / territory.length,
+          x: territory.reduce((sum, cell) => sum + cell.x, 0) / territory.length + offset.x,
+          y: territory.reduce((sum, cell) => sum + cell.y, 0) / territory.length + offset.y,
         });
       });
     });
     return anchors;
-  }, [tileGroups]);
+  }, [historicalLayout.offsets, platforms, tileGroups]);
   const connectedRelations = useMemo(
     () =>
       selected?.kind === 'platform'
@@ -120,7 +150,6 @@ export function EcosystemMap({
       ),
     [activePlatformIds, platforms],
   );
-
   const reset = () => {
     resetView();
     onClear();
@@ -190,43 +219,61 @@ export function EcosystemMap({
             reset();
           }}
         />
-        <g data-map-scene transform={`${transform.toString()} translate(${selected ? -75 : 5},0)`}>
-          {tileGroups.map(({ category, cells, owners }) => {
-            const dimmed =
-              selected?.kind === 'platform'
-                ? !activeCategoryIds.has(category.id)
-                : Boolean(activeCategory && activeCategory !== category.id);
-            return (
-              <IslandGroup
-                key={category.id}
-                category={category}
-                cells={cells}
-                owners={owners}
-                platforms={platforms}
-                selected={selected}
-                activePlatformIds={activePlatformIds}
-                dimmed={dimmed}
-                onHoverPlatform={setHoveredPlatformId}
-                onSelectCategory={onSelectCategory}
-                onSelectPlatform={onSelectPlatform}
-              />
-            );
-          })}
-          <RelationLayer
-            relations={relations}
-            selected={selected}
-            activePlatformIds={activePlatformIds}
-            platformAnchors={platformAnchors}
-            selectedRelation={selectedRelation}
-            onSelectRelation={onSelectRelation}
-          />
-          {relation && (
-            <RelationEvidence relation={relation} onClose={() => onSelectRelation(null)} />
-          )}
-          {hoveredPlatform && hoveredCategory && (
+        <g
+          data-map-scene
+          data-layout-scale={historicalLayout.scale.toFixed(3)}
+          transform={`${transform.toString()} translate(${selected ? -75 : 5},0)`}
+        >
+          <g
+            className={styles['historical-layout']}
+            style={{
+              transform: `translate(455px, 345px) scale(${historicalLayout.scale}) translate(-455px, -345px)`,
+            }}
+          >
+            {tileGroups.map(({ category, cells, owners }) => {
+              const dimmed =
+                selected?.kind === 'platform'
+                  ? !activeCategoryIds.has(category.id)
+                  : Boolean(activeCategory && activeCategory !== category.id);
+              const offset = historicalLayout.offsets.get(category.id) ?? { x: 0, y: 0 };
+              return (
+                <g
+                  key={category.id}
+                  className={styles['island-position']}
+                  data-island-position={category.id}
+                  style={{ transform: `translate(${offset.x}px, ${offset.y}px)` }}
+                >
+                  <IslandGroup
+                    category={category}
+                    cells={cells}
+                    owners={owners}
+                    platforms={platforms}
+                    selected={selected}
+                    activePlatformIds={activePlatformIds}
+                    dimmed={dimmed}
+                    onHoverPlatform={setHoveredPlatformId}
+                    onSelectCategory={onSelectCategory}
+                    onSelectPlatform={onSelectPlatform}
+                  />
+                </g>
+              );
+            })}
+            <RelationLayer
+              relations={relations}
+              selected={selected}
+              activePlatformIds={activePlatformIds}
+              platformAnchors={platformAnchors}
+              selectedRelation={selectedRelation}
+              onSelectRelation={onSelectRelation}
+            />
+            {hoveredPlatform && hoveredCategory && (() => {
+              const offset = historicalLayout.offsets.get(hoveredCategory.id) ?? { x: 0, y: 0 };
+              const hoverX = hoveredPlatform.x + offset.x;
+              const hoverY = hoveredPlatform.y + offset.y;
+              return (
             <foreignObject
-              x={hoveredPlatform.x < 600 ? hoveredPlatform.x + 28 : hoveredPlatform.x - 268}
-              y={Math.max(-18, Math.min(530, hoveredPlatform.y - 82))}
+              x={hoverX < 600 ? hoverX + 28 : hoverX - 268}
+              y={Math.max(-18, Math.min(530, hoverY - 82))}
               width="240"
               height="176"
               className={styles['platform-hover-card-object']}
@@ -256,7 +303,9 @@ export function EcosystemMap({
                 <p>{hoveredPlatform.description || '등록된 설명이 없습니다.'}</p>
               </div>
             </foreignObject>
-          )}
+              );
+            })()}
+          </g>
         </g>
       </svg>
       {!tileGroups.length && <MapTimelineEmptyState />}

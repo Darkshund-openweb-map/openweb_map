@@ -136,7 +136,7 @@ export async function loadIncidentEditorData(platformId: number): Promise<Incide
       { method: 'GET' },
     ),
     adminRequest(
-      `platform_connections?source_platform_id=eq.${platformId}&select=id,target_platform_id,connection_type,description,verification_status,confidence,evidence_count,first_seen,last_seen&order=id.asc`,
+      `platform_connections?source_platform_id=eq.${platformId}&select=id,incident_id,target_platform_id,connection_type,description,verification_status,confidence,evidence_count,first_seen,last_seen&order=id.asc`,
       { method: 'GET' },
     ),
     adminRequest('platforms?select=id,name&order=name.asc', { method: 'GET' }),
@@ -172,17 +172,19 @@ export async function loadIncidentEditorData(platformId: number): Promise<Incide
           category: item.category ?? '',
           description: item.description ?? '',
         })),
-    })),
-    connections: connectionRows.map((row) => ({
-      id: row.id,
-      targetPlatformId: row.target_platform_id,
-      connectionType: row.connection_type ?? '',
-      description: row.description ?? '',
-      verificationStatus: row.verification_status ?? 'candidate',
-      confidence: row.confidence ?? '미평가',
-      evidenceCount: row.evidence_count ?? 0,
-      firstSeen: (row.first_seen ?? '').slice(0, 10),
-      lastSeen: (row.last_seen ?? '').slice(0, 10),
+      connections: connectionRows
+        .filter((connection) => connection.incident_id === row.id)
+        .map((connection) => ({
+          id: connection.id,
+          targetPlatformId: connection.target_platform_id,
+          connectionType: connection.connection_type ?? '',
+          description: connection.description ?? '',
+          verificationStatus: connection.verification_status ?? 'candidate',
+          confidence: connection.confidence ?? '미평가',
+          evidenceCount: connection.evidence_count ?? 0,
+          firstSeen: (connection.first_seen ?? '').slice(0, 10),
+          lastSeen: (connection.last_seen ?? '').slice(0, 10),
+        })),
     })),
     platforms: platformRows.map((row) => ({ id: row.id, name: row.name })),
   };

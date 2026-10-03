@@ -141,6 +141,7 @@ export const platforms: Platform[] = [
 export const relations: Relation[] = [
   {
     id: 'gist-pastebin',
+    incidentId: 'gist-coupang-api',
     source: 'github-gist',
     target: 'pastebin',
     type: '재게시',
@@ -153,6 +154,7 @@ export const relations: Relation[] = [
   },
   {
     id: 'gist-mega',
+    incidentId: 'gist-coupang-api',
     source: 'github-gist',
     target: 'mega',
     type: '동일 파일',
@@ -165,6 +167,7 @@ export const relations: Relation[] = [
   },
   {
     id: 'gist-rentry',
+    incidentId: 'gist-coupang-api',
     source: 'github-gist',
     target: 'rentry',
     type: '동일 콘텐츠',

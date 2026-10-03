@@ -13,9 +13,22 @@ test('clicking an incident opens every associated description to the left and Es
   await openEvents(page, 'Github Gist');
   await expect(page.getByRole('dialog')).toHaveCount(0);
   const incident = page.getByRole('button', { name: /쿠팡 API 관련 코드 게시/ });
+  await expect(incident.locator('[data-connection-path]')).toHaveCount(3);
+  const pastebinPath = incident.locator('[data-connection-path="gist-pastebin"]');
+  await expect(pastebinPath).toHaveAttribute('title', 'Github Gist → Pastebin');
+  expect(await pastebinPath.locator('i').first().evaluate((node) => getComputedStyle(node).backgroundColor)).toBe(
+    'rgb(68, 122, 255)',
+  );
+  expect(await pastebinPath.locator('i').last().evaluate((node) => getComputedStyle(node).backgroundColor)).toBe(
+    'rgb(44, 191, 175)',
+  );
   await incident.click();
   const popup = page.getByRole('dialog', { name: '쿠팡 API 관련 코드 게시', exact: true });
   await expect(popup).toBeVisible();
+  await expect(popup.getByRole('heading', { level: 3 })).toHaveCount(0);
+  const exposureTag = popup.getByText('API 키 노출', { exact: true });
+  await expect(exposureTag).toBeVisible();
+  await expect(exposureTag.locator('..')).toHaveClass(/meta/);
   await expect(popup.getByText('테스트용 사건 설명입니다.', { exact: false })).toContainText(
     '원문에 있는 줄바꿈을 그대로 표시합니다.',
   );
@@ -47,6 +60,9 @@ test('another incident replaces the popup and clicking outside or changing views
   page,
 }) => {
   await openEvents(page, 'Telegram');
+  const accountSale = page.getByRole('button', { name: /한국 nexon 계정 판매/ });
+  await expect(accountSale.getByText('계정 판매', { exact: true })).toBeVisible();
+  await expect(accountSale.getByText('Telegram · 계정 판매', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: /JB오토리스할부 DB 유출/ }).click();
   await expect(page.getByRole('dialog')).toContainText(
     '첫 번째 Telegram 사건의 테스트 설명입니다.',

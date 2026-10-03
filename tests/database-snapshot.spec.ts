@@ -142,6 +142,7 @@ test('verified relationship fields and description map to relation evidence', ()
     connections: [
       {
         id: 2,
+        incident_id: 1,
         source_platform_id: 1,
         target_platform_id: 11,
         connection_type: '동일 콘텐츠',
@@ -157,6 +158,7 @@ test('verified relationship fields and description map to relation evidence', ()
   });
   expect(snapshot.relations).toMatchObject([
     {
+      incidentId: 'incident-1',
       status: 'verified',
       confidence: '높음',
       evidence: 3,

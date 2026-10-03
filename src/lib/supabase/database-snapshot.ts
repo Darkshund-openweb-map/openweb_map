@@ -135,6 +135,12 @@ export function createDatabaseSnapshot(data: DatabaseRows): EcosystemSnapshot {
     return [
       {
         id: `connection-${row.id}`,
+        incidentId:
+          typeof row.incident_id === 'number' &&
+          Number.isSafeInteger(row.incident_id) &&
+          row.incident_id > 0
+            ? `incident-${row.incident_id}`
+            : undefined,
         source,
         target,
         type: requiredText(row.connection_type, 'platform_connections.connection_type'),

@@ -20,6 +20,9 @@ export function EventDescriptionPopup({
   closeButtonRef,
   onClose,
 }: Props) {
+  const exposureTags = Array.from(
+    new Set(event.dataTypes.map((item) => item.category.trim()).filter(Boolean)),
+  );
   return createPortal(
     <section
       ref={popupRef}
@@ -48,6 +51,11 @@ export function EventDescriptionPopup({
         <div className={styles.meta}>
           <time dateTime={event.date}>{event.date}</time>
           <span>{event.type}</span>
+          {exposureTags.map((tag) => (
+            <span key={tag} className={styles['exposure-tag']}>
+              {tag}
+            </span>
+          ))}
         </div>
       </header>
       <div className={styles.content}>
@@ -58,10 +66,6 @@ export function EventDescriptionPopup({
               className={styles.entry}
               aria-label={item.name || '등록된 데이터'}
             >
-              <div className={styles.typeHeading}>
-                <h3>{item.name || '등록된 데이터'}</h3>
-                {item.category && <span>{item.category}</span>}
-              </div>
               {item.description.trim() ? (
                 <p className={styles.description}>{item.description}</p>
               ) : (

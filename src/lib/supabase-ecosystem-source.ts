@@ -28,7 +28,7 @@ export const supabaseEcosystemSource: EcosystemSource = {
       queryTableRows(
         config,
         'platform_connections',
-        'id,source_platform_id,target_platform_id,connection_type,description,verification_status,confidence,evidence_count,first_seen,last_seen,verified_at,created_at,updated_at',
+        'id,incident_id,source_platform_id,target_platform_id,connection_type,description,verification_status,confidence,evidence_count,first_seen,last_seen,verified_at,created_at,updated_at',
       ),
     ]);
     return createDatabaseSnapshot({ islands, platforms, incidents, dataTypes, connections });

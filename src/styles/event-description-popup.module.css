@@ -76,6 +76,12 @@
   background: #eaf0f8;
 }
 
+.meta > .exposure-tag {
+  border: 1px solid #d5e2fa;
+  color: #4472b7;
+  background: #f3f7ff;
+}
+
 .content {
   min-height: 0;
   overflow-y: auto;
@@ -87,29 +93,6 @@
   margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid #e7edf6;
-}
-
-.typeHeading {
-  display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 7px 10px;
-  margin-bottom: 10px;
-}
-
-.typeHeading h3 {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.typeHeading > span {
-  padding: 1px 7px;
-  border: 1px solid #dce7fa;
-  border-radius: 4px;
-  color: #4472b7;
-  background: #f3f7ff;
-  font-size: 11px;
 }
 
 .description {

@@ -40,6 +40,7 @@ export interface Platform {
 
 export interface Relation {
   id: string;
+  incidentId?: string;
   source: string;
   target: string;
   type: string;

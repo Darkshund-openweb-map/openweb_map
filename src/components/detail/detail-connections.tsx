@@ -5,7 +5,7 @@ import type { CategoryId, Relation } from '@/lib/ecosystem-types';
 import { useEcosystemData } from '@/hooks/use-ecosystem-data';
 import { Metric } from '@/components/chart/metric';
 
-const statusNames = { verified: '검증 완료', candidate: '후보', excluded: '제외' };
+const statusNames = { verified: '검증 완료', candidate: '검증 대기', excluded: '제외' };
 
 export function DetailConnections({
   relations,
@@ -19,6 +19,72 @@ export function DetailConnections({
   onSelectCategory: (id: CategoryId) => void;
 }) {
   const { getPlatform, getCategory } = useEcosystemData();
+  const selected = relations.find((item) => item.id === selectedRelation);
+  if (selected) {
+    const source = getPlatform(selected.source);
+    const target = getPlatform(selected.target);
+    return (
+      <article className={styles['relation-detail']}>
+        <div className={styles['relation-detail-eyebrow']}>선택한 관계 · Evidence</div>
+        <div className={styles['relation-detail-heading']}>
+          <h3>
+            {source?.name ?? selected.source} → {target?.name ?? selected.target}
+          </h3>
+          <span
+            className={[
+              sharedStyles['status-tag'],
+              selected.status === 'verified' ? sharedStyles.good : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          >
+            {statusNames[selected.status]}
+          </span>
+        </div>
+        <dl className={styles['relation-detail-list']}>
+          <div>
+            <dt>관계 유형</dt>
+            <dd>{selected.type}</dd>
+          </div>
+          <div>
+            <dt>관계 레코드</dt>
+            <dd>{selected.evidence}건</dd>
+          </div>
+          <div>
+            <dt>최초 관측</dt>
+            <dd>{selected.firstSeen}</dd>
+          </div>
+          <div>
+            <dt>최근 관측</dt>
+            <dd>{selected.lastSeen}</dd>
+          </div>
+          <div>
+            <dt>근거</dt>
+            <dd>{selected.note}</dd>
+          </div>
+          <div>
+            <dt>검증</dt>
+            <dd>{statusNames[selected.status]}</dd>
+          </div>
+        </dl>
+        <div className={styles['relation-detail-platforms']}>
+          <p>
+            <span>출발 플랫폼</span> {source?.domain || '—'}
+          </p>
+          <p>
+            <span>도착 플랫폼</span> {target?.domain || '—'}
+          </p>
+        </div>
+        <button
+          type="button"
+          className={styles['relation-detail-back']}
+          onClick={() => onSelectRelation(null)}
+        >
+          ← 관계 목록
+        </button>
+      </article>
+    );
+  }
   const verified = relations.filter((item) => item.status === 'verified');
   const candidates = relations.filter((item) => item.status === 'candidate');
   const excluded = relations.filter((item) => item.status === 'excluded');
@@ -86,7 +152,7 @@ export function DetailConnections({
           </b>
           <small>
             {item.status === 'verified'
-              ? `신뢰도 ${item.confidence} · ${item.firstSeen} → ${item.lastSeen}`
+              ? `${item.firstSeen} → ${item.lastSeen}`
               : item.status === 'excluded'
                 ? '집계 제외'
                 : '검증 대기 · 집계 제외'}

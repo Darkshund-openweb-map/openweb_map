@@ -347,13 +347,14 @@
   margin-left: 6px;
   font-style: normal;
 }
+.timeline-item small .timeline-exposure-tag {
+  border: 1px solid #d5e2fa;
+  color: #4472b7;
+  background: #f3f7ff;
+}
 .timeline-item strong {
   font-size: var(--text-body);
   line-height: 1.65;
-}
-.timeline-item > span:last-child {
-  font-size: var(--text-caption);
-  color: #7f8ca1;
 }
 .helper-text {
   font-size: var(--text-caption);
@@ -449,6 +450,89 @@
   display: block;
   font-size: var(--text-caption);
   color: #8795a8;
+}
+.event-connections {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.event-connection-pair {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #8491a4;
+  font-size: 11px;
+}
+.event-connection-pair i {
+  display: block;
+  width: 13px;
+  height: 13px;
+  clip-path: polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0 50%);
+  box-shadow: inset 0 0 0 1px #ffffffb3;
+}
+.relation-detail {
+  color: #202d41;
+}
+.relation-detail-eyebrow {
+  margin-bottom: 8px;
+  color: #718198;
+  font-size: var(--text-caption);
+}
+.relation-detail-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.relation-detail-heading h3 {
+  margin: 0;
+  font-size: 15px;
+}
+.relation-detail-list {
+  margin: 0;
+}
+.relation-detail-list > div {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #edf1f6;
+}
+.relation-detail-list dt {
+  color: #7b899e;
+  font-size: var(--text-caption);
+}
+.relation-detail-list dd {
+  margin: 0;
+  text-align: right;
+  font-size: var(--text-caption);
+  font-weight: 600;
+  white-space: pre-wrap;
+}
+.relation-detail-platforms {
+  margin-top: 14px;
+  color: #718198;
+  font-size: var(--text-caption);
+  overflow-wrap: anywhere;
+}
+.relation-detail-platforms p {
+  margin: 6px 0;
+}
+.relation-detail-platforms span {
+  display: inline-block;
+  min-width: 72px;
+  color: #52627a;
+}
+.relation-detail-back {
+  margin-top: 12px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #176bfa;
+  font: inherit;
+  cursor: pointer;
 }
 .category-link {
   display: flex;

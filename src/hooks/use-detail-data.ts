@@ -43,6 +43,8 @@ export function useDetailData(selected: Selection) {
     category,
     platform,
     platforms,
+    allPlatforms: data.platforms,
+    categories: data.categories,
     events,
     relations,
     latestEvent,

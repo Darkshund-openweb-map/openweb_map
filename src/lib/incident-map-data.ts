@@ -2,9 +2,9 @@ import type { CategoryId, EcosystemSnapshot } from './ecosystem-types';
 
 type MapData = Pick<EcosystemSnapshot, 'categories' | 'platforms' | 'events' | 'relations'>;
 
-// 날짜별 집계 결과 중 사건이 있는 섬만 지도에 투영한다.
-// 원본 목록은 그대로 두어 검색·상세 패널·통계에서 빈 유형도 조회할 수 있게 한다.
-export function getIncidentMapData(data: MapData): MapData {
+// 현재 시점에서는 사건이 없는 섬도 자리를 유지한다.
+// 과거 시점에서는 당시까지 사건이 등장한 섬과 연결만 지도에 투영한다.
+export function getIncidentMapData(data: MapData, showEmptyIslands = false): MapData {
   const platformCategories = new Map(
     data.platforms.map((platform) => [platform.id, platform.category]),
   );
@@ -15,7 +15,7 @@ export function getIncidentMapData(data: MapData): MapData {
   }
   const categories = data.categories.flatMap((category) => {
     const count = counts.get(category.id) ?? 0;
-    return count > 0 ? [{ ...category, count }] : [];
+    return showEmptyIslands || count > 0 ? [{ ...category, count }] : [];
   });
   const categoryIds = new Set(categories.map((category) => category.id));
   const platforms = data.platforms.filter((platform) => categoryIds.has(platform.category));
