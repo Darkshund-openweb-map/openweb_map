@@ -9,20 +9,23 @@ async function openMap(page: Page) {
   });
 }
 
-test('map shows only islands with incidents while all seven types remain discoverable', async ({
+test('map keeps all seven islands visible when some have no incidents', async ({
   page,
 }) => {
   await openMap(page);
-  await expect(page.locator('[data-island-id]')).toHaveCount(3);
-  for (const name of ['코드 호스팅', '텍스트 호스팅', '커뮤니티']) {
+  await expect(page.locator('[data-island-id]')).toHaveCount(7);
+  for (const name of [
+    '코드 호스팅',
+    '텍스트 호스팅',
+    '커뮤니티',
+    '오픈마켓',
+    '백엔드 서비스',
+    '공식 웹사이트',
+    '파일 호스팅',
+  ]) {
     await expect(page.getByRole('button', { name: `${name} 섬 선택`, exact: true })).toBeVisible();
   }
-  for (const name of ['오픈마켓', '백엔드 서비스', '공식 웹사이트', '파일 호스팅']) {
-    await expect(page.getByRole('button', { name: `${name} 섬 선택`, exact: true })).toHaveCount(0);
-  }
-  await expect(
-    page.getByRole('navigation', { name: '플랫폼 유형' }).getByRole('button'),
-  ).toHaveCount(7);
+  await expect(page.getByRole('button', { name: '오픈마켓 0건', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: '기타 섬 선택', exact: true })).toHaveCount(0);
 });
 
@@ -438,12 +441,16 @@ test('candidate relations remain unverified when selected, and search handles no
   });
   await openMap(page);
   await page.getByRole('button', { name: 'Github Gist 영토 선택', exact: true }).click();
-  const relation = page.locator('[data-relation-id="gist-rentry"]');
-  await relation.focus();
-  await page.keyboard.press('Enter');
   const detail = page.getByRole('complementary', { name: 'Github Gist 상세 패널' });
-  await expect(detail.getByRole('heading', { name: '동일 콘텐츠 1건' })).toBeVisible();
-  await expect(detail.getByText('선택한 관계 · 신뢰도 낮음 · 검증 대기')).toBeVisible();
+  await detail.getByRole('tab', { name: /^연결/ }).click();
+  await detail.getByRole('button', { name: /Github Gist → MEGA/ }).click();
+  await expect(detail.getByRole('heading', { name: '동일 파일 1건' })).toBeVisible();
+  await expect(detail.getByText('선택한 관계 · Evidence')).toBeVisible();
+  await expect(detail.getByText('선택한 관계 · 검증 대기')).toBeVisible();
+  await expect(detail.getByText('신뢰도', { exact: true })).toHaveCount(0);
+  await expect(page.locator('svg').getByText('선택한 관계 · Evidence')).toHaveCount(0);
+  await detail.getByRole('button', { name: '← 관계 목록' }).click();
+  await expect(detail.getByText('관계 요약 · 검증 상태별')).toBeVisible();
   await expect(page.getByRole('tab', { name: '연결 0', exact: true })).toBeVisible();
   await page.keyboard.press('Control+k');
   const input = page.getByRole('combobox');

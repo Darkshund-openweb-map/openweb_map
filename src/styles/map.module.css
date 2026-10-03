@@ -13,6 +13,17 @@
   display: block;
   touch-action: none;
 }
+.historical-layout,
+.island-position,
+.relation-path path {
+  transition: transform 460ms cubic-bezier(0.22, 0.78, 0.24, 1),
+    d 460ms cubic-bezier(0.22, 0.78, 0.24, 1);
+}
+.historical-layout,
+.island-position {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
 .timeline-empty-state {
   position: absolute;
   inset: 0;
@@ -88,7 +99,10 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .admin-map-button {
+  .admin-map-button,
+  .historical-layout,
+  .island-position,
+  .relation-path path {
     transition: none;
   }
 }
@@ -355,47 +369,6 @@
   color: #52627d;
   background: #fff;
   border-color: #dce4ef;
-}
-.evidence-card {
-  font-family: Arial, 'Malgun Gothic', sans-serif;
-  background: #fff;
-  border: 1px solid #dae3ee;
-  border-radius: 11px;
-  padding: 12px 13px;
-  box-shadow: 0 10px 24px #31445d22;
-  color: #172033;
-  font-size: 9px;
-}
-.evidence-card h3 {
-  font-size: 11px;
-  margin: 7px 0 9px;
-}
-.evidence-card dl {
-  margin: 0;
-}
-.evidence-card dl > div {
-  display: flex;
-  justify-content: space-between;
-  padding: 3px 0;
-  border-bottom: 1px solid #f1f4f8;
-}
-.evidence-card dt {
-  color: #8693a7;
-}
-.evidence-card dd {
-  margin: 0;
-  font-weight: 600;
-}
-.evidence-card p {
-  margin: 5px 0;
-  color: #8492a6;
-}
-.evidence-card button {
-  border: 0;
-  background: none;
-  color: #176bfa;
-  font-size: 9px;
-  padding: 0;
 }
 .muted {
   color: #8390a2;

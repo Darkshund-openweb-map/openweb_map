@@ -54,7 +54,7 @@ export function DetailPanel({
         {(platform || relation) && (
           <p>
             {relation
-              ? `선택한 관계 · 신뢰도 ${relation.confidence} · ${relation.status === 'verified' ? '검증 완료' : relation.status === 'excluded' ? '제외' : '검증 대기'}`
+              ? `선택한 관계 · ${relation.status === 'verified' ? '검증 완료' : relation.status === 'excluded' ? '제외' : '검증 대기'}`
               : `${category.name} > ${title} · 사건 ${eventCount}건`}
           </p>
         )}
@@ -88,6 +88,9 @@ export function DetailPanel({
             key={`${selected.kind}-${selected.id}`}
             title={title}
             events={data.events}
+            relations={relations}
+            platforms={data.allPlatforms}
+            categories={data.categories}
             referenceDate={data.referenceDate}
           />
         )}

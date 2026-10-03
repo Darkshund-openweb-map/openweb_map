@@ -1,26 +1,38 @@
 'use client';
 
-import type { EcosystemEvent } from '@/lib/ecosystem-types';
+import type { Category, EcosystemEvent, Platform, Relation } from '@/lib/ecosystem-types';
 import { useIncidentPopup } from '@/hooks/use-incident-popup';
 import { EventDescriptionPopup } from './event-description-popup';
 import styles from '@/styles/detail-panel.module.css';
 
 type Props = {
   groups: Map<string, EcosystemEvent[]>;
+  relations: Relation[];
+  platforms: Platform[];
+  categories: Category[];
   selectedId?: string | null;
   onSelect: (id: string) => void;
 };
 
-export function EventList({ groups, selectedId, onSelect }: Props) {
+export function EventList({ groups, relations, platforms, categories, selectedId, onSelect }: Props) {
   const { popup, popupRef, closeButtonRef, open, close } = useIncidentPopup();
+  const platformById = new Map(platforms.map((platform) => [platform.id, platform]));
+  const categoryById = new Map(categories.map((category) => [category.id, category]));
   return (
     <>
       <div className={styles.timeline}>
         {[...groups].map(([month, entries]) => (
           <div key={month}>
             <div className={styles['timeline-month']}>{month}</div>
-            {entries.map((event) => (
-              <button
+            {entries.map((event) => {
+              const connections = relations.filter(
+                (relation) =>
+                  relation.status !== 'excluded' &&
+                  relation.incidentId === event.id &&
+                  (relation.source === event.platform || relation.target === event.platform),
+              );
+              return (
+                <button
                 key={event.id}
                 className={[styles['timeline-item'], selectedId === event.id ? styles.active : '']
                   .filter(Boolean)
@@ -39,11 +51,48 @@ export function EventList({ groups, selectedId, onSelect }: Props) {
                 <span className={styles['timeline-dot']} />
                 <small>
                   {event.date.slice(5)} <em>{event.type}</em>
+                  {event.exposures.map((exposure) => (
+                    <em key={exposure} className={styles['timeline-exposure-tag']}>
+                      {exposure}
+                    </em>
+                  ))}
                 </small>
                 <strong>{event.title}</strong>
-                <span>{event.meta}</span>
+                {connections.length > 0 && (
+                  <span className={styles['event-connections']} aria-label="플랫폼 연결 경로">
+                    {connections.map((relation) => {
+                      const source = platformById.get(relation.source);
+                      const target = platformById.get(relation.target);
+                      const sourceCategory = source
+                        ? categoryById.get(source.category)
+                        : undefined;
+                      const targetCategory = target
+                        ? categoryById.get(target.category)
+                        : undefined;
+                      return (
+                        <span
+                          key={relation.id}
+                          className={styles['event-connection-pair']}
+                          data-connection-path={relation.id}
+                          title={`${source?.name ?? relation.source} → ${target?.name ?? relation.target}`}
+                        >
+                          <i
+                            aria-hidden="true"
+                            style={{ backgroundColor: sourceCategory?.color ?? '#aab5c5' }}
+                          />
+                          <span aria-hidden="true">–</span>
+                          <i
+                            aria-hidden="true"
+                            style={{ backgroundColor: targetCategory?.color ?? '#aab5c5' }}
+                          />
+                        </span>
+                      );
+                    })}
+                  </span>
+                )}
               </button>
-            ))}
+              );
+            })}
           </div>
         ))}
         {!groups.size && (

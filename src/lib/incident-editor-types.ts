@@ -29,12 +29,12 @@ export type PlatformConnectionInput = {
 export type IncidentEditorRecord = IncidentFields & {
   id: number;
   dataTypes: IncidentDataType[];
+  connections: PlatformConnectionInput[];
 };
 
 export type PlatformOption = { id: number; name: string };
 
 export type IncidentEditorData = {
   incidents: IncidentEditorRecord[];
-  connections: PlatformConnectionInput[];
   platforms: PlatformOption[];
 };

@@ -26,9 +26,12 @@ test('islands appear at their first incident, disappear on rewind and return at 
     ['2026-04-01', ['code', 'text']],
     ['2026-07-01', ['code', 'text', 'community']],
     ['2026-03-30', []],
-    ['2026-09-20', ['code', 'text', 'community']],
+    ['2026-09-20', ['code', 'marketplace', 'text', 'backend', 'official', 'files', 'community']],
   ] as const) {
-    const visible = getIncidentMapData(snapshotAtDate(snapshot, date));
+    const visible = getIncidentMapData(
+      snapshotAtDate(snapshot, date),
+      date === snapshot.updatedAt,
+    );
     expect(visible.categories.map((category) => category.id)).toEqual(expected);
   }
   expect(snapshot).toEqual(original);
@@ -52,10 +55,14 @@ test('relations never create islands or leave lines attached to hidden islands',
 });
 
 test('map totals use incidents rather than stale counters and keep platform locations stable', () => {
-  const latest = getIncidentMapData(snapshot);
+  const latest = getIncidentMapData(snapshot, true);
   expect(latest.categories.map((category) => [category.id, category.count])).toEqual([
     ['code', 1],
+    ['marketplace', 0],
     ['text', 1],
+    ['backend', 0],
+    ['official', 0],
+    ['files', 0],
     ['community', 2],
   ]);
   for (const platform of latest.platforms) {

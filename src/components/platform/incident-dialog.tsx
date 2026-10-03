@@ -84,8 +84,6 @@ export function IncidentDialog({
       .then((result) => {
         if (!active) return;
         setData(result);
-        setConnections(result.connections);
-        setHasConnections(result.connections.length > 0);
       })
       .catch((cause) => {
         if (active)
@@ -107,6 +105,8 @@ export function IncidentDialog({
       publishedAt: record.publishedAt,
     });
     setDataTypes(record.dataTypes);
+    setConnections(record.connections);
+    setHasConnections(record.connections.length > 0);
     setStep(mode === 'delete' ? 'confirm' : 'incident');
     setError('');
   };
@@ -381,7 +381,7 @@ export function IncidentDialog({
           {step === 'connection-details' && (
             <div className={styles['repeat-section']}>
               <p>
-                연결은 이 사건이 아닌 <strong>{platform.name} 플랫폼 전체</strong>에 적용됩니다.
+                연결은 현재 편집 중인 <strong>이 사건</strong>에 적용됩니다.
               </p>
               {connections.map((row, index) => (
                 <div key={row.id ?? `new-${index}`} className={styles['repeat-card']}>
@@ -575,15 +575,14 @@ export function IncidentDialog({
       {step === 'connections' && data && (
         <div>
           <p className={styles.hint}>
-            이 플랫폼의 연결 사항을 함께 작성하거나 수정할까요? 기존 연결 {data.connections.length}
-            개
+            이 사건의 연결 사항을 함께 작성하거나 수정할까요? 기존 연결 {connections.length}개
           </p>
           <div className={styles['choice-buttons']}>
             <Button
               variant={!hasConnections ? 'primary' : 'secondary'}
               onClick={() => setHasConnections(false)}
             >
-              {data.connections.length ? '연결 변경 없이 저장' : '연결 없음 · 바로 저장'}
+              {connections.length ? '연결 변경 없이 저장' : '연결 없음 · 바로 저장'}
             </Button>
             <Button
               variant={hasConnections ? 'primary' : 'secondary'}

@@ -2,17 +2,23 @@
 'use client';
 
 import styles from '@/styles/detail-panel.module.css';
-import type { EcosystemEvent } from '@/lib/ecosystem-types';
+import type { Category, EcosystemEvent, Platform, Relation } from '@/lib/ecosystem-types';
 import { EVENT_PERIODS, useEventTimeline } from '@/hooks/use-event-timeline';
 import { EventList } from './event-list';
 
 export function EventTimeline({
   title,
   events,
+  relations,
+  platforms,
+  categories,
   referenceDate,
 }: {
   title: string;
   events: EcosystemEvent[];
+  relations: Relation[];
+  platforms: Platform[];
+  categories: Category[];
   referenceDate: string;
 }) {
   const state = useEventTimeline(events, referenceDate);
@@ -73,6 +79,9 @@ export function EventTimeline({
       <EventList
         key={`${referenceDate}:${state.range.start}:${state.range.end}`}
         groups={state.groups}
+        relations={relations}
+        platforms={platforms}
+        categories={categories}
         selectedId={state.selectedId}
         onSelect={state.setSelectedId}
       />

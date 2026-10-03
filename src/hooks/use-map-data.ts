@@ -15,7 +15,7 @@ import {
 export function useMapData(requestedSelection: Selection, selectedRelation: string | null) {
   const snapshot = useEcosystemData();
   const { categories, platforms, events, relations } = useMemo(
-    () => getIncidentMapData(snapshot),
+    () => getIncidentMapData(snapshot, snapshot.timeline.isLatest),
     [snapshot],
   );
   // 숨겨진 섬의 선택 정보는 상위 화면에 보존하되 지도에서는 강조하지 않는다.
@@ -60,6 +60,7 @@ export function useMapData(requestedSelection: Selection, selectedRelation: stri
     [categories, platforms, events],
   );
   return {
+    isLatest: snapshot.timeline.isLatest,
     selected,
     platforms,
     events,

@@ -105,7 +105,8 @@ test('dragging the timeline updates map counts and baseline restores all fixture
   const slider = timeline.getByRole('slider', { name: '지도 기준 시점' });
   await expect(timeline.getByLabel('선택한 분기')).toHaveText('2026 Q3');
   await expect(timeline).toContainText('누적 사건 4건');
-  await expect(page.locator('[data-island-id]')).toHaveCount(3);
+  await expect(page.locator('[data-island-id]')).toHaveCount(7);
+  await expect(page.locator('[data-map-scene]')).toHaveAttribute('data-layout-scale', '1.000');
   const bounds = (await slider.boundingBox())!;
   await page.mouse.move(bounds.x + bounds.width - 8, bounds.y + bounds.height / 2);
   await page.mouse.down();
@@ -119,7 +120,7 @@ test('dragging the timeline updates map counts and baseline restores all fixture
   await timeline.getByRole('button', { name: '기준일로' }).click();
   await expect(slider).toHaveValue('20');
   await expect(timeline).toContainText('2026-09-20까지 누적 사건 4건');
-  await expect(page.locator('[data-island-id]')).toHaveCount(3);
+  await expect(page.locator('[data-island-id]')).toHaveCount(7);
   await expect(page.getByRole('status', { name: '사건 없는 지도' })).toHaveCount(0);
 });
 
