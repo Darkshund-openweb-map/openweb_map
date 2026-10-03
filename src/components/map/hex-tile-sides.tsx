@@ -2,13 +2,21 @@
 import { color as d3Color } from 'd3';
 import { type HexCell } from './geometry';
 
-type Props = { cell: HexCell; fill: string; onSelect: () => void };
+type Props = {
+  cell: HexCell;
+  fill: string;
+  owner?: string;
+  onHoverOwner: (owner: string | null) => void;
+  onSelect: () => void;
+};
 
 export function HexTileSides({
   cell,
   fill,
+  owner,
   depth,
   edges,
+  onHoverOwner,
   onSelect,
 }: Props & { depth: number; edges: { left: boolean; right: boolean } }) {
   const tileColor = d3Color(fill);
@@ -18,6 +26,9 @@ export function HexTileSides({
     <g
       transform={`translate(${cell.x},${cell.y - depth})`}
       aria-hidden="true"
+      data-owner-id={owner}
+      onPointerEnter={() => onHoverOwner(owner ?? null)}
+      onPointerLeave={() => onHoverOwner(null)}
       onClick={(event) => {
         event.stopPropagation();
         onSelect();

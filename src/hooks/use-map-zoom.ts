@@ -16,11 +16,11 @@ export function useMapZoom() {
       .scaleExtent([0.65, 2.8])
       .extent([
         [0, 0],
-        [846, 614],
+        [910, 720],
       ])
       .translateExtent([
-        [-550, -450],
-        [1396, 1064],
+        [-550, -540],
+        [1460, 1230],
       ])
       .clickDistance(5)
       .on('zoom', (event) => setTransform(event.transform));

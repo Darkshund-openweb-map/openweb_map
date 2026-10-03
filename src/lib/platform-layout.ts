@@ -11,32 +11,32 @@ import { platformLabel } from './platform-label';
 type Position = { x: number; y: number };
 type Placement = Position & { width: number };
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
-const VERTICAL_CLEARANCE = 24 + MAP_ELEVATION + 5;
-const HORIZONTAL_CLEARANCE = 8;
+const VERTICAL_CLEARANCE = 34;
+const HORIZONTAL_CLEARANCE = 14;
 const SEARCH_WIDTH = 48;
 const SCATTER_ANCHORS: Record<number, readonly (readonly [number, number])[]> = {
   1: [[0, 0]],
   2: [
-    [-0.4, -0.38],
-    [0.38, 0.32],
+    [-0.52, -0.42],
+    [0.52, 0.42],
   ],
   3: [
-    [-0.38, -0.42],
-    [0.46, -0.02],
-    [-0.14, 0.52],
+    [-0.52, -0.48],
+    [0.55, -0.05],
+    [-0.18, 0.58],
   ],
   4: [
-    [-0.3, -0.54],
-    [0.34, -0.12],
-    [-0.38, 0.26],
-    [0.25, 0.57],
+    [-0.42, -0.6],
+    [0.45, -0.18],
+    [-0.48, 0.3],
+    [0.35, 0.62],
   ],
   5: [
-    [-0.45, -0.43],
-    [0.4, -0.48],
-    [-0.1, 0.06],
-    [-0.38, 0.51],
-    [0.45, 0.4],
+    [-0.55, -0.5],
+    [0.5, -0.55],
+    [-0.1, 0.02],
+    [-0.5, 0.58],
+    [0.52, 0.48],
   ],
 };
 

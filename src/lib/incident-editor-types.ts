@@ -19,6 +19,11 @@ export type PlatformConnectionInput = {
   targetPlatformId: number;
   connectionType: string;
   description: string;
+  verificationStatus: 'candidate' | 'verified' | 'excluded';
+  confidence: '높음' | '중간' | '낮음' | '미평가';
+  evidenceCount: number;
+  firstSeen: string;
+  lastSeen: string;
 };
 
 export type IncidentEditorRecord = IncidentFields & {

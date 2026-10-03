@@ -32,6 +32,11 @@ const emptyConnection = (): PlatformConnectionInput => ({
   targetPlatformId: 0,
   connectionType: '',
   description: '',
+  verificationStatus: 'candidate',
+  confidence: '미평가',
+  evidenceCount: 0,
+  firstSeen: '',
+  lastSeen: '',
 });
 
 export function IncidentDialog({
@@ -431,7 +436,101 @@ export function IncidentDialog({
                       />
                     </label>
                     <label>
-                      설명
+                      검증 상태
+                      <select
+                        value={row.verificationStatus}
+                        onChange={(event) =>
+                          setConnections(
+                            connections.map((item, i) =>
+                              i === index
+                                ? {
+                                    ...item,
+                                    verificationStatus: event.target
+                                      .value as PlatformConnectionInput['verificationStatus'],
+                                  }
+                                : item,
+                            ),
+                          )
+                        }
+                      >
+                        <option value="candidate">검증 대기</option>
+                        <option value="verified">검증 완료</option>
+                        <option value="excluded">제외</option>
+                      </select>
+                    </label>
+                    <label>
+                      신뢰도
+                      <select
+                        value={row.confidence}
+                        onChange={(event) =>
+                          setConnections(
+                            connections.map((item, i) =>
+                              i === index
+                                ? {
+                                    ...item,
+                                    confidence: event.target
+                                      .value as PlatformConnectionInput['confidence'],
+                                  }
+                                : item,
+                            ),
+                          )
+                        }
+                      >
+                        <option value="미평가">미평가</option>
+                        <option value="높음">높음</option>
+                        <option value="중간">중간</option>
+                        <option value="낮음">낮음</option>
+                      </select>
+                    </label>
+                    <label>
+                      관계 레코드 수
+                      <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={row.evidenceCount}
+                        onChange={(event) =>
+                          setConnections(
+                            connections.map((item, i) =>
+                              i === index
+                                ? { ...item, evidenceCount: Number(event.target.value) }
+                                : item,
+                            ),
+                          )
+                        }
+                      />
+                    </label>
+                    <label>
+                      최초 관측일
+                      <input
+                        type="date"
+                        value={row.firstSeen}
+                        onChange={(event) =>
+                          setConnections(
+                            connections.map((item, i) =>
+                              i === index ? { ...item, firstSeen: event.target.value } : item,
+                            ),
+                          )
+                        }
+                      />
+                    </label>
+                    <label>
+                      최근 관측일
+                      <input
+                        type="date"
+                        min={row.firstSeen || undefined}
+                        value={row.lastSeen}
+                        onChange={(event) =>
+                          setConnections(
+                            connections.map((item, i) =>
+                              i === index ? { ...item, lastSeen: event.target.value } : item,
+                            ),
+                          )
+                        }
+                      />
+                    </label>
+                    <label>
+                      근거 설명
                       <textarea
                         rows={2}
                         maxLength={2000}

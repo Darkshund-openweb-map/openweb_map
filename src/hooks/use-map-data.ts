@@ -4,10 +4,15 @@
 import { useMemo } from 'react';
 import type { Selection } from '@/lib/ecosystem-types';
 import { useEcosystemData } from '@/hooks/use-ecosystem-data';
-import { getCategoryTiles } from '@/components/map/geometry';
+import { getSizedCategoryTiles } from '@/lib/hex-layout';
+import {
+  assignTerritoryCells,
+  BASE_ISLAND_TILES,
+  getPlatformTileQuotas,
+} from '@/lib/island-territories';
 
 export function useMapData(selected: Selection, selectedRelation: string | null) {
-  const { categories, platforms, relations, getPlatform } = useEcosystemData();
+  const { categories, platforms, events, relations, getPlatform } = useEcosystemData();
   const selectedPlatform = selected?.kind === 'platform' ? getPlatform(selected.id) : undefined;
   const activeCategory = selected?.kind === 'category' ? selected.id : selectedPlatform?.category;
   const relation = relations.find((item) => item.id === selectedRelation);
@@ -20,11 +25,26 @@ export function useMapData(selected: Selection, selectedRelation: string | null)
     (item) => ids.has(item.source) || ids.has(item.target),
   );
   const tileGroups = useMemo(
-    () => categories.map((category) => ({ category, cells: getCategoryTiles(category) })),
-    [categories],
+    () =>
+      categories.map((category) => {
+        // 플랫폼 순서를 고정해 데이터 재조회 뒤에도 같은 영토 배치를 유지한다.
+        const members = platforms
+          .filter((platform) => platform.category === category.id)
+          .sort((a, b) => b.x - a.x || a.y - b.y || a.id.localeCompare(b.id));
+        const quotas = getPlatformTileQuotas(members, events);
+        const tileCount = quotas.length
+          ? quotas.reduce((sum, quota) => sum + quota.count, 0)
+          : BASE_ISLAND_TILES;
+        const cells = getSizedCategoryTiles(category, tileCount);
+        const owners = assignTerritoryCells(cells, quotas, members);
+        return { category, cells, owners };
+      }),
+    [categories, platforms, events],
   );
   return {
     platforms,
+    events,
+    relations,
     relation,
     activeCategory,
     selectedPlatform,
