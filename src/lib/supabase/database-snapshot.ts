@@ -138,14 +138,20 @@ export function createDatabaseSnapshot(data: DatabaseRows): EcosystemSnapshot {
         source,
         target,
         type: requiredText(row.connection_type, 'platform_connections.connection_type'),
-        // 현재 테이블에는 검증·신뢰도·근거 수가 없어 임의로 검증 완료 처리하지 않는다.
-        status: 'candidate',
-        confidence: '미평가',
-        evidence: 0,
-        firstSeen: '—',
-        lastSeen: '—',
-        recordedAt: date(row.created_at) || undefined,
-        note: '근거 정보 미제공',
+        status: ['verified', 'excluded'].includes(text(row.verification_status))
+          ? (text(row.verification_status) as Relation['status'])
+          : 'candidate',
+        confidence: ['높음', '중간', '낮음'].includes(text(row.confidence))
+          ? (text(row.confidence) as Relation['confidence'])
+          : '미평가',
+        evidence:
+          typeof row.evidence_count === 'number' && row.evidence_count >= 0
+            ? row.evidence_count
+            : 0,
+        firstSeen: date(row.first_seen) || '—',
+        lastSeen: date(row.last_seen) || '—',
+        recordedAt: date(row.verified_at) || date(row.created_at) || undefined,
+        note: text(row.description) || '근거 정보 미제공',
       },
     ];
   });

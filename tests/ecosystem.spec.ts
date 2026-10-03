@@ -25,6 +25,94 @@ test('map shows the seven Korean island categories without Other', async ({ page
   await expect(page.getByRole('button', { name: '기타 섬 선택', exact: true })).toHaveCount(0);
 });
 
+test('each island has 38 base cells and each platform owns four plus one per two incidents without overlap', async ({ page }) => {
+  await openMap(page);
+  const expected = {
+    code: 50,
+    marketplace: 46,
+    text: 46,
+    backend: 38,
+    official: 38,
+    files: 46,
+    community: 51,
+  };
+  for (const [id, count] of Object.entries(expected)) {
+    await expect(page.locator(`[data-island-id="${id}"] [data-map-layer="tops"] polygon`)).toHaveCount(count);
+  }
+
+  const community = page.locator('[data-island-id="community"]');
+  const selectedCells = async () =>
+    new Set(
+      await community
+        .locator('[data-map-layer="tops"] polygon[data-elevation="7"]')
+        .evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-cell-key')!)),
+    );
+  await page.getByRole('button', { name: 'Telegram 영토 선택', exact: true }).click();
+  const telegram = await selectedCells();
+  expect(telegram.size).toBe(18);
+  await page.getByRole('button', { name: '트위터 영토 선택', exact: true }).click();
+  const twitter = await selectedCells();
+  expect(twitter.size).toBe(16);
+  expect([...telegram].filter((key) => twitter.has(key))).toHaveLength(0);
+});
+
+test('hovering one territory cell brightens every cell owned by that platform', async ({ page }) => {
+  await openMap(page);
+  const island = page.locator('[data-island-id="community"]');
+  const telegram = island.locator('[data-map-layer="tops"] polygon[data-owner-id="telegram"]');
+  const twitter = island.locator('[data-map-layer="tops"] polygon[data-owner-id="twitter"]');
+  const original = await telegram.first().getAttribute('fill');
+  const otherOriginal = await twitter.first().getAttribute('fill');
+
+  await telegram.last().dispatchEvent('pointerover');
+  const highlighted = await telegram.evaluateAll((nodes) =>
+    nodes.map((node) => node.getAttribute('fill')),
+  );
+  expect(new Set(highlighted).size).toBe(1);
+  expect(highlighted[0]).not.toBe(original);
+  await expect(twitter.first()).toHaveAttribute('fill', otherOriginal!);
+
+  await telegram.last().dispatchEvent('pointerout');
+  await expect(telegram.first()).toHaveAttribute('fill', original!);
+
+  const label = page.getByRole('button', { name: 'Telegram 영토 선택', exact: true });
+  await label.dispatchEvent('pointerover');
+  await expect(telegram.first()).not.toHaveAttribute('fill', original!);
+  const hoverCard = page.getByRole('tooltip');
+  await expect(hoverCard).toContainText('개별 플랫폼 · TELEGRAM');
+  await expect(hoverCard).toContainText('전체 사건');
+  await expect(hoverCard).toContainText('최근 관측일');
+  await expect(hoverCard).toContainText('메시지 기반 커뮤니티입니다.');
+  expect(
+    await page.locator('[data-island-id="official"]').evaluate((island, tooltip) => {
+      return Boolean(island.compareDocumentPosition(tooltip as Node) & Node.DOCUMENT_POSITION_FOLLOWING);
+    }, await hoverCard.elementHandle()),
+  ).toBe(true);
+  await label.dispatchEvent('pointerout');
+  await expect(telegram.first()).toHaveAttribute('fill', original!);
+  await expect(hoverCard).toHaveCount(0);
+
+  const islandLabel = page.getByRole('button', { name: /커뮤니티 \d+건/, exact: true });
+  const titleFill = await islandLabel.locator('rect').evaluate((node) => getComputedStyle(node).fill);
+  await islandLabel.dispatchEvent('pointerover');
+  await expect(telegram.first()).not.toHaveAttribute('fill', original!);
+  await expect(twitter.first()).not.toHaveAttribute('fill', otherOriginal!);
+  expect(await islandLabel.locator('rect').evaluate((node) => getComputedStyle(node).fill)).not.toBe(
+    titleFill,
+  );
+  await expect(islandLabel.locator('text')).toHaveAttribute('fill', '#ffffff');
+  await expect(islandLabel.locator('text')).toHaveAttribute('font-weight', '800');
+  await islandLabel.dispatchEvent('pointerout');
+  await expect(telegram.first()).toHaveAttribute('fill', original!);
+  await expect(islandLabel.locator('text')).toHaveAttribute('fill', '#fa812d');
+  await expect(islandLabel.locator('text')).toHaveAttribute('font-weight', '700');
+
+  await telegram.last().dispatchEvent('click');
+  await expect(page.getByRole('complementary', { name: 'Telegram 상세 패널' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Github Gist 영토 선택', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '네이버 영토 선택', exact: true })).toBeVisible();
+});
+
 test('overview limits exposure types to the selected platform and empty statistics stay empty', async ({
   page,
 }) => {
@@ -80,19 +168,19 @@ test('hex faces remain clickable and stationary on hover; zoom, pan and reset wo
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await openMap(page);
-  const island = page.getByRole('button', { name: '코드 호스팅 섬 선택', exact: true });
+  const island = page.getByRole('button', { name: '백엔드 서비스 섬 선택', exact: true });
   await expect(island.locator('[data-map-layer="sides"] polygon')).toHaveCount(0);
   // Click an actual top face, not a badge or a forced event.
-  await island.locator('[data-map-layer="tops"] polygon').first().click();
-  await expect(page.getByRole('complementary', { name: '코드 호스팅 상세 패널' })).toBeVisible();
+  await island.locator('[data-map-layer="tops"] polygon').last().click();
+  await expect(page.getByRole('complementary', { name: '백엔드 서비스 상세 패널' })).toBeVisible();
   await page.getByRole('button', { name: '상세 패널 접기' }).click();
   const detailButton = page.getByRole('button', { name: '상세 보기', exact: false });
   await expect(detailButton).toBeVisible();
   const detailButtonBox = (await detailButton.boundingBox())!;
   expect(detailButtonBox.width).toBeGreaterThan(detailButtonBox.height);
   await detailButton.click();
-  await expect(page.getByRole('complementary', { name: '코드 호스팅 상세 패널' })).toBeVisible();
-  const top = island.locator('[data-map-layer="tops"] polygon').first();
+  await expect(page.getByRole('complementary', { name: '백엔드 서비스 상세 패널' })).toBeVisible();
+  const top = island.locator('[data-map-layer="tops"] polygon').last();
   const before = await top.boundingBox();
   const scene = page.locator('[data-map-scene]');
   const beforeMarkup = await scene.innerHTML();
@@ -159,7 +247,7 @@ test('code and text hex spacing matches community in flat and raised views', asy
     expect(flat.column).toBeCloseTo(community.column);
     expect(flat.row).toBeCloseTo(community.row);
     const island = page.getByRole('button', { name: label, exact: true });
-    await island.locator('[data-elevation="0"]').first().click();
+    await island.locator('[data-elevation="0"]').last().click();
     const raised = await getSpacing(id);
     expect(raised.column).toBeCloseTo(community.column);
     expect(raised.row).toBeCloseTo(community.row);
@@ -168,7 +256,7 @@ test('code and text hex spacing matches community in flat and raised views', asy
   }
 });
 
-test('selecting Pastebin does not raise the related code repository island', async ({ page }) => {
+test('selecting Pastebin also raises and emphasizes its connected code island', async ({ page }) => {
   await openMap(page);
   await page.getByRole('combobox').fill('Pastebin');
   await page.getByRole('option', { name: /Pastebin/ }).click();
@@ -176,9 +264,23 @@ test('selecting Pastebin does not raise the related code repository island', asy
   const codeIsland = page.getByRole('button', { name: '코드 호스팅 섬 선택', exact: true });
   const textIsland = page.getByRole('button', { name: '텍스트 호스팅 섬 선택', exact: true });
   expect(await codeIsland.evaluate((node) => node.parentElement?.getAttribute('opacity'))).toBe(
-    '0.35',
+    '1',
   );
-  await expect(codeIsland.locator('[data-map-layer="sides"] polygon')).toHaveCount(0);
+  await expect(codeIsland.locator('..')).toHaveAttribute('data-selected', 'true');
+  await expect(textIsland.locator('..')).toHaveAttribute('data-selected', 'true');
+  const pastebinLabel = page.getByRole('button', { name: 'Pastebin 영토 선택', exact: true });
+  await expect(pastebinLabel).toHaveAttribute('data-selected', 'true');
+  await expect(pastebinLabel.locator('text')).toHaveAttribute('fill', '#1e293b');
+  const selectedIslandTitle = page.getByRole('button', { name: /텍스트 호스팅 \d+건/ });
+  await expect(selectedIslandTitle.locator('text')).toHaveAttribute('fill', '#2cbfaf');
+  await expect(selectedIslandTitle.locator('text')).toHaveAttribute('font-weight', '700');
+  const codeTitle = page.getByRole('button', { name: /코드 호스팅 \d+건/ });
+  await codeTitle.dispatchEvent('pointerover');
+  await expect(codeIsland.locator('..')).toHaveAttribute('opacity', '1');
+  await expect(codeTitle.locator('text')).toHaveAttribute('fill', '#ffffff');
+  await codeTitle.dispatchEvent('pointerout');
+  await expect(codeIsland.locator('..')).toHaveAttribute('opacity', '1');
+  expect(await codeIsland.locator('[data-map-layer="sides"] polygon').count()).toBeGreaterThan(0);
   expect(await textIsland.locator('[data-map-layer="sides"] polygon').count()).toBeGreaterThan(0);
   await expect(page.getByRole('complementary', { name: 'Pastebin 상세 패널' })).toBeVisible();
 });
@@ -234,6 +336,54 @@ test('platform territory is contiguous and only relevant events appear; date fil
   await expect(telegram.getByText('쿠팡 API 관련 코드 게시')).toHaveCount(0);
 });
 
+test('selecting a platform shows its direct connections between territory centers', async ({ page }) => {
+  await openMap(page);
+  await expect(page.locator('[data-relation-id]')).toHaveCount(0);
+  await page.getByRole('switch', { name: '전체 관계 보기' }).click();
+  await expect(page.locator('[data-relation-id]')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Github Gist 영토 선택', exact: true }).click();
+
+  await expect(page.locator('[data-relation-id="gist-pastebin"]')).toBeVisible();
+  await expect(page.locator('[data-relation-id="gist-mega"]')).toBeVisible();
+  await expect(page.locator('[data-relation-id="gist-rentry"]')).toBeVisible();
+  await expect(page.locator('[data-relation-id="code-text"]')).toHaveCount(0);
+  await expect(page.locator('[data-island-id="code"]')).toHaveAttribute('opacity', '1');
+  await expect(page.locator('[data-island-id="text"]')).toHaveAttribute('opacity', '1');
+  await expect(page.locator('[data-island-id="files"]')).toHaveAttribute('opacity', '1');
+  await expect(page.locator('[data-island-id="community"]')).toHaveAttribute('opacity', '0.18');
+  await expect(
+    page.locator('[data-map-layer="tops"] polygon[data-owner-id="pastebin"]').first(),
+  ).toHaveAttribute('data-elevation', '7');
+  await expect(
+    page.locator('[data-map-layer="tops"] polygon[data-owner-id="mega"]').first(),
+  ).toHaveAttribute('data-elevation', '7');
+
+  const averageCenter = async (platformId: string) =>
+    page
+      .locator(`[data-map-layer="tops"] polygon[data-owner-id="${platformId}"]`)
+      .evaluateAll((nodes) => {
+        const centers = nodes.map((node) =>
+          node.getAttribute('transform')!.match(/-?\d+(?:\.\d+)?/g)!.map(Number),
+        );
+        return {
+          x: centers.reduce((sum, point) => sum + point[0], 0) / centers.length,
+          y: centers.reduce((sum, point) => sum + point[1], 0) / centers.length,
+        };
+      });
+  const gistCenter = await averageCenter('github-gist');
+  const pastebinCenter = await averageCenter('pastebin');
+  const relation = page.locator('[data-relation-id="gist-pastebin"]');
+  expect(
+    await page.locator('[data-island-id="official"]').evaluate((island, line) => {
+      return Boolean(island.compareDocumentPosition(line as Node) & Node.DOCUMENT_POSITION_FOLLOWING);
+    }, await relation.elementHandle()),
+  ).toBe(true);
+  expect(Number(await relation.getAttribute('data-source-x'))).toBeCloseTo(gistCenter.x);
+  expect(Number(await relation.getAttribute('data-source-y'))).toBeCloseTo(gistCenter.y);
+  expect(Number(await relation.getAttribute('data-target-x'))).toBeCloseTo(pastebinCenter.x);
+  expect(Number(await relation.getAttribute('data-target-y'))).toBeCloseTo(pastebinCenter.y);
+});
+
 test('candidate relations remain unverified when selected, and search handles no results', async ({
   page,
 }) => {
@@ -242,7 +392,7 @@ test('candidate relations remain unverified when selected, and search handles no
     if (message.type() === 'error') errors.push(message.text());
   });
   await openMap(page);
-  await page.getByRole('switch', { name: '전체 관계 보기' }).click();
+  await page.getByRole('button', { name: 'Github Gist 영토 선택', exact: true }).click();
   const relation = page.locator('[data-relation-id="gist-mega"]');
   await relation.focus();
   await page.keyboard.press('Enter');
@@ -309,7 +459,7 @@ test('statistics selection opens its own platform and mobile has no horizontal o
   ).toBeVisible();
 });
 
-test('full viewport starts flat with boxed island titles and outlined platform labels', async ({
+test('full viewport starts flat with boxed island titles and platform labels', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
@@ -322,7 +472,10 @@ test('full viewport starts flat with boxed island titles and outlined platform l
   });
   await expect(page.locator('[data-map-layer="sides"] polygon')).toHaveCount(0);
   const label = page.getByRole('button', { name: 'AWS S3 영토 선택', exact: true });
-  await expect(label.locator('rect')).toHaveAttribute('fill', 'transparent');
+  expect(await label.locator('rect').evaluate((node) => getComputedStyle(node).fill)).toBe(
+    'rgb(255, 255, 255)',
+  );
+  await expect(label.locator('rect')).toHaveAttribute('rx', '8');
   expect(await label.locator('text').evaluate((node) => getComputedStyle(node).paintOrder)).toBe(
     'stroke',
   );
@@ -362,7 +515,7 @@ test('AWS S3 stays blue with gray surroundings and keeps depth through repeated 
   ).toBe(true);
   const detail = page.getByRole('complementary', { name: 'AWS S3 상세 패널' });
   await page.getByRole('tab', { name: /^사건/ }).click();
-  // The label's transparent hit target covers some central faces; both targets preserve selection.
+  // The label box covers some central faces; both targets preserve selection.
   await page.getByRole('button', { name: 'AWS S3 영토 선택', exact: true }).click();
   await raised.first().click();
   await expect(detail).toBeVisible();

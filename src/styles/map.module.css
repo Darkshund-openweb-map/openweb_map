@@ -101,6 +101,17 @@
   pointer-events: none;
   letter-spacing: 0.15px;
 }
+.island-badge[data-hovered='true'] .island-title-box {
+  stroke-width: 1.25px;
+  filter: drop-shadow(0 1px 3px #23385624);
+}
+.platform-label-box {
+  fill: #fff;
+  fill-opacity: 0.88;
+  stroke: #e6ecf4;
+  stroke-width: 0.55px;
+  filter: drop-shadow(0 0.5px 1px #23385612);
+}
 .map-label-text {
   paint-order: stroke fill;
   stroke: #fff;
@@ -114,6 +125,79 @@
 }
 .platform-label:hover .map-label-text {
   font-weight: 700;
+}
+.platform-hover-card-object {
+  overflow: visible;
+}
+.platform-hover-card {
+  box-sizing: border-box;
+  width: 232px;
+  min-height: 164px;
+  border: 1px solid #dce5f1;
+  border-radius: 13px;
+  background: #fff;
+  padding: 13px 14px 12px;
+  box-shadow: 0 8px 24px #23385624;
+  color: #17233a;
+  font-family: inherit;
+}
+.platform-hover-eyebrow {
+  overflow: hidden;
+  margin-bottom: 5px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.45px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.platform-hover-name {
+  display: block;
+  overflow: hidden;
+  font-size: 17px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.platform-hover-path {
+  overflow: hidden;
+  margin-top: 5px;
+  color: #75839a;
+  font-size: 9.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.platform-hover-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-top: 10px;
+}
+.platform-hover-metrics > div {
+  border: 1px solid #e0e7f1;
+  border-radius: 8px;
+  background: #f7f9fc;
+  padding: 7px 8px;
+}
+.platform-hover-metrics span {
+  display: block;
+  color: #74829a;
+  font-size: 8.5px;
+}
+.platform-hover-metrics b {
+  display: block;
+  margin-top: 2px;
+  font-size: 14px;
+  line-height: 1.15;
+}
+.platform-hover-card p {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 9px 1px 0;
+  color: #4f5f76;
+  font-size: 9.5px;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 .map-top-control {
   position: absolute;

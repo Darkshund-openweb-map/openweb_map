@@ -27,6 +27,13 @@ function text(value: unknown, max: number, label: string, required = false): str
   return trimmed;
 }
 
+function calendarDate(value: unknown, label: string): string {
+  const result = text(value, 10, label);
+  if (result && (!/^\d{4}-\d{2}-\d{2}$/.test(result) || Number.isNaN(Date.parse(`${result}T00:00:00Z`))))
+    throw new Error(`${label}이 올바르지 않습니다.`);
+  return result;
+}
+
 export function parseIncidentMutation(value: unknown) {
   if (!value || typeof value !== 'object' || Array.isArray(value))
     throw new Error('사건 입력값이 올바르지 않습니다.');
@@ -93,11 +100,29 @@ export function parseIncidentMutation(value: unknown) {
       const targetPlatformId = positiveId(row.targetPlatformId);
       if (!targetPlatformId || targetPlatformId === platformId)
         throw new Error('연결 대상 플랫폼을 선택해 주세요.');
+      const verificationStatus = text(row.verificationStatus, 20, '검증 상태', true);
+      if (!['candidate', 'verified', 'excluded'].includes(verificationStatus))
+        throw new Error('검증 상태가 올바르지 않습니다.');
+      const confidence = text(row.confidence, 20, '신뢰도', true);
+      if (!['높음', '중간', '낮음', '미평가'].includes(confidence))
+        throw new Error('신뢰도가 올바르지 않습니다.');
+      const evidenceCount = row.evidenceCount;
+      if (typeof evidenceCount !== 'number' || !Number.isSafeInteger(evidenceCount) || evidenceCount < 0)
+        throw new Error('관계 레코드 수가 올바르지 않습니다.');
+      const firstSeen = calendarDate(row.firstSeen, '최초 관측일');
+      const lastSeen = calendarDate(row.lastSeen, '최근 관측일');
+      if (firstSeen && lastSeen && firstSeen > lastSeen)
+        throw new Error('최근 관측일은 최초 관측일보다 빠를 수 없습니다.');
       return {
         id: optionalId(row.id),
         targetPlatformId,
         connectionType: text(row.connectionType, 200, '연결 유형', true),
         description: text(row.description, 2000, '연결 설명'),
+        verificationStatus: verificationStatus as PlatformConnectionInput['verificationStatus'],
+        confidence: confidence as PlatformConnectionInput['confidence'],
+        evidenceCount,
+        firstSeen,
+        lastSeen,
       };
     });
   }
@@ -111,7 +136,7 @@ export async function loadIncidentEditorData(platformId: number): Promise<Incide
       { method: 'GET' },
     ),
     adminRequest(
-      `platform_connections?source_platform_id=eq.${platformId}&select=id,target_platform_id,connection_type,description&order=id.asc`,
+      `platform_connections?source_platform_id=eq.${platformId}&select=id,target_platform_id,connection_type,description,verification_status,confidence,evidence_count,first_seen,last_seen&order=id.asc`,
       { method: 'GET' },
     ),
     adminRequest('platforms?select=id,name&order=name.asc', { method: 'GET' }),
@@ -153,6 +178,11 @@ export async function loadIncidentEditorData(platformId: number): Promise<Incide
       targetPlatformId: row.target_platform_id,
       connectionType: row.connection_type ?? '',
       description: row.description ?? '',
+      verificationStatus: row.verification_status ?? 'candidate',
+      confidence: row.confidence ?? '미평가',
+      evidenceCount: row.evidence_count ?? 0,
+      firstSeen: (row.first_seen ?? '').slice(0, 10),
+      lastSeen: (row.last_seen ?? '').slice(0, 10),
     })),
     platforms: platformRows.map((row) => ({ id: row.id, name: row.name })),
   };
@@ -179,6 +209,11 @@ export async function saveIncident(input: ReturnType<typeof parseIncidentMutatio
           target_platform_id: row.targetPlatformId,
           connection_type: row.connectionType,
           description: row.description,
+          verification_status: row.verificationStatus,
+          confidence: row.confidence,
+          evidence_count: row.evidenceCount,
+          first_seen: row.firstSeen,
+          last_seen: row.lastSeen,
         })) ?? null,
     }),
   });

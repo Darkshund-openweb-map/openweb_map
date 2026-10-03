@@ -15,17 +15,11 @@ export function isTileActive(
   category: Category,
   cell: HexCell,
   selected: Selection,
-  selectedPlatform?: Platform,
+  owners: Map<string, string>,
 ) {
   if (!selected) return true;
   if (selected.kind === 'category') return selected.id === category.id;
-  if (!selectedPlatform || selectedPlatform.category !== category.id) return false;
-
-  const horizontalDistance = cell.x - selectedPlatform.x;
-  const verticalDistance = (cell.y - selectedPlatform.y) * 1.08;
-  const territoryRadius = category.id === 'code' ? 48 : 40;
-
-  return Math.hypot(horizontalDistance, verticalDistance) <= territoryRadius;
+  return owners.get(cell.key) === selected.id;
 }
 
 export function getExposedFrontEdges(category: Category, cell: HexCell, raisedCells: HexCell[]) {

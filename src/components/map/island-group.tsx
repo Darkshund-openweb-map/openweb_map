@@ -1,7 +1,14 @@
 // 하나의 생태계 섬에 타일·이름표·플랫폼 라벨을 묶어 표시하는 컴포넌트
+'use client';
+
 import styles from '@/styles/map.module.css';
-import type { KeyboardEvent } from 'react';
-import type { Category, CategoryId, Platform, Selection } from '@/lib/ecosystem-types';
+import { useState, type KeyboardEvent } from 'react';
+import type {
+  Category,
+  CategoryId,
+  Platform,
+  Selection,
+} from '@/lib/ecosystem-types';
 import { MAP_ELEVATION, type HexCell } from './geometry';
 import { IslandTiles } from './island-tiles';
 import { platformLabel } from '@/lib/platform-label';
@@ -9,10 +16,12 @@ import { platformLabel } from '@/lib/platform-label';
 type Props = {
   category: Category;
   cells: HexCell[];
+  owners: Map<string, string>;
   platforms: Platform[];
   selected: Selection;
-  selectedPlatform?: Platform;
+  activePlatformIds: Set<string>;
   dimmed: boolean;
+  onHoverPlatform: (id: string | null) => void;
   onSelectCategory: (id: CategoryId) => void;
   onSelectPlatform: (id: string) => void;
 };
@@ -20,13 +29,17 @@ type Props = {
 export function IslandGroup({
   category,
   cells,
+  owners,
   platforms,
   selected,
-  selectedPlatform,
+  activePlatformIds,
   dimmed,
+  onHoverPlatform,
   onSelectCategory,
   onSelectPlatform,
 }: Props) {
+  const [hoveredOwner, setHoveredOwner] = useState<string | null>(null);
+  const [islandHovered, setIslandHovered] = useState(false);
   const badgeWidth = Math.max(
     70,
     Array.from(category.name).reduce(
@@ -53,8 +66,21 @@ export function IslandGroup({
       selectCategory();
     }
   };
+  const activePlatformIsHere =
+    selected?.kind === 'platform' &&
+    Array.from(owners.values()).some((owner) => activePlatformIds.has(owner));
+  const islandSelected =
+    (selected?.kind === 'category' && selected.id === category.id) || activePlatformIsHere;
+  const hoverPlatform = (id: string | null) => {
+    setHoveredOwner(id);
+    onHoverPlatform(id);
+  };
   return (
-    <g opacity={dimmed ? 0.35 : 1} data-island-id={category.id}>
+    <g
+      opacity={islandHovered ? 1 : dimmed ? 0.18 : 1}
+      data-island-id={category.id}
+      data-selected={islandSelected}
+    >
       <g
         className={styles['island-tiles']}
         filter={`url(#island-glow-${category.id})`}
@@ -67,17 +93,25 @@ export function IslandGroup({
           category={category}
           cells={cells}
           selected={selected}
+          activePlatformIds={activePlatformIds}
           dimmed={dimmed}
-          selectedPlatform={selectedPlatform}
+          owners={owners}
+          hoveredOwner={hoveredOwner}
+          islandHovered={islandHovered}
+          onHoverOwner={hoverPlatform}
           onSelectCategory={selectCategory}
+          onSelectPlatform={onSelectPlatform}
         />
       </g>
       <g
         className={styles['island-badge']}
+        data-hovered={islandHovered}
         transform={`translate(${badgeX},${badgeY})`}
         role="button"
         tabIndex={0}
         aria-label={`${category.name} ${category.count}건`}
+        onPointerEnter={() => setIslandHovered(true)}
+        onPointerLeave={() => setIslandHovered(false)}
         onClick={(event) => {
           event.stopPropagation();
           selectCategory();
@@ -91,6 +125,7 @@ export function IslandGroup({
           width={badgeWidth}
           height="28"
           rx="14"
+          style={islandHovered ? { fill: category.color, stroke: category.color } : undefined}
           aria-hidden="true"
         />
         <text
@@ -98,11 +133,11 @@ export function IslandGroup({
           textAnchor="middle"
           y="4"
           fontSize="11.5"
-          fontWeight="700"
-          fill={category.color}
+          fontWeight={islandHovered ? '800' : '700'}
+          fill={islandHovered ? '#ffffff' : category.color}
         >
           {category.name}
-          <tspan dx="9" fontWeight="500" fill="#62718b">
+          <tspan dx="9" fontWeight="500" fill={islandHovered ? '#ffffff' : '#62718b'}>
             {category.count}건
           </tspan>
         </text>
@@ -111,12 +146,15 @@ export function IslandGroup({
         .filter(
           (item) =>
             item.category === category.id &&
+            (selected?.kind !== 'platform' || activePlatformIds.has(item.id)) &&
             (item.featured || (selected?.kind === 'platform' && selected.id === item.id)),
         )
         .map((platform) => {
           if (selected?.kind === 'category' && selected.id !== category.id) return null;
           const active = selected?.kind === 'platform' && selected.id === platform.id;
-          const elevated = active || (selected?.kind === 'category' && selected.id === category.id);
+          const elevated =
+            activePlatformIds.has(platform.id) ||
+            (selected?.kind === 'category' && selected.id === category.id);
           const { text: label, width } = platformLabel(platform.name);
           return (
             <g
@@ -128,6 +166,8 @@ export function IslandGroup({
               role="button"
               tabIndex={0}
               aria-label={`${platform.name} 영토 선택`}
+              onPointerEnter={() => hoverPlatform(platform.id)}
+              onPointerLeave={() => hoverPlatform(null)}
               onClick={(event) => {
                 event.stopPropagation();
                 if (!active) onSelectPlatform(platform.id);
@@ -142,18 +182,19 @@ export function IslandGroup({
             >
               <title>{platform.name}</title>
               <rect
+                className={styles['platform-label-box']}
                 x={-width / 2}
-                y="-12"
+                y="-8"
                 width={width}
-                height="24"
-                fill="transparent"
+                height="16"
+                rx="8"
                 aria-hidden="true"
               />
               <text
                 className={styles['map-label-text']}
                 textAnchor="middle"
-                y="4"
-                fontSize="11.5"
+                y="4.5"
+                fontSize="12.5"
                 fontWeight={active ? '700' : '600'}
                 fill="#1e293b"
               >

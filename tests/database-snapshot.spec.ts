@@ -89,7 +89,7 @@ test('DB platform labels scatter in both axes and remain stable regardless of ro
     connections: [],
   };
   const snapshot = createDatabaseSnapshot(data);
-  expect(snapshot.categories[0].center).toEqual([417, 497]);
+  expect(snapshot.categories[0].center).toEqual([455, 570]);
   expect(new Set(snapshot.platforms.map((platform) => platform.x)).size).toBeGreaterThan(2);
   expect(new Set(snapshot.platforms.map((platform) => platform.y)).size).toBeGreaterThan(2);
   expect(
@@ -132,6 +132,38 @@ test('relationships without verification evidence are not marked verified', () =
       status: 'candidate',
       confidence: '미평가',
       evidence: 0,
+    },
+  ]);
+});
+
+test('verified relationship fields and description map to relation evidence', () => {
+  const snapshot = createDatabaseSnapshot({
+    ...rows,
+    connections: [
+      {
+        id: 2,
+        source_platform_id: 1,
+        target_platform_id: 11,
+        connection_type: '동일 콘텐츠',
+        description: '본문과 파일 해시가 일치함',
+        verification_status: 'verified',
+        confidence: '높음',
+        evidence_count: 3,
+        first_seen: '2026-08-01T00:00:00+00:00',
+        last_seen: '2026-09-02T00:00:00+00:00',
+        verified_at: '2026-09-03T00:00:00+00:00',
+      },
+    ],
+  });
+  expect(snapshot.relations).toMatchObject([
+    {
+      status: 'verified',
+      confidence: '높음',
+      evidence: 3,
+      firstSeen: '2026-08-01',
+      lastSeen: '2026-09-02',
+      recordedAt: '2026-09-03',
+      note: '본문과 파일 해시가 일치함',
     },
   ]);
 });
