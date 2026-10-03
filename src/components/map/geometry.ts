@@ -1,9 +1,8 @@
 import { range } from 'd3';
 import { type Category, type Platform, type Selection } from '@/lib/ecosystem-types';
 
-export const MAP_ELEVATION = 7;
-const HEX_COLUMN_GAP = 17.6;
-const HEX_ROW_GAP = 15.2;
+import { getCategoryTiles, HEX_COLUMN_GAP, HEX_ROW_GAP, type HexCell } from '@/lib/hex-layout';
+export { getCategoryTiles, MAP_ELEVATION, type HexCell } from '@/lib/hex-layout';
 
 export const HEX_POINTS = range(6)
   .map((index) => {
@@ -11,33 +10,6 @@ export const HEX_POINTS = range(6)
     return `${(10.1 * Math.cos(angle)).toFixed(2)},${(10.1 * Math.sin(angle)).toFixed(2)}`;
   })
   .join(' ');
-
-export type HexCell = {
-  key: string;
-  x: number;
-  y: number;
-  row: number;
-  col: number;
-  count: number;
-};
-
-export function getCategoryTiles(category: Category): HexCell[] {
-  const [centerX, centerY] = category.center;
-  const middle = (category.rows.length - 1) / 2;
-  const columnGap = HEX_COLUMN_GAP;
-
-  return category.rows.flatMap((count, row) =>
-    range(count).map((col) => ({
-      key: `${row}-${col}`,
-      // Keep each row on the same hex lattice, even when its cell count changes parity.
-      x: centerX + (col + Math.round(-(count - 1) / 2 - (row % 2) / 2) + (row % 2) / 2) * columnGap,
-      y: centerY + (row - middle) * HEX_ROW_GAP,
-      row,
-      col,
-      count,
-    })),
-  );
-}
 
 export function isTileActive(
   category: Category,

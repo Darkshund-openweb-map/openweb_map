@@ -20,7 +20,11 @@ export const supabaseEcosystemSource: EcosystemSource = {
         'incidents',
         'id,platform_id,title,status,published_at,created_at,updated_at',
       ),
-      queryTableRows(config, 'incidents_data_types', 'id,incident_id,name,category,created_at'),
+      queryTableRows(
+        config,
+        'incidents_data_types',
+        'id,incident_id,name,category,description,created_at',
+      ),
       queryTableRows(
         config,
         'platform_connections',

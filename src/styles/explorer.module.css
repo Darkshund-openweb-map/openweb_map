@@ -328,6 +328,7 @@
   margin-top: 16px;
 }
 .main-content {
+  container-type: inline-size;
   min-width: 0;
   flex: 1;
   display: flex;

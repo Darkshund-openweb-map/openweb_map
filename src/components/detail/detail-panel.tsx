@@ -39,7 +39,7 @@ export function DetailPanel({
     ? `${data.getPlatform(relation.source)?.name ?? relation.source} → ${data.getPlatform(relation.target)?.name ?? relation.target}`
     : '';
   return (
-    <aside className={styles['detail-panel']} aria-label={`${title} 상세 패널`}>
+    <aside className={styles['detail-panel']} aria-label={`${title} 상세 패널`} data-detail-panel>
       <div
         className={[styles['detail-title'], platform || relation ? styles['with-subtitle'] : '', '']
           .filter(Boolean)

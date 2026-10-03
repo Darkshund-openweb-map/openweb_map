@@ -76,8 +76,8 @@ test('exposure counts deduplicate incident type rows and exclude hidden islands'
   expect(snapshot.events.every((event) => event.exposures.length === 1)).toBe(true);
 });
 
-test('DB platform labels get separated slots while retaining the island center', () => {
-  const snapshot = createDatabaseSnapshot({
+test('DB platform labels scatter in both axes and remain stable regardless of row order', () => {
+  const data: DatabaseRows = {
     islands: [{ id: 6, name: 'Official Website' }],
     platforms: Array.from({ length: 5 }, (_, index) => ({
       id: index + 1,
@@ -87,13 +87,14 @@ test('DB platform labels get separated slots while retaining the island center',
     incidents: [],
     dataTypes: [],
     connections: [],
-  });
-  const category = snapshot.categories[0];
-  for (const [index, platform] of snapshot.platforms.entries()) {
-    expect(platform.x).toBe(category.center[0]);
-    if (index) expect(platform.y - snapshot.platforms[index - 1].y).toBeGreaterThanOrEqual(30);
-  }
-  expect(snapshot.platforms[2].y).toBe(category.center[1]);
+  };
+  const snapshot = createDatabaseSnapshot(data);
+  expect(snapshot.categories[0].center).toEqual([417, 497]);
+  expect(new Set(snapshot.platforms.map((platform) => platform.x)).size).toBeGreaterThan(2);
+  expect(new Set(snapshot.platforms.map((platform) => platform.y)).size).toBeGreaterThan(2);
+  expect(
+    createDatabaseSnapshot({ ...data, platforms: [...data.platforms].reverse() }).platforms,
+  ).toEqual(snapshot.platforms);
 });
 
 test('empty DB tables remain empty instead of showing fixture platforms or relationships', () => {
@@ -133,6 +134,72 @@ test('relationships without verification evidence are not marked verified', () =
       evidence: 0,
     },
   ]);
+});
+
+test('incident descriptions join by ID, preserve separate rows and original text, not similar titles', () => {
+  const original = '  첫 번째 설명\n두 번째 줄 <b>원문</b>  ';
+  const snapshot = createDatabaseSnapshot({
+    ...rows,
+    incidents: rows.incidents.map((row) => ({ ...(row as object), title: '동일한 사건 제목' })),
+    dataTypes: [
+      { id: 1, incident_id: 1, name: '이메일', category: '개인정보', description: original },
+      {
+        id: 2,
+        incident_id: 1,
+        name: '이메일',
+        category: '개인정보',
+        description: '같은 유형의 별도 설명',
+      },
+      {
+        id: 3,
+        incident_id: 2,
+        name: '이메일',
+        category: '개인정보',
+        description: '다른 사건의 설명',
+      },
+      {
+        id: 4,
+        incident_id: 3,
+        name: '숨긴 유형',
+        category: '기타',
+        description: '숨긴 사건의 설명',
+      },
+    ],
+  });
+  const first = snapshot.events.find((event) => event.id === 'incident-1')!;
+  const second = snapshot.events.find((event) => event.id === 'incident-2')!;
+  expect(first.dataTypes).toEqual([
+    { id: 'incident-data-type-1', name: '이메일', category: '개인정보', description: original },
+    {
+      id: 'incident-data-type-2',
+      name: '이메일',
+      category: '개인정보',
+      description: '같은 유형의 별도 설명',
+    },
+  ]);
+  expect(first.exposures).toEqual(['이메일']);
+  expect(second.dataTypes.map((item) => item.description)).toEqual(['다른 사건의 설명']);
+  expect(
+    snapshot.events
+      .flatMap((event) => event.dataTypes)
+      .some((item) => item.id === 'incident-data-type-4'),
+  ).toBe(false);
+});
+
+test('missing descriptions and unlinked incidents stay empty without generated fallback text', () => {
+  const snapshot = createDatabaseSnapshot({
+    ...rows,
+    dataTypes: [
+      { id: 1, incident_id: 1, name: '이메일', description: null },
+      { id: 2, incident_id: 1, name: '이메일' },
+    ],
+  });
+  expect(
+    snapshot.events
+      .find((event) => event.id === 'incident-1')
+      ?.dataTypes.map((item) => item.description),
+  ).toEqual(['', '']);
+  expect(snapshot.events.find((event) => event.id === 'incident-2')?.dataTypes).toEqual([]);
 });
 
 test('large DB results follow Content-Range rather than silently truncating a server-capped page', async () => {

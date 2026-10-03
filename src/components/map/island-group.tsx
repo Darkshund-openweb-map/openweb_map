@@ -4,6 +4,7 @@ import type { KeyboardEvent } from 'react';
 import type { Category, CategoryId, Platform, Selection } from '@/lib/ecosystem-types';
 import { MAP_ELEVATION, type HexCell } from './geometry';
 import { IslandTiles } from './island-tiles';
+import { platformLabel } from '@/lib/platform-label';
 
 type Props = {
   category: Category;
@@ -116,9 +117,7 @@ export function IslandGroup({
           if (selected?.kind === 'category' && selected.id !== category.id) return null;
           const active = selected?.kind === 'platform' && selected.id === platform.id;
           const elevated = active || (selected?.kind === 'category' && selected.id === category.id);
-          const fullLabel = platform.name;
-          const label = fullLabel.length > 18 ? `${fullLabel.slice(0, 17)}…` : fullLabel;
-          const width = Math.max(32, label.length * (/[가-힣]/.test(label) ? 11.5 : 6.8) + 16);
+          const { text: label, width } = platformLabel(platform.name);
           return (
             <g
               key={platform.id}
