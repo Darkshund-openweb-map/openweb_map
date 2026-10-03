@@ -29,6 +29,7 @@ export function useEcosystemSearch({ onSelectCategory, onSelectPlatform }: Optio
         color: item.color,
         category: item.id,
         platform: null as string | null,
+        score: item.name.toLocaleLowerCase() === normalized ? 0 : 2,
       }));
     const platformHits = platforms
       .filter((item) =>
@@ -45,8 +46,18 @@ export function useEcosystemSearch({ onSelectCategory, onSelectPlatform }: Optio
         color: getCategory(item.category).color,
         category: item.category,
         platform: item.id,
+        score: (() => {
+          const name = item.name.toLocaleLowerCase();
+          if (!normalized) return item.featured ? 0 : 4;
+          if (name === normalized) return 0;
+          if (name.startsWith(normalized)) return 1;
+          if (name.includes(normalized)) return 2;
+          return 3;
+        })(),
       }));
-    return [...platformHits, ...categoryHits].slice(0, 8);
+    return [...platformHits, ...categoryHits]
+      .sort((a, b) => a.score - b.score || a.label.localeCompare(b.label, 'ko'))
+      .slice(0, 3);
   }, [categories, getCategory, platforms, query]);
 
   useEffect(() => {

@@ -9,6 +9,16 @@ import { useEcosystemData } from '@/hooks/use-ecosystem-data';
 import { BrandMark } from './brand-mark';
 import { HexSwatch } from '@/components/legend/hex-swatch';
 
+const DARK_WEB_URL = 'https://darkchoco-map.h42381309.workers.dev/';
+
+function HighlightMatch({ text, query }: { text: string; query: string }) {
+  const needle = query.trim();
+  if (!needle) return text;
+  const index = text.toLocaleLowerCase().indexOf(needle.toLocaleLowerCase());
+  if (index < 0) return text;
+  return <>{text.slice(0, index)}<mark>{text.slice(index, index + needle.length)}</mark>{text.slice(index + needle.length)}</>;
+}
+
 type Props = {
   scope: Scope;
   onScope: (scope: Scope) => void;
@@ -51,7 +61,13 @@ export function AppHeader({ scope, onScope, onHome, onSelectCategory, onSelectPl
             key={item.id}
             className={scope === item.id ? styles['active'] : ''}
             aria-current={scope === item.id ? 'page' : undefined}
-            onClick={() => onScope(item.id)}
+            onClick={() => {
+              if (item.id === 'dark') {
+                window.open(DARK_WEB_URL, '_blank', 'noopener,noreferrer');
+                return;
+              }
+              onScope(item.id);
+            }}
           >
             <i style={{ background: item.color }} />
             {item.name}
@@ -95,7 +111,7 @@ export function AppHeader({ scope, onScope, onHome, onSelectCategory, onSelectPl
         {open && (
           <div className={styles['search-results']} id="search-results" role="listbox">
             <div className={styles['search-results-title']}>
-              {query ? `검색 결과 ${results.length}개` : '빠른 검색'}
+              {query ? `관련 검색어 ${results.length}개` : '빠른 검색'}
               <span>ESC 닫기</span>
             </div>
             {results.length ? (
@@ -110,8 +126,8 @@ export function AppHeader({ scope, onScope, onHome, onSelectCategory, onSelectPl
                 >
                   <HexSwatch color={item.color} />
                   <span>
-                    <strong>{item.label}</strong>
-                    <small>{item.sub}</small>
+                    <strong><HighlightMatch text={item.label} query={query} /></strong>
+                    <small><HighlightMatch text={item.sub} query={query} /></small>
                   </span>
                   <span>↗</span>
                 </button>

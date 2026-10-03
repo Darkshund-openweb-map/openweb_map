@@ -60,6 +60,52 @@
   line-height: 1.6;
   font-weight: 700;
 }
+.relation-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.relation-heading h2 {
+  margin: 0;
+}
+.relation-list {
+  margin: 0;
+}
+.relation-list > div {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid #e7edf6;
+}
+.relation-list > div:last-child {
+  border-bottom: 0;
+}
+.relation-list dt {
+  color: #7b899e;
+  font-size: var(--text-caption);
+}
+.relation-list dd {
+  margin: 0;
+  color: #202d41;
+  text-align: right;
+  font-size: var(--text-caption);
+  font-weight: 600;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.relation-list a {
+  color: #6680a8;
+  font-weight: 400;
+  text-decoration: none;
+}
+.relation-list a:hover {
+  color: var(--blue);
+  text-decoration: underline;
+}
 
 .meta {
   display: flex;

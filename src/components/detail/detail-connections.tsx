@@ -1,114 +1,36 @@
 // 선택 영역의 관계 집계와 관계 카드 목록을 표시하는 상세 연결 컴포넌트
+'use client';
+
 import styles from '@/styles/detail-panel.module.css';
 import sharedStyles from '@/styles/shared.module.css';
-import type { CategoryId, Relation } from '@/lib/ecosystem-types';
+import type { Relation } from '@/lib/ecosystem-types';
 import { useEcosystemData } from '@/hooks/use-ecosystem-data';
+import { useRelationPopup } from '@/hooks/use-relation-popup';
 import { Metric } from '@/components/chart/metric';
+import { RelationEvidencePopup } from './relation-evidence-popup';
 
-const statusNames = { verified: '검증 완료', candidate: '검증 대기', excluded: '제외' };
+const statusNames = { verified: '검증 완료', candidate: '검증 전', excluded: '제외' };
 
-export function DetailConnections({
-  relations,
-  selectedRelation,
-  onSelectRelation,
-  onSelectCategory,
-}: {
+export function DetailConnections({ relations, selectedRelation, onSelectRelation }: {
   relations: Relation[];
   selectedRelation: string | null;
   onSelectRelation: (id: string | null) => void;
-  onSelectCategory: (id: CategoryId) => void;
 }) {
-  const { getPlatform, getCategory } = useEcosystemData();
-  const selected = relations.find((item) => item.id === selectedRelation);
-  if (selected) {
-    const source = getPlatform(selected.source);
-    const target = getPlatform(selected.target);
-    return (
-      <article className={styles['relation-detail']}>
-        <div className={styles['relation-detail-eyebrow']}>선택한 관계 · Evidence</div>
-        <div className={styles['relation-detail-heading']}>
-          <h3>
-            {source?.name ?? selected.source} → {target?.name ?? selected.target}
-          </h3>
-          <span
-            className={[
-              sharedStyles['status-tag'],
-              selected.status === 'verified' ? sharedStyles.good : '',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-          >
-            {statusNames[selected.status]}
-          </span>
-        </div>
-        <dl className={styles['relation-detail-list']}>
-          <div>
-            <dt>관계 유형</dt>
-            <dd>{selected.type}</dd>
-          </div>
-          <div>
-            <dt>관계 레코드</dt>
-            <dd>{selected.evidence}건</dd>
-          </div>
-          <div>
-            <dt>최초 관측</dt>
-            <dd>{selected.firstSeen}</dd>
-          </div>
-          <div>
-            <dt>최근 관측</dt>
-            <dd>{selected.lastSeen}</dd>
-          </div>
-          <div>
-            <dt>근거</dt>
-            <dd>{selected.note}</dd>
-          </div>
-          <div>
-            <dt>검증</dt>
-            <dd>{statusNames[selected.status]}</dd>
-          </div>
-        </dl>
-        <div className={styles['relation-detail-platforms']}>
-          <p>
-            <span>출발 플랫폼</span> {source?.domain || '—'}
-          </p>
-          <p>
-            <span>도착 플랫폼</span> {target?.domain || '—'}
-          </p>
-        </div>
-        <button
-          type="button"
-          className={styles['relation-detail-back']}
-          onClick={() => onSelectRelation(null)}
-        >
-          ← 관계 목록
-        </button>
-      </article>
-    );
-  }
+  const { getPlatform } = useEcosystemData();
+  const { popup, popupRef, closeButtonRef, open, close } = useRelationPopup(() => onSelectRelation(null));
   const verified = relations.filter((item) => item.status === 'verified');
-  const candidates = relations.filter((item) => item.status === 'candidate');
-  const excluded = relations.filter((item) => item.status === 'excluded');
+  const unverified = relations.filter((item) => item.status !== 'verified');
   const types = [...new Set(verified.map((item) => item.type))];
-  const categoryIds = [
-    ...new Set(
-      relations.flatMap((item) => {
-        const target = getPlatform(item.target);
-        return target ? [target.category] : [];
-      }),
-    ),
-  ];
+
   return (
     <>
       <div className={styles['section-meta']}>관계 요약 · 검증 상태별</div>
-      <div className={[styles['metric-grid'], styles['triple']].join(' ')}>
+      <div className={styles['metric-grid']}>
         <Metric label="검증 완료" value={`${verified.length}건`} />
-        <Metric label="후보" value={`${candidates.length}건`} />
-        <Metric label="제외" value={`${excluded.length}건`} />
+        <Metric label="검증 전" value={`${unverified.length}건`} />
       </div>
       <div className={styles['relation-composition']}>
-        <div className={sharedStyles['block-heading']}>
-          관계 유형 구성 <span>검증 관계 {verified.length}건</span>
-        </div>
+        <div className={sharedStyles['block-heading']}>관계 유형 구성</div>
         <div>
           {types.map((type, index) => (
             <span
@@ -123,58 +45,57 @@ export function DetailConnections({
       </div>
       {!verified.length && (
         <p className={styles['helper-text']}>
-          집계할 검증 관계가 없습니다. 후보 관계는 검증 완료 건수에 포함되지 않습니다.
+          집계할 검증 관계가 없습니다. 검증 전 관계는 검증 완료 건수에 포함되지 않습니다.
         </p>
       )}
       <div className={styles['section-meta']}>
         관련 관계 <span>{relations.length}</span>
       </div>
-      {relations.map((item) => (
-        <button
-          key={item.id}
-          className={[
-            styles['relation-card'],
-            selectedRelation === item.id ? styles['selected'] : '',
-            '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          onClick={() => onSelectRelation(item.id)}
-        >
-          <div>
-            <span className={sharedStyles['status-tag']}>{statusNames[item.status]}</span>
-            <span>{item.type}</span>
-            <strong>{item.evidence}건</strong>
-          </div>
-          <b>
-            {getPlatform(item.source)?.name ?? item.source} →{' '}
-            {getPlatform(item.target)?.name ?? item.target}
-          </b>
-          <small>
-            {item.status === 'verified'
-              ? `${item.firstSeen} → ${item.lastSeen}`
-              : item.status === 'excluded'
-                ? '집계 제외'
-                : '검증 대기 · 집계 제외'}
-          </small>
-        </button>
-      ))}
+      {relations.map((item) => {
+        const source = getPlatform(item.source);
+        const target = getPlatform(item.target);
+        return (
+          <button
+            key={item.id}
+            className={[styles['relation-card'], selectedRelation === item.id ? styles.selected : ''].filter(Boolean).join(' ')}
+            aria-haspopup="dialog"
+            aria-expanded={popup?.relation.id === item.id}
+            aria-controls={popup?.relation.id === item.id ? `relation-popup-${item.id}` : undefined}
+            onClick={(event) => {
+              onSelectRelation(item.id);
+              open(item, event.currentTarget);
+            }}
+          >
+            <div>
+              <span
+                className={[
+                  sharedStyles['status-tag'],
+                  item.status === 'verified' ? sharedStyles.good : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+              >
+                {statusNames[item.status]}
+              </span>
+              <span>{item.type}</span>
+              <strong>{item.evidence}건</strong>
+            </div>
+            <b>{source?.name ?? item.source} → {target?.name ?? item.target}</b>
+          </button>
+        );
+      })}
       {!relations.length && <div className={styles['empty-inline']}>등록된 관계가 없습니다.</div>}
-      {categoryIds.length > 0 && (
-        <div className={styles['section-meta']}>
-          관련 플랫폼 유형 <span>{categoryIds.length}</span>
-        </div>
+      {popup && (
+        <RelationEvidencePopup
+          relation={popup.relation}
+          source={getPlatform(popup.relation.source)}
+          target={getPlatform(popup.relation.target)}
+          position={popup.position}
+          popupRef={popupRef}
+          closeButtonRef={closeButtonRef}
+          onClose={close}
+        />
       )}
-      {categoryIds.map((id) => (
-        <button
-          key={id}
-          className={[styles['relation-card'], styles['category-link']].join(' ')}
-          onClick={() => onSelectCategory(id)}
-        >
-          <b>{getCategory(id)?.name ?? id}</b>
-          <small>상세 보기 →</small>
-        </button>
-      ))}
     </>
   );
 }

@@ -7,6 +7,7 @@ import { MAP_ELEVATION } from './geometry';
 type Props = {
   relations: Relation[];
   selected: Selection;
+  showAllRelations: boolean;
   activePlatformIds: Set<string>;
   platformAnchors: Map<string, { x: number; y: number }>;
   selectedRelation: string | null;
@@ -16,6 +17,7 @@ type Props = {
 export function RelationLayer({
   relations,
   selected,
+  showAllRelations,
   activePlatformIds,
   platformAnchors,
   selectedRelation,
@@ -23,12 +25,15 @@ export function RelationLayer({
 }: Props) {
   const { getPlatform } = useEcosystemData();
 
-  if (selected?.kind !== 'platform') return null;
+  if (!showAllRelations && selected?.kind !== 'platform') return null;
 
   return relations
     .filter(
       (item) =>
-        item.status !== 'excluded' && (item.source === selected.id || item.target === selected.id),
+        item.status !== 'excluded' &&
+        (showAllRelations ||
+          (selected?.kind === 'platform' &&
+            (item.source === selected.id || item.target === selected.id))),
     )
     .map((item, index) => {
       const source = getPlatform(item.source);

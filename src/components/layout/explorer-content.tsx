@@ -40,7 +40,6 @@ export function ExplorerContent() {
       <div className={styles['app-body']}>
         <MapLegend
           category={statistics ? null : category}
-          statistics={statistics}
           onSelectCategory={state.selectCategory}
         />
         <section className={styles['main-content']} aria-label="오픈웹 생태계 탐색">
@@ -92,7 +91,6 @@ export function ExplorerContent() {
               tab={state.tab}
               selectedRelation={state.selectedRelation}
               onTab={state.selectTab}
-              onSelectCategory={state.selectCategory}
               onSelectPlatform={state.selectPlatform}
               onSelectRelation={state.selectRelation}
             />

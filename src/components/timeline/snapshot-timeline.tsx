@@ -96,7 +96,6 @@ export function SnapshotTimeline() {
           <>
             <time dateTime={timeline.current.date}>{timeline.current.date}</time>까지 누적 사건{' '}
             <strong>{events.length}건</strong>
-            <span className={styles.separator}>·</span> 플랫폼 정보·배치는 현재 기준
           </>
         ) : (
           '날짜가 있는 사건이나 관계가 등록되면 타임라인을 탐색할 수 있습니다.'

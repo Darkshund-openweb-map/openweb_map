@@ -16,7 +16,8 @@ test('detail copy and header summary have readable spacing', async ({ page }) =>
   expect(typography.line / typography.font).toBeGreaterThanOrEqual(1.6);
   const title = await page.getByRole('heading', { name: 'Pastebin', level: 1 }).boundingBox();
   const summary = await page.locator('[class*="content-summary"]').boundingBox();
-  expect(summary!.y - title!.y - title!.height).toBeGreaterThanOrEqual(4);
+  expect(summary!.x).toBeGreaterThan(title!.x + title!.width);
+  expect(Math.abs(summary!.y - title!.y)).toBeLessThan(title!.height);
   const heading = await panel
     .locator('[class*="block-heading"]')
     .first()

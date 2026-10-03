@@ -24,5 +24,5 @@ export function useHeaderSummary(
   );
   if (selected && tab === 'connections')
     return `검증 완료 ${relevant.filter((item) => item.status === 'verified').length}건 · 후보 ${relevant.filter((item) => item.status === 'candidate').length}건 · 제외 ${relevant.filter((item) => item.status === 'excluded').length}건`;
-  return `플랫폼 유형 ${categories.length}개 · 공개 플랫폼 ${platforms.length}곳 · 조회 가능 사건 ${events.length}건${snapshotLabel}`;
+  return `섬 유형 ${categories.length} · 플랫폼 유형 ${platforms.length} · 사건 ${events.length}${snapshotLabel}`;
 }

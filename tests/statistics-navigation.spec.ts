@@ -4,6 +4,12 @@ import { categories } from '../src/lib/fixture';
 test('전체 precedes category filters and restores the complete statistics', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: '통계', exact: true }).click();
+  const heading = page.getByRole('heading', { name: '오픈웹 분석', exact: true });
+  await expect(heading.locator('xpath=..')).toContainText(
+    `섬 유형 ${categories.length} · 플랫폼 유형`,
+  );
+  await expect(page.getByText('활동도', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('노출 수', { exact: true })).toBeVisible();
   const filters = page.getByRole('group', { name: '통계 플랫폼 유형' });
   const all = filters.getByRole('button', { name: '전체', exact: true });
   const code = filters.getByRole('button', { name: '코드 호스팅', exact: true });
@@ -16,12 +22,19 @@ test('전체 precedes category filters and restores the complete statistics', as
   await expect(all).toHaveAttribute('aria-pressed', 'true');
 
   const metrics = page.locator('[class*="stats-metrics"] strong');
+  await expect(page.locator('[class*="stats-metrics"] small')).toHaveCount(0);
   const rows = page.locator('button[class*="stats-table-row"]');
   const recent = page.locator('[class*="recent-activity"] button');
   const initialMetrics = await metrics.allTextContents();
   const initialRows = await rows.allTextContents();
   const initialRecent = await recent.allTextContents();
   await expect(metrics.first()).toHaveText('4');
+  const totalShare = async () =>
+    (await rows.locator('b').allTextContents()).reduce(
+      (sum, value) => sum + Number.parseInt(value, 10),
+      0,
+    );
+  expect(await totalShare()).toBe(100);
 
   for (const name of ['코드 호스팅', '오픈마켓', '커뮤니티']) {
     const category = filters.getByRole('button', { name, exact: true });
@@ -37,6 +50,7 @@ test('전체 precedes category filters and restores the complete statistics', as
   }
 
   await code.click();
+  expect(await totalShare()).toBe(100);
   await code.click();
   await expect(code).toHaveAttribute('aria-pressed', 'true');
   await expect(metrics.first()).toHaveText('1');
@@ -87,7 +101,7 @@ for (const width of [1440, 900, 390]) {
   });
 }
 
-test('sidebar preserves the legend, reading guide and relationship types across views', async ({
+test('sidebar keeps platform types and connection status across views', async ({
   page,
 }) => {
   await page.goto('/');
@@ -98,21 +112,14 @@ test('sidebar preserves the legend, reading guide and relationship types across 
   await expect(navigation.getByRole('button')).toHaveText(
     categories.map((category) => category.name),
   );
-  const reading = sidebar.getByRole('region', { name: '지도 구성' });
-  await expect(reading.getByRole('heading', { name: '지도 구성' })).toBeVisible();
-  await expect(reading).toContainText('개별 플랫폼');
-  await expect(reading).toContainText('사건 집계 시점');
-  const relationTypes = sidebar.getByRole('region', { name: '관계 유형' });
-  await expect(relationTypes.getByRole('listitem')).toHaveText([
-    '재게시',
-    '미러링',
-    '직접 링크',
-    '동일 파일',
-    '동일 콘텐츠',
-  ]);
+  await expect(sidebar.getByRole('region', { name: '지도 구성' })).toHaveCount(0);
+  await expect(sidebar.getByRole('region', { name: '관계 유형' })).toHaveCount(0);
   const connections = sidebar.getByRole('region', { name: '연결 상태', exact: true });
-  await expect(connections.getByText('검증 완료', { exact: true })).toBeVisible();
-  await expect(connections.getByText('검증 전', { exact: true })).toBeVisible();
+  await expect(connections.getByRole('heading', { name: '연결선 기준' })).toBeVisible();
+  await expect(connections.getByText('검증 완료 관계', { exact: true })).toBeVisible();
+  await expect(connections.getByText('검증 대기 관계', { exact: true })).toBeVisible();
+  await expect(connections.getByText('출발 → 도착 플랫폼', { exact: true })).toBeVisible();
+  await expect(connections.locator('svg')).toHaveCount(3);
 
   const code = navigation.getByRole('button', { name: '코드 호스팅', exact: true });
   await code.click();
@@ -120,11 +127,8 @@ test('sidebar preserves the legend, reading guide and relationship types across 
   await expect(page.getByRole('complementary', { name: '코드 호스팅 상세 패널' })).toBeVisible();
   await page.getByRole('button', { name: '통계', exact: true }).click();
   await expect(connections).toBeVisible();
-  await expect(reading).toContainText('실제 연결은 검증 완료 관계만 포함합니다.');
-  await expect(relationTypes).toBeVisible();
   await expect(navigation.locator('[aria-pressed="true"]')).toHaveCount(0);
   await code.click();
   await expect(page.getByRole('complementary', { name: '코드 호스팅 상세 패널' })).toBeVisible();
   await expect(connections).toBeVisible();
-  await expect(reading).toContainText('플랫폼을 누르면 관련 사건과 연결 관계를 볼 수 있습니다.');
 });

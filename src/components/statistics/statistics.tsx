@@ -29,17 +29,14 @@ export function Statistics({
         <div>
           <span>등록 사건</span>
           <strong>{events.length}</strong>
-          <small>조회 가능한 사건 기준</small>
         </div>
         <div>
           <span>노출 유형</span>
           <strong>{rows.length}</strong>
-          <small>현재 등록 기준</small>
         </div>
         <div>
           <span>실제 연결</span>
           <strong>{verifiedCount}건</strong>
-          <small>검증 완료 관계 기준</small>
         </div>
       </div>
       <div className={styles['stats-table-heading']}>
@@ -51,7 +48,7 @@ export function Statistics({
         <div className={[styles['stats-table-row'], styles['table-header']].join(' ')}>
           <span>#</span>
           <span>노출 유형</span>
-          <span>활동도</span>
+          <span>노출 수</span>
           <span>비중</span>
           <span>상태</span>
           <span>사건</span>

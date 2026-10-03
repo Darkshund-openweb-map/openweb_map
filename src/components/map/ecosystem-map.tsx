@@ -261,6 +261,7 @@ export function EcosystemMap({
             <RelationLayer
               relations={relations}
               selected={selected}
+              showAllRelations={showAllRelations}
               activePlatformIds={activePlatformIds}
               platformAnchors={platformAnchors}
               selectedRelation={selectedRelation}
@@ -280,16 +281,13 @@ export function EcosystemMap({
               pointerEvents="none"
             >
               <div className={styles['platform-hover-card']} role="tooltip">
-                <div
-                  className={styles['platform-hover-eyebrow']}
+                <strong
+                  className={styles['platform-hover-name']}
                   style={{ color: hoveredCategory.color }}
                 >
-                  개별 플랫폼 · {hoveredPlatform.name.toUpperCase()}
-                </div>
-                <strong className={styles['platform-hover-name']}>{hoveredPlatform.name}</strong>
-                <div className={styles['platform-hover-path']}>
-                  {hoveredCategory.name} &gt; {hoveredPlatform.name} · 사건 {hoveredEvents.length}건
-                </div>
+                  {hoveredPlatform.name}
+                </strong>
+                <p>{hoveredPlatform.description || '등록된 설명이 없습니다.'}</p>
                 <div className={styles['platform-hover-metrics']}>
                   <div>
                     <span>전체 사건</span>
@@ -300,7 +298,6 @@ export function EcosystemMap({
                     <b>{latestHoveredDate?.slice(5) ?? '—'}</b>
                   </div>
                 </div>
-                <p>{hoveredPlatform.description || '등록된 설명이 없습니다.'}</p>
               </div>
             </foreignObject>
               );

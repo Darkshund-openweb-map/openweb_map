@@ -92,14 +92,51 @@
   font-size: var(--text-caption);
 }
 
-.connectionRow i {
-  width: 24px;
+.connectionRow svg {
+  width: 30px;
+  height: 14px;
   flex: none;
-  border-top: 2px solid #f05a16;
+  overflow: visible;
+  fill: #f05a16;
+  stroke: #f05a16;
+  stroke-width: 1.7px;
+}
+.connectionRow .verified-status {
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #e7f7ed;
+  color: #23885a;
+  font-weight: 500;
 }
 
-.connectionRow .dashed {
-  border-top-style: dashed;
+.connectionRow svg path {
+  fill: none;
+}
+
+.connectionRow svg .dashed {
+  stroke-dasharray: 4 3;
+}
+
+.connectionRow .direction {
+  width: 34px;
+  height: 16px;
+  stroke-width: 1.35px;
+}
+
+.connectionRow .direction .source {
+  fill: #447aff;
+  stroke: #447aff;
+}
+
+.connectionRow .direction .target {
+  fill: #fa812d;
+  stroke: #fa812d;
+}
+
+.connectionRow .direction .arrow {
+  stroke: #7a879b;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .definitions {
