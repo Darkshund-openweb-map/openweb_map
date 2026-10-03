@@ -13,5 +13,5 @@ export default async function Home() {
       : supabaseEcosystemSource;
   const initialData = await source.load();
   if (!initialData.categories.length) return <DataStatus kind="empty" />;
-  return <Explorer initialData={initialData} />;
+  return <Explorer initialData={initialData} revision={JSON.stringify(initialData)} />;
 }

@@ -25,11 +25,15 @@ export function usePlatformEditor(
   const setField = (key: 'name' | 'domain' | 'description', value: string) =>
     setFields((current) => ({ ...current, [key]: value }));
   const setCategory = (category: CategoryId) => setFields((current) => ({ ...current, category }));
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const [saving, setSaving] = useState(false);
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (saving) return;
+    setSaving(true);
+    setError('');
     try {
       if (mode === 'delete') {
-        data.deletePlatform(platform.id);
+        await data.deletePlatform(platform.id);
         onDeleted();
         return;
       }
@@ -48,11 +52,15 @@ export function usePlatformEditor(
         id,
         featured: true,
       };
-      if (mode === 'add') data.addPlatform(next);
-      else data.updatePlatform(next);
-      onSaved(id);
+      if (mode === 'add') onSaved(await data.addPlatform(next));
+      else {
+        await data.updatePlatform(next);
+        onSaved(id);
+      }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : '저장하지 못했습니다. 다시 시도해 주세요.');
+    } finally {
+      setSaving(false);
     }
   };
   return {
@@ -61,6 +69,7 @@ export function usePlatformEditor(
     setCategory,
     submit,
     error,
+    saving,
     categories: data.categories,
     eventCount: data.events.filter((event) => event.platform === platform.id).length,
     relationCount: data.relations.filter(

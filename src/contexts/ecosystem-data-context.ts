@@ -7,9 +7,9 @@ export type EcosystemData = EcosystemSnapshot & {
   timeline: SnapshotTimelineState;
   getCategory: (id: CategoryId) => EcosystemSnapshot['categories'][number];
   getPlatform: (id: string) => EcosystemSnapshot['platforms'][number] | undefined;
-  addPlatform: (platform: Platform) => void;
-  updatePlatform: (platform: Platform) => void;
-  deletePlatform: (id: string) => void;
+  addPlatform: (platform: Platform) => Promise<string>;
+  updatePlatform: (platform: Platform) => Promise<void>;
+  deletePlatform: (id: string) => Promise<void>;
 };
 
 export const EcosystemDataContext = createContext<EcosystemData | null>(null);
