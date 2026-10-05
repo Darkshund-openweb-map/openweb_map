@@ -9,7 +9,7 @@
   line-height: var(--leading-copy);
 }
 .stats-heading h2 {
-  font-size: 18px;
+  font-size: 21px;
   font-weight: 700;
   margin: 0 0 18px;
 }
@@ -70,11 +70,11 @@
   color: #6f7e92;
 }
 .stats-metrics strong {
-  font-size: 28px;
+  font-size: 31px;
   line-height: 1.4;
 }
 .stats-metrics small {
-  font-size: 11px;
+  font-size: 14px;
   color: #176bfa;
 }
 .stats-table-heading {
@@ -93,7 +93,7 @@
   grid-template-columns: 28px minmax(0, 2fr) minmax(60px, 1fr) 48px 48px 70px;
   align-items: center;
   gap: 12px;
-  min-height: 50px;
+  min-height: 54px;
   border: 0;
   border-bottom: 1px solid #e8edf4;
   background: #fff;
@@ -109,7 +109,7 @@
   grid-column: 1 / -1;
   margin: 0;
   padding: 20px 10px;
-  font-size: 11px;
+  font-size: 14px;
   color: #728199;
   text-align: center;
 }
@@ -123,7 +123,7 @@
 }
 .stats-table-row.table-header {
   background: #f8faff;
-  font-size: 11px;
+  font-size: 14px;
   color: #7d8ba0;
 }
 .stats-table-row.highlighted,
@@ -184,7 +184,7 @@
   font-weight: 800;
 }
 .recent-activity small {
-  font-size: 11px;
+  font-size: 14px;
   color: #8190a4;
 }
 .recent-activity em {
@@ -232,14 +232,14 @@
     word-break: keep-all;
   }
   .stats-metrics strong {
-    font-size: 24px;
+    font-size: 27px;
   }
   .category-chips button {
-    font-size: 11px;
+    font-size: 14px;
     padding: 6px 9px;
   }
   .stats-heading h2 {
-    font-size: 16px;
+    font-size: 19px;
   }
   .recent-activity > div:nth-child(2) {
     grid-template-columns: 1fr;

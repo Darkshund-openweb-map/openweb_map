@@ -17,26 +17,26 @@ const SEARCH_WIDTH = 48;
 const SCATTER_ANCHORS: Record<number, readonly (readonly [number, number])[]> = {
   1: [[0, 0]],
   2: [
-    [-0.52, -0.42],
-    [0.52, 0.42],
+    [0, -0.48],
+    [0, 0.48],
   ],
   3: [
-    [-0.52, -0.48],
-    [0.55, -0.05],
-    [-0.18, 0.58],
+    [-0.5, -0.46],
+    [0.5, -0.46],
+    [0, 0.55],
   ],
   4: [
-    [-0.42, -0.6],
-    [0.45, -0.18],
-    [-0.48, 0.3],
-    [0.35, 0.62],
+    [-0.48, -0.45],
+    [0.48, -0.45],
+    [-0.48, 0.45],
+    [0.48, 0.45],
   ],
   5: [
-    [-0.55, -0.5],
-    [0.5, -0.55],
-    [-0.1, 0.02],
-    [-0.5, 0.58],
-    [0.52, 0.48],
+    [-0.5, -0.5],
+    [0.5, -0.5],
+    [0, 0],
+    [-0.5, 0.5],
+    [0.5, 0.5],
   ],
 };
 
@@ -125,6 +125,12 @@ function placeLabels(category: Category, names: readonly string[]): Position[] |
     for (const state of states) {
       for (const cell of label.candidates) {
         if (
+          names.length === 2 &&
+          state.placed.length === 1 &&
+          Math.abs(cell.x - state.placed[0].x) > HEX_COLUMN_GAP / 2
+        )
+          continue;
+        if (
           !state.placed.every(
             (other) =>
               Math.abs(cell.y - other.y) >= VERTICAL_CLEARANCE ||
@@ -141,8 +147,7 @@ function placeLabels(category: Category, names: readonly string[]): Position[] |
             Math.max(...placed.map((item) => item.x)) - Math.min(...placed.map((item) => item.x));
           const spreadY =
             Math.max(...placed.map((item) => item.y)) - Math.min(...placed.map((item) => item.y));
-          if (spreadX < HEX_COLUMN_GAP * (names.length === 2 ? 1.5 : 2) || spreadY < HEX_ROW_GAP)
-            continue;
+          if ((names.length > 2 && spreadX < HEX_COLUMN_GAP * 2) || spreadY < HEX_ROW_GAP) continue;
         }
         next.push({ score: state.score + cell.score, placed });
       }

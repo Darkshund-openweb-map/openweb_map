@@ -50,7 +50,7 @@
   height: 26px;
   border-color: transparent;
   background: transparent;
-  font-size: 12px;
+  font-size: 15px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -77,14 +77,14 @@
 
 .snapshot > span {
   color: #748196;
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.12em;
   font-weight: 700;
 }
 
 .snapshot output {
   color: var(--blue);
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -155,7 +155,7 @@
   position: relative;
   height: 17px;
   margin: 0 8px;
-  font-size: 10px;
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
   color: #637289;
 }
@@ -177,7 +177,7 @@
 .reset {
   gap: 5px;
   padding: 7px 10px;
-  font-size: 12px;
+  font-size: 15px;
 }
 
 .reset > span {
@@ -189,7 +189,7 @@
   grid-column: 1 / -1;
   margin: 0;
   color: #68788f;
-  font-size: 11px;
+  font-size: 14px;
   line-height: 1.6;
   text-align: center;
   word-break: keep-all;

@@ -16,7 +16,7 @@
 }
 .actions > p {
   margin: 10px 0 0;
-  font-size: 11px;
+  font-size: 14px;
   line-height: 1.6;
   color: #7d8ba0;
 }
@@ -61,7 +61,7 @@
 }
 .heading h2 {
   margin: 0;
-  font-size: 19px;
+  font-size: 22px;
 }
 .heading button {
   width: 30px;
@@ -74,7 +74,7 @@
 }
 .hint {
   color: #748298;
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.6;
   margin: 10px 0 20px;
 }
@@ -85,7 +85,7 @@
 .fields label {
   display: grid;
   gap: 6px;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 600;
 }
 .fields input,
@@ -119,14 +119,14 @@
 .dialog-actions button {
   min-width: 64px;
   min-height: 34px;
-  font-size: 12px;
+  font-size: 15px;
 }
 .danger {
   background: #c93535;
   border-color: #c93535;
 }
 .delete-summary {
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.7;
 }
 .delete-summary p:last-child {
@@ -134,7 +134,7 @@
 }
 .error {
   color: #bf3434;
-  font-size: 12px;
+  font-size: 15px;
   margin: 14px 0 0;
 }
 .incident-dialog {
@@ -162,13 +162,13 @@
   background: #f5f9ff;
 }
 .record-list button strong {
-  font-size: 13px;
+  font-size: 16px;
 }
 .record-list button span,
 .record-list > p,
 .repeat-section > p {
   color: #748298;
-  font-size: 12px;
+  font-size: 15px;
 }
 .repeat-section {
   display: grid;
@@ -186,13 +186,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 12px;
+  font-size: 15px;
 }
 .repeat-heading button {
   border: 0;
   background: none;
   color: #bd3434;
-  font-size: 11px;
+  font-size: 14px;
 }
 .choice-buttons {
   display: flex;

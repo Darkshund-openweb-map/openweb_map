@@ -9,7 +9,7 @@
 .brand {
   padding: 18px;
   border-bottom: 1px solid #e2e9f3;
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 800;
 }
 
@@ -26,12 +26,12 @@
 
 .content h1 {
   margin: 0;
-  font-size: 20px;
+  font-size: 23px;
 }
 
 .content p {
   margin: 0;
-  font-size: 14px;
+  font-size: 17px;
   color: #607086;
 }
 
@@ -41,6 +41,6 @@
   padding: 10px 16px;
   background: #176bfa;
   color: #fff;
-  font-size: 14px;
+  font-size: 17px;
   cursor: pointer;
 }
