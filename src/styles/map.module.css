@@ -173,7 +173,7 @@
 .platform-hover-eyebrow {
   overflow: hidden;
   margin-bottom: 5px;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.45px;
   text-overflow: ellipsis;
@@ -182,7 +182,7 @@
 .platform-hover-name {
   display: block;
   overflow: hidden;
-  font-size: 17px;
+  font-size: 20px;
   line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -191,7 +191,7 @@
   overflow: hidden;
   margin-top: 5px;
   color: #75839a;
-  font-size: 9.5px;
+  font-size: 12.5px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -210,12 +210,12 @@
 .platform-hover-metrics span {
   display: block;
   color: #74829a;
-  font-size: 8.5px;
+  font-size: 11.5px;
 }
 .platform-hover-metrics b {
   display: block;
   margin-top: 2px;
-  font-size: 14px;
+  font-size: 17px;
   line-height: 1.15;
 }
 .platform-hover-card p {
@@ -223,7 +223,7 @@
   overflow: hidden;
   margin: 10px 0 0;
   color: #4f5f76;
-  font-size: 9.5px;
+  font-size: 12.5px;
   line-height: 1.45;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -242,7 +242,7 @@
   padding: 7px 11px;
   box-shadow: 0 1px 4px #4967890d;
   color: #8290a5;
-  font-size: 11px;
+  font-size: 14px;
 }
 .relation-switch {
   display: flex;
@@ -252,7 +252,7 @@
   border: 0;
   padding: 0;
   color: #4d5d75;
-  font-size: 11px;
+  font-size: 14px;
 }
 .switch-track {
   width: 20px;
@@ -284,7 +284,7 @@
   justify-content: space-between;
   pointer-events: none;
   color: #7b8ba0;
-  font-size: 11px;
+  font-size: 14px;
 }
 .map-bottom-bar > span {
   background: #fff9;
@@ -313,10 +313,11 @@
   border-radius: 5px;
   box-shadow: 0 1px 3px #4260850f;
   color: #57677f;
-  font-size: 10px;
+  font-size: 13px;
 }
 .map-actions > button {
   padding: 0 8px;
+  white-space: nowrap;
 }
 .zoom-buttons {
   display: flex;
@@ -333,7 +334,7 @@
 .zoom-buttons output {
   width: 33px;
   text-align: center;
-  font-size: 9px;
+  font-size: 12px;
 }
 .map-empty-card {
   position: absolute;
@@ -350,16 +351,16 @@
   z-index: 6;
 }
 .map-empty-card strong {
-  font-size: 12px;
+  font-size: 15px;
 }
 .map-empty-card p {
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.55;
   color: #77879c;
   margin: 7px 0 11px;
 }
 .map-empty-card button {
-  font-size: 10px;
+  font-size: 13px;
   border: 1px solid #1d69eb;
   background: #176bfa;
   color: #fff;
@@ -376,7 +377,7 @@
   color: #8390a2;
 }
 .small {
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .island-side-layer {
@@ -387,7 +388,7 @@
   pointer-events: visiblePainted;
 }
 
-@media (max-width: 750px) {
+@container (max-width: 650px) {
   .map-bottom-bar > span {
     display: none;
   }

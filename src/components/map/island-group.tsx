@@ -3,15 +3,11 @@
 
 import styles from '@/styles/map.module.css';
 import { useState, type KeyboardEvent } from 'react';
-import type {
-  Category,
-  CategoryId,
-  Platform,
-  Selection,
-} from '@/lib/ecosystem-types';
+import type { Category, CategoryId, Platform, Selection } from '@/lib/ecosystem-types';
 import { MAP_ELEVATION, type HexCell } from './geometry';
 import { IslandTiles } from './island-tiles';
 import { platformLabel } from '@/lib/platform-label';
+import { getTerritoryCenters } from '@/lib/island-territories';
 
 type Props = {
   category: Category;
@@ -40,14 +36,15 @@ export function IslandGroup({
 }: Props) {
   const [hoveredOwner, setHoveredOwner] = useState<string | null>(null);
   const [islandHovered, setIslandHovered] = useState(false);
+  const territoryCenters = getTerritoryCenters(cells, owners);
   const badgeWidth = Math.max(
-    70,
+    84,
     Array.from(category.name).reduce(
-      (width, char) => width + (/[가-힣]/.test(char) ? 11.5 : 6.5),
+      (width, char) => width + (/[가-힣]/.test(char) ? 14.5 : 8.2),
       0,
     ) +
-      String(category.count).length * 7 +
-      40,
+      String(category.count).length * 8.5 +
+      44,
   );
   const tileBounds = cells.reduce(
     (bounds, cell) => ({
@@ -121,18 +118,18 @@ export function IslandGroup({
         <rect
           className={styles['island-title-box']}
           x={-badgeWidth / 2}
-          y="-14"
+          y="-16"
           width={badgeWidth}
-          height="28"
-          rx="14"
+          height="32"
+          rx="16"
           style={islandHovered ? { fill: category.color, stroke: category.color } : undefined}
           aria-hidden="true"
         />
         <text
           className={styles['island-title-text']}
           textAnchor="middle"
-          y="4"
-          fontSize="11.5"
+          y="5"
+          fontSize="14.5"
           fontWeight={islandHovered ? '800' : '700'}
           fill={islandHovered ? '#ffffff' : category.color}
         >
@@ -156,13 +153,14 @@ export function IslandGroup({
             activePlatformIds.has(platform.id) ||
             (selected?.kind === 'category' && selected.id === category.id);
           const { text: label, width } = platformLabel(platform.name);
+          const center = territoryCenters.get(platform.id) ?? platform;
           return (
             <g
               key={platform.id}
               className={styles['platform-label']}
               data-platform-id={platform.id}
               data-selected={active}
-              transform={`translate(${platform.x},${platform.y - (elevated ? MAP_ELEVATION : 0)})`}
+              transform={`translate(${center.x},${center.y - (elevated ? MAP_ELEVATION : 0)})`}
               role="button"
               tabIndex={0}
               aria-label={`${platform.name} 영토 선택`}
@@ -184,17 +182,17 @@ export function IslandGroup({
               <rect
                 className={styles['platform-label-box']}
                 x={-width / 2}
-                y="-8"
+                y="-10"
                 width={width}
-                height="16"
-                rx="8"
+                height="20"
+                rx="10"
                 aria-hidden="true"
               />
               <text
                 className={styles['map-label-text']}
                 textAnchor="middle"
-                y="4.5"
-                fontSize="12.5"
+                y="5"
+                fontSize="14.5"
                 fontWeight={active ? '700' : '600'}
                 fill="#1e293b"
               >

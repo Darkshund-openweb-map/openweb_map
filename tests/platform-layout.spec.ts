@@ -34,7 +34,10 @@ for (const { id, names } of groups) {
     if (names.length > 1) {
       const xs = layout.positions.map((position) => position.x);
       const ys = layout.positions.map((position) => position.y);
-      expect(Math.max(...xs) - Math.min(...xs)).toBeGreaterThanOrEqual(HEX_COLUMN_GAP * 1.5);
+      if (names.length === 2)
+        expect(Math.max(...xs) - Math.min(...xs)).toBeLessThanOrEqual(HEX_COLUMN_GAP / 2);
+      if (names.length > 2)
+        expect(Math.max(...xs) - Math.min(...xs)).toBeGreaterThanOrEqual(HEX_COLUMN_GAP * 1.5);
       expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThan(15);
     }
     for (let first = 0; first < names.length; first += 1) {
@@ -52,7 +55,7 @@ for (const { id, names } of groups) {
               a.y -
                 (raised === first ? MAP_ELEVATION : 0) -
                 (b.y - (raised === second ? MAP_ELEVATION : 0)),
-              ) - 16;
+            ) - 20;
           expect(gapX >= 8 || gapY >= 5).toBe(true);
         }
       }
@@ -69,7 +72,7 @@ test('empty and long-name layouts are deterministic and use the same width as re
   expect(layoutIslandPlatforms(category, names)).toEqual(layout);
   expect(layout.positions).toHaveLength(names.length);
   expect(platformLabel(names[0]).text).toContain('…');
-  expect(platformLabel(names[0]).width).toBeLessThanOrEqual(132);
+  expect(platformLabel(names[0]).width).toBeLessThanOrEqual(144);
 });
 
 test('current islands stay separated after fitting their platform names', () => {

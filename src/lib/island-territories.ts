@@ -5,10 +5,30 @@ export const MAX_ISLAND_TILES = 80;
 export const BASE_ISLAND_TILES = 38;
 export const BASE_TILES_PER_PLATFORM = 4;
 
+export function getTerritoryCenters(cells: HexCell[], owners: Map<string, string>) {
+  const totals = new Map<string, { x: number; y: number; count: number }>();
+  for (const cell of cells) {
+    const owner = owners.get(cell.key);
+    if (!owner) continue;
+    const total = totals.get(owner) ?? { x: 0, y: 0, count: 0 };
+    total.x += cell.x;
+    total.y += cell.y;
+    total.count += 1;
+    totals.set(owner, total);
+  }
+  return new Map(
+    Array.from(totals, ([id, total]) => [
+      id,
+      { x: total.x / total.count, y: total.y / total.count },
+    ]),
+  );
+}
+
 export function getPlatformTileQuotas(platforms: Platform[], events: EcosystemEvent[]) {
   if (!platforms.length) return [];
   const incidents = new Map<string, number>();
-  for (const event of events) incidents.set(event.platform, (incidents.get(event.platform) ?? 0) + 1);
+  for (const event of events)
+    incidents.set(event.platform, (incidents.get(event.platform) ?? 0) + 1);
 
   const sharedBase = platforms.map(
     (_, index) =>
@@ -82,9 +102,7 @@ export function assignTerritoryCells(
         if (used[candidate]) continue;
         const platform = platformById.get(slots[candidate - 1]);
         const cell = cells[currentRow - 1];
-        const cost = platform
-          ? (cell.x - platform.x) ** 2 + (cell.y - platform.y) ** 2
-          : 0;
+        const cost = platform ? (cell.x - platform.x) ** 2 + (cell.y - platform.y) ** 2 : 0;
         const reduced = cost - rowPotential[currentRow] - columnPotential[candidate];
         if (reduced < minimum[candidate]) {
           minimum[candidate] = reduced;

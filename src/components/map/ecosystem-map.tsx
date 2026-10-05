@@ -15,6 +15,7 @@ import { useMapZoom } from '@/hooks/use-map-zoom';
 import { useMapData } from '@/hooks/use-map-data';
 import { AdminLoginDialog } from './admin-login-dialog';
 import { useAdmin } from '@/hooks/use-admin';
+import { getTerritoryCenters } from '@/lib/island-territories';
 
 type Props = {
   selected: Selection;
@@ -92,29 +93,21 @@ export function EcosystemMap({
       });
     });
 
-    const scale = count === 1 ? 1.45 : count === 2 ? 1.34 : count === 3 ? 1.22 : count === 4 ? 1.12 : 1.05;
+    const scale =
+      count === 1 ? 1.45 : count === 2 ? 1.34 : count === 3 ? 1.22 : count === 4 ? 1.12 : 1.05;
     return { offsets, scale };
   }, [isLatest, tileGroups]);
   const platformAnchors = useMemo(() => {
     const anchors = new Map<string, { x: number; y: number }>();
     tileGroups.forEach(({ cells, owners }) => {
-      const cellByKey = new Map(cells.map((cell) => [cell.key, cell]));
-      const territories = new Map<string, typeof cells>();
-      owners.forEach((platformId, cellKey) => {
-        const cell = cellByKey.get(cellKey);
-        if (!cell) return;
-        const territory = territories.get(platformId) ?? [];
-        territory.push(cell);
-        territories.set(platformId, territory);
-      });
-      territories.forEach((territory, platformId) => {
+      getTerritoryCenters(cells, owners).forEach((center, platformId) => {
         const platform = platforms.find((item) => item.id === platformId);
         const offset = platform
-          ? historicalLayout.offsets.get(platform.category) ?? { x: 0, y: 0 }
+          ? (historicalLayout.offsets.get(platform.category) ?? { x: 0, y: 0 })
           : { x: 0, y: 0 };
         anchors.set(platformId, {
-          x: territory.reduce((sum, cell) => sum + cell.x, 0) / territory.length + offset.x,
-          y: territory.reduce((sum, cell) => sum + cell.y, 0) / territory.length + offset.y,
+          x: center.x + offset.x,
+          y: center.y + offset.y,
         });
       });
     });
@@ -267,41 +260,43 @@ export function EcosystemMap({
               selectedRelation={selectedRelation}
               onSelectRelation={onSelectRelation}
             />
-            {hoveredPlatform && hoveredCategory && (() => {
-              const offset = historicalLayout.offsets.get(hoveredCategory.id) ?? { x: 0, y: 0 };
-              const hoverX = hoveredPlatform.x + offset.x;
-              const hoverY = hoveredPlatform.y + offset.y;
-              return (
-            <foreignObject
-              x={hoverX < 600 ? hoverX + 28 : hoverX - 268}
-              y={Math.max(-18, Math.min(530, hoverY - 82))}
-              width="240"
-              height="176"
-              className={styles['platform-hover-card-object']}
-              pointerEvents="none"
-            >
-              <div className={styles['platform-hover-card']} role="tooltip">
-                <strong
-                  className={styles['platform-hover-name']}
-                  style={{ color: hoveredCategory.color }}
-                >
-                  {hoveredPlatform.name}
-                </strong>
-                <p>{hoveredPlatform.description || '등록된 설명이 없습니다.'}</p>
-                <div className={styles['platform-hover-metrics']}>
-                  <div>
-                    <span>전체 사건</span>
-                    <b>{hoveredEvents.length}건</b>
-                  </div>
-                  <div>
-                    <span>최근 관측일</span>
-                    <b>{latestHoveredDate?.slice(5) ?? '—'}</b>
-                  </div>
-                </div>
-              </div>
-            </foreignObject>
-              );
-            })()}
+            {hoveredPlatform &&
+              hoveredCategory &&
+              (() => {
+                const offset = historicalLayout.offsets.get(hoveredCategory.id) ?? { x: 0, y: 0 };
+                const hoverX = hoveredPlatform.x + offset.x;
+                const hoverY = hoveredPlatform.y + offset.y;
+                return (
+                  <foreignObject
+                    x={hoverX < 600 ? hoverX + 28 : hoverX - 268}
+                    y={Math.max(-18, Math.min(530, hoverY - 82))}
+                    width="240"
+                    height="176"
+                    className={styles['platform-hover-card-object']}
+                    pointerEvents="none"
+                  >
+                    <div className={styles['platform-hover-card']} role="tooltip">
+                      <strong
+                        className={styles['platform-hover-name']}
+                        style={{ color: hoveredCategory.color }}
+                      >
+                        {hoveredPlatform.name}
+                      </strong>
+                      <p>{hoveredPlatform.description || '등록된 설명이 없습니다.'}</p>
+                      <div className={styles['platform-hover-metrics']}>
+                        <div>
+                          <span>전체 사건</span>
+                          <b>{hoveredEvents.length}건</b>
+                        </div>
+                        <div>
+                          <span>최근 관측일</span>
+                          <b>{latestHoveredDate?.slice(5) ?? '—'}</b>
+                        </div>
+                      </div>
+                    </div>
+                  </foreignObject>
+                );
+              })()}
           </g>
         </g>
       </svg>

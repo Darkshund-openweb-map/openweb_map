@@ -11,8 +11,8 @@
 }
 
 :root {
-  --text-body: 0.8125rem;
-  --text-caption: 0.75rem;
+  --text-body: 1rem;
+  --text-caption: 0.9375rem;
   --leading-copy: 1.7;
   --ink: #172033;
   --muted: #78869c;
