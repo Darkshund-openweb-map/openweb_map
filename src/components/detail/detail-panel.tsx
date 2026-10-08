@@ -50,10 +50,8 @@ export function DetailPanel({
           .filter(Boolean)
           .join(' ')}
       >
-        {!platform && (
-          <span className={styles['eyebrow']}>
-            {category ? '플랫폼 유형 · 선택됨' : '오픈웹 생태계 · 전체'}
-          </span>
+        {!platform && category && (
+          <span className={styles['eyebrow']}>플랫폼 유형 · 선택됨</span>
         )}
         <h2>{title}</h2>
         {platform && category && (
