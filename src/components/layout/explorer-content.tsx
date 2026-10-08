@@ -84,7 +84,7 @@ export function ExplorerContent() {
           )}
           {state.scope !== 'dark' && <SnapshotTimeline />}
         </section>
-        {!statistics && state.selected && (
+        {state.scope !== 'dark' && (
           <>
             <DetailPanelToggle
               open={state.detailOpen}
@@ -97,6 +97,7 @@ export function ExplorerContent() {
               selectedRelation={state.selectedRelation}
               selectedIncidentId={state.selectedIncidentId}
               onTab={state.selectTab}
+              onSelectCategory={state.selectCategory}
               onSelectPlatform={state.selectPlatform}
               onSelectRelation={state.selectRelation}
               onIncidentClosed={state.clearSelectedIncident}

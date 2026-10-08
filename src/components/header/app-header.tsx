@@ -9,7 +9,8 @@ import { useEcosystemData } from '@/hooks/use-ecosystem-data';
 import { BrandMark } from './brand-mark';
 import { HexSwatch } from '@/components/legend/hex-swatch';
 
-const DARK_WEB_URL = 'https://darkchoco-map.h42381309.workers.dev/';
+const CONNECTED_MAP_URL = 'https://d4rkn3ttz-collaboration.github.io/Connection-Map/';
+const DARK_WEB_URL = 'https://darkchoco-map.darkchoco.workers.dev/';
 
 function HighlightMatch({ text, query }: { text: string; query: string }) {
   const needle = query.trim();
@@ -83,8 +84,8 @@ export function AppHeader({
             className={scope === item.id ? styles['active'] : ''}
             aria-current={scope === item.id ? 'page' : undefined}
             onClick={() => {
-              if (item.id === 'dark') {
-                window.open(DARK_WEB_URL, '_blank', 'noopener,noreferrer');
+              if (item.id === 'connected' || item.id === 'dark') {
+                window.location.assign(item.id === 'connected' ? CONNECTED_MAP_URL : DARK_WEB_URL);
                 return;
               }
               onScope(item.id);

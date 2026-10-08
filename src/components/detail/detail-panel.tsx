@@ -2,7 +2,7 @@
 'use client';
 
 import styles from '@/styles/detail-panel.module.css';
-import type { DetailTab, Selection } from '@/lib/ecosystem-types';
+import type { CategoryId, DetailTab, Selection } from '@/lib/ecosystem-types';
 import { DetailConnections } from './detail-connections';
 import { DetailOverview } from './detail-overview';
 import { DetailTabs } from './detail-tabs';
@@ -17,6 +17,7 @@ type Props = {
   selectedRelation: string | null;
   selectedIncidentId: string | null;
   onTab: (tab: DetailTab) => void;
+  onSelectCategory: (id: CategoryId) => void;
   onSelectPlatform: (id: string) => void;
   onSelectRelation: (id: string | null) => void;
   onIncidentClosed: () => void;
@@ -29,12 +30,12 @@ export function DetailPanel({
   selectedRelation,
   selectedIncidentId,
   onTab,
+  onSelectCategory,
   onSelectPlatform,
   onSelectRelation,
   onIncidentClosed,
 }: Props) {
   const data = useDetailData(selected);
-  if (!selected || !data.category) return null;
   const { category, platform, title, eventCount, relations } = data;
   return (
     <aside
@@ -49,9 +50,13 @@ export function DetailPanel({
           .filter(Boolean)
           .join(' ')}
       >
-        {!platform && <span className={styles['eyebrow']}>플랫폼 유형 · 선택됨</span>}
+        {!platform && (
+          <span className={styles['eyebrow']}>
+            {category ? '플랫폼 유형 · 선택됨' : '오픈웹 생태계 · 전체'}
+          </span>
+        )}
         <h2>{title}</h2>
-        {platform && (
+        {platform && category && (
           <p>
             {category.name} &gt; {title} · 사건 {eventCount}건
           </p>
@@ -72,18 +77,21 @@ export function DetailPanel({
         {tab === 'overview' && (
           <DetailOverview
             category={category}
+            categories={data.categories}
             platform={platform}
             platforms={data.platforms}
             bars={data.bars}
             trend={data.trend}
             eventCount={eventCount}
             latestDate={data.latestEvent?.date}
+            verifiedCount={data.verifiedCount}
+            onSelectCategory={onSelectCategory}
             onSelectPlatform={onSelectPlatform}
           />
         )}
         {tab === 'events' && (
           <EventTimeline
-            key={`${selected.kind}-${selected.id}`}
+            key={selected ? `${selected.kind}-${selected.id}` : 'all'}
             title={title}
             events={data.events}
             relations={relations}
@@ -103,7 +111,9 @@ export function DetailPanel({
         )}
       </div>
       {platform && <PlatformActions key={platform.id} platform={platform} />}
-      {!platform && <CategoryPlatformAdd category={category} onSelectPlatform={onSelectPlatform} />}
+      {!platform && category && (
+        <CategoryPlatformAdd category={category} onSelectPlatform={onSelectPlatform} />
+      )}
     </aside>
   );
 }
