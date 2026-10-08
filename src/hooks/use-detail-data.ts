@@ -60,7 +60,7 @@ export function useDetailData(selected: Selection) {
     bars,
     trend,
     referenceDate: data.timeline.current.date,
-    title: platform?.name ?? category?.name ?? '전체 오픈웹 생태계',
+    title: platform?.name ?? category?.name ?? '오픈웹 생태계',
     eventCount: category ? (platform ? events.length : category.count) : events.length,
     verifiedCount: relations.filter((item) => item.status === 'verified').length,
     getPlatform: data.getPlatform,
