@@ -300,7 +300,10 @@ test('selecting Pastebin also raises and emphasizes its connected code island', 
 }) => {
   await openMap(page);
   await page.getByRole('combobox').fill('Pastebin');
-  await page.getByRole('option', { name: /Pastebin/ }).click();
+  await page
+    .locator('[data-search-kind="platform"][role="option"]')
+    .filter({ hasText: 'Pastebin' })
+    .click();
 
   const codeIsland = page.getByRole('button', { name: '코드 호스팅 섬 선택', exact: true });
   const textIsland = page.getByRole('button', { name: '텍스트 호스팅 섬 선택', exact: true });
@@ -539,18 +542,22 @@ test('statistics selection opens its own platform and mobile has no horizontal o
   await openMap(page);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await page.getByRole('combobox').fill('Pastebin');
-  await page.getByRole('option', { name: /Pastebin/ }).click();
+  await page
+    .locator('[data-search-kind="platform"][role="option"]')
+    .filter({ hasText: 'Pastebin' })
+    .click();
   await expect(page.getByRole('complementary', { name: 'Pastebin 상세 패널' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await page.getByRole('button', { name: '상세 패널 접기' }).click();
   await page.getByRole('button', { name: '상세 패널 열기' }).click();
   await expect(page.getByRole('complementary', { name: 'Pastebin 상세 패널' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
-  await page.getByRole('button', { name: '다크웹', exact: true }).click();
-  await expect(page.getByRole('complementary', { name: 'Pastebin 상세 패널' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '등록된 다크웹 플랫폼이 없습니다' })).toHaveCount(
-    0,
+  await page.route('https://darkchoco-map.darkchoco.workers.dev/', (route) =>
+    route.fulfill({ status: 200, contentType: 'text/html', body: '<h1>Destination</h1>' }),
   );
+  await page.getByRole('button', { name: '다크웹', exact: true }).click();
+  await expect(page).toHaveURL('https://darkchoco-map.darkchoco.workers.dev/');
+  await expect(page.getByRole('heading', { name: 'Destination' })).toBeVisible();
 });
 
 test('full viewport starts flat with boxed island titles and platform labels', async ({ page }) => {

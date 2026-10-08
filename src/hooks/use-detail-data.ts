@@ -10,7 +10,9 @@ export function useDetailData(selected: Selection) {
   const platform = selected?.kind === 'platform' ? data.getPlatform(selected.id) : undefined;
   const categoryId = selected?.kind === 'category' ? selected.id : platform?.category;
   const category = categoryId ? data.getCategory(categoryId) : undefined;
-  const platforms = data.platforms.filter((item) => item.category === categoryId);
+  const platforms = categoryId
+    ? data.platforms.filter((item) => item.category === categoryId)
+    : data.platforms;
   const platformIds = new Set(platform ? [platform.id] : platforms.map((item) => item.id));
   const events = data.events.filter((event) => platformIds.has(event.platform));
   const relations = data.relations.filter(
@@ -26,12 +28,16 @@ export function useDetailData(selected: Selection) {
           }))
           .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'ko')),
       ).map(({ name, heat }) => ({ name, value: heat }))
-    : normalizeExposurePercentages(
-        platforms.map((item) => ({
-          name: item.name,
-          count: events.filter((event) => event.platform === item.id).length,
-        })),
-      ).map(({ name, heat }) => ({ name, value: heat }));
+    : !categoryId
+      ? normalizeExposurePercentages(
+          data.exposureRows.map((row) => ({ name: row.name, count: row.count })),
+        ).map(({ name, heat }) => ({ name, value: heat }))
+      : normalizeExposurePercentages(
+          platforms.map((item) => ({
+            name: item.name,
+            count: events.filter((event) => event.platform === item.id).length,
+          })),
+        ).map(({ name, heat }) => ({ name, value: heat }));
   const months = platform ? 4 : 12;
   const reference = new Date(`${data.timeline.current.date}T00:00:00Z`);
   const trend = Array.from({ length: months }, (_, index) => {
@@ -54,8 +60,8 @@ export function useDetailData(selected: Selection) {
     bars,
     trend,
     referenceDate: data.timeline.current.date,
-    title: platform?.name ?? category?.name ?? '',
-    eventCount: platform ? events.length : (category?.count ?? 0),
+    title: platform?.name ?? category?.name ?? '전체 오픈웹 생태계',
+    eventCount: category ? (platform ? events.length : category.count) : events.length,
     verifiedCount: relations.filter((item) => item.status === 'verified').length,
     getPlatform: data.getPlatform,
   };
