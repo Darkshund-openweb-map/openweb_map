@@ -66,7 +66,7 @@ export function MapLegend({ category, onSelectCategory }: Props) {
         <DataAccessRequestCard onOpen={() => setRequestOpen(true)} />
       </aside>
       <button type="button" className={styles.mobileRequest} onClick={() => setRequestOpen(true)}>
-        DB 열람 요청
+        조회 요청
       </button>
       {requestOpen && <DataAccessRequestDialog onClose={() => setRequestOpen(false)} />}
     </>

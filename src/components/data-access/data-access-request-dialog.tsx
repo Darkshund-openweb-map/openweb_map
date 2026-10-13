@@ -7,7 +7,7 @@ const recipient = process.env.NEXT_PUBLIC_DATA_ACCESS_EMAIL?.trim() ?? '';
 
 function requestText(values: Record<string, string>) {
   return [
-    'WEB SCOPE DB 열람 요청',
+    'WEB SCOPE 조회 요청',
     '',
     `이름: ${values.name}`,
     `소속: ${values.organization || '미기재'}`,
@@ -56,7 +56,7 @@ export function DataAccessRequestDialog({ onClose }: { onClose: () => void }) {
 
     const message = requestText(values);
     if (recipient) {
-      const subject = encodeURIComponent(`[WEB SCOPE] DB 열람 요청 - ${values.name}`);
+      const subject = encodeURIComponent(`[WEB SCOPE] 조회 요청 - ${values.name}`);
       window.location.href = `mailto:${recipient}?subject=${subject}&body=${encodeURIComponent(message)}`;
       setFeedback('메일 앱에서 보내기를 눌러야 요청이 전달됩니다.');
       return;
@@ -85,7 +85,7 @@ export function DataAccessRequestDialog({ onClose }: { onClose: () => void }) {
       <div className={styles.dialogHeader}>
         <div>
           <span className={styles.dialogEyebrow}>WEB SCOPE · DATA ACCESS</span>
-          <h2 id={titleId}>DB 열람 요청</h2>
+          <h2 id={titleId}>조회 요청</h2>
           <p id={hintId}>어떤 자료가 필요한지, 어디에 사용할지 알려주세요.</p>
         </div>
         <button type="button" className={styles.close} onClick={onClose} aria-label="닫기">
