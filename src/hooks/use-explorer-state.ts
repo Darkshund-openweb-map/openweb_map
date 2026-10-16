@@ -63,7 +63,12 @@ export function useExplorerState() {
     setSelected({ kind: 'platform', id: relation.source });
     setTab('connections');
     setDetailOpen(true);
-    setShowAllRelations(true);
+    setShowAllRelations(false);
+  };
+
+  const toggleAllRelations = () => {
+    setSelectedRelation(null);
+    setShowAllRelations((current) => !current);
   };
 
   const selectTab = (nextTab: DetailTab) => {
@@ -98,7 +103,7 @@ export function useExplorerState() {
     selectedIncidentId,
     setView,
     setDetailOpen,
-    setShowAllRelations,
+    toggleAllRelations,
     clearSelection,
     selectCategory,
     selectPlatform,

@@ -79,7 +79,7 @@ export function ExplorerContent() {
               onSelectPlatform={state.selectPlatform}
               onSelectRelation={state.selectRelation}
               onClear={state.clearSelection}
-              onShowAllRelations={() => state.setShowAllRelations((value) => !value)}
+              onShowAllRelations={state.toggleAllRelations}
             />
           )}
           {state.scope !== 'dark' && <SnapshotTimeline />}
