@@ -27,11 +27,11 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     () => ({
       isAdmin: Boolean(token),
       token,
-      async login(pin: string) {
+      async login(id: string, password: string) {
         const response = await fetch('/api/admin/session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pin }),
+          body: JSON.stringify({ id, password }),
           cache: 'no-store',
         });
         const result = await response.json();

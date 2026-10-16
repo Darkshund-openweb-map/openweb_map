@@ -646,12 +646,15 @@ test('selected platform keeps its color, muted surroundings and depth through re
 
 test('fixture platforms do not expose database incident writes', async ({ page }) => {
   await openMap(page);
-  const adminButton = page.getByRole('button', { name: '관리자 로그인' });
+  const adminButton = page.getByRole('button', { name: '로그인', exact: true });
   // 관리자 버튼은 지도 왼쪽 가장자리에 마우스를 올리면 나타난다.
   await page.locator('[class*="admin-button-edge"]').hover();
   await expect(adminButton).toBeVisible();
   await adminButton.click();
-  await expect(page.getByRole('dialog', { name: '관리자 로그인' })).toBeVisible();
+  const loginDialog = page.getByRole('dialog', { name: '로그인' });
+  await expect(loginDialog).toBeVisible();
+  await expect(loginDialog.getByRole('textbox', { name: '아이디' })).toBeVisible();
+  await expect(loginDialog.getByLabel('비밀번호')).toBeVisible();
   await page.getByRole('button', { name: '취소' }).click();
   await page.getByRole('combobox').fill('AWS S3');
   await page.getByRole('option', { name: /AWS S3/ }).click();
@@ -659,4 +662,39 @@ test('fixture platforms do not expose database incident writes', async ({ page }
   await expect(page.getByRole('button', { name: '데이터 추가', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '데이터 수정', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '데이터 삭제', exact: true })).toHaveCount(0);
+});
+
+test('login checks both credentials and protects admin API', async ({ page, request }) => {
+  const denied = await request.get('/api/admin/incidents?platformId=1');
+  expect(denied.status()).toBe(401);
+  expect(
+    (await request.post('/api/admin/session', { data: { pin: '1234' } })).status(),
+  ).toBe(400);
+  expect(
+    (
+      await request.post('/api/admin/session', {
+        data: { id: 'wrong-admin', password: 'test-password-only-for-playwright' },
+      })
+    ).status(),
+  ).toBe(401);
+
+  await openMap(page);
+  await page.locator('[class*="admin-button-edge"]').hover();
+  await page.getByRole('button', { name: '로그인', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: '로그인' });
+  await dialog.getByRole('textbox', { name: '아이디' }).fill('test-admin');
+  await dialog.getByLabel('비밀번호').fill('wrong-password');
+  await dialog.getByRole('button', { name: '로그인' }).click();
+  await expect(dialog.getByRole('alert')).toHaveText('아이디 또는 비밀번호가 올바르지 않습니다.');
+
+  await dialog.getByLabel('비밀번호').fill('test-password-only-for-playwright');
+  await dialog.getByRole('button', { name: '로그인' }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '관리자 메뉴' })).toBeVisible();
+  const token = await page.evaluate(() => sessionStorage.getItem('openweb-admin-session'));
+  expect(token).toBeTruthy();
+  const session = await request.get('/api/admin/session', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  expect(await session.json()).toEqual({ authenticated: true });
 });

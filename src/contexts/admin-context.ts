@@ -3,7 +3,7 @@ import { createContext } from 'react';
 export type AdminContextValue = {
   isAdmin: boolean;
   token: string | null;
-  login: (pin: string) => Promise<void>;
+  login: (id: string, password: string) => Promise<void>;
   logout: () => void;
 };
 

@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 
 const SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
@@ -15,13 +15,20 @@ function signature(payload: string) {
   return createHmac('sha256', secret()).update(payload).digest('base64url');
 }
 
-export function verifyAdminPin(input: string) {
-  const configured = process.env.ADMIN_PIN;
-  if (!configured || !/^\d+$/.test(configured))
-    throw new Error('ADMIN_PIN을 숫자로 설정해 주세요.');
-  const actual = Buffer.from(configured);
-  const supplied = Buffer.from(input);
-  return actual.length === supplied.length && timingSafeEqual(actual, supplied);
+export function verifyAdminCredentials(id: string, password: string) {
+  const configuredId = process.env.ADMIN_ID;
+  const configuredPassword = process.env.ADMIN_PASSWORD;
+  if (!configuredId || !configuredPassword)
+    throw new Error('ADMIN_ID와 ADMIN_PASSWORD를 설정해 주세요.');
+
+  const matches = (actual: string, supplied: string) =>
+    timingSafeEqual(
+      createHash('sha256').update(actual).digest(),
+      createHash('sha256').update(supplied).digest(),
+    );
+  const idMatches = matches(configuredId, id);
+  const passwordMatches = matches(configuredPassword, password);
+  return idMatches && passwordMatches;
 }
 
 export function createAdminSession() {
