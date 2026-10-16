@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createAdminSession, verifyAdminPin, verifyAdminSession } from '@/lib/admin-session';
+import { createAdminSession, verifyAdminCredentials, verifyAdminSession } from '@/lib/admin-session';
 
 export const runtime = 'nodejs';
 
@@ -13,17 +13,18 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  let pin: unknown;
+  let id: unknown;
+  let password: unknown;
   try {
-    pin = (await request.json()).pin;
+    ({ id, password } = await request.json());
   } catch {
-    return NextResponse.json({ error: 'PIN을 입력해 주세요.' }, { status: 400 });
+    return NextResponse.json({ error: '아이디와 비밀번호를 입력해 주세요.' }, { status: 400 });
   }
-  if (typeof pin !== 'string')
-    return NextResponse.json({ error: 'PIN을 확인해 주세요.' }, { status: 400 });
+  if (typeof id !== 'string' || typeof password !== 'string' || !id || !password)
+    return NextResponse.json({ error: '아이디와 비밀번호를 입력해 주세요.' }, { status: 400 });
   try {
-    if (!verifyAdminPin(pin))
-      return NextResponse.json({ error: 'PIN이 올바르지 않습니다.' }, { status: 401 });
+    if (!verifyAdminCredentials(id, password))
+      return NextResponse.json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' }, { status: 401 });
     return NextResponse.json({ token: createAdminSession() });
   } catch (error) {
     return NextResponse.json(

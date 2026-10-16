@@ -17,6 +17,11 @@ export default defineConfig({
     url: 'http://127.0.0.1:3100',
     reuseExistingServer: false,
     timeout: 120_000,
-    env: { ECOSYSTEM_DATA_SOURCE: 'fixture' },
+    env: {
+      ECOSYSTEM_DATA_SOURCE: 'fixture',
+      ADMIN_ID: 'test-admin',
+      ADMIN_PASSWORD: 'test-password-only-for-playwright',
+      ADMIN_SESSION_SECRET: 'playwright-session-secret-at-least-32-characters',
+    },
   },
 });

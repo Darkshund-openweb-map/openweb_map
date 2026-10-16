@@ -154,7 +154,7 @@ export function EcosystemMap({
         <button
           type="button"
           className={styles['admin-map-button']}
-          aria-label={isAdmin ? '관리자 메뉴' : '관리자 로그인'}
+          aria-label={isAdmin ? '관리자 메뉴' : '로그인'}
           onClick={() => setAdminDialogOpen(true)}
         >
           <Image src="/dachshund-logo.png" alt="" width={72} height={28} priority />

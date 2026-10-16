@@ -9,7 +9,8 @@ export function AdminLoginDialog({ onClose }: { onClose: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const { isAdmin, login, logout } = useAdmin();
-  const [pin, setPin] = useState('');
+  const [id, setId] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -25,8 +26,9 @@ export function AdminLoginDialog({ onClose }: { onClose: () => void }) {
     setBusy(true);
     setError('');
     try {
-      await login(pin);
-      setPin('');
+      await login(id, password);
+      setId('');
+      setPassword('');
       onClose();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : '로그인에 실패했습니다.');
@@ -46,7 +48,7 @@ export function AdminLoginDialog({ onClose }: { onClose: () => void }) {
       }}
     >
       <header className={styles.heading}>
-        <h2 id={titleId}>관리자 로그인</h2>
+        <h2 id={titleId}>로그인</h2>
         <button type="button" onClick={onClose} aria-label="닫기">
           ×
         </button>
@@ -71,18 +73,26 @@ export function AdminLoginDialog({ onClose }: { onClose: () => void }) {
         </>
       ) : (
         <form onSubmit={submit}>
-          <p className={styles.hint}>관리자 PIN을 입력해 주세요.</p>
+          <p className={styles.hint}>아이디와 비밀번호를 입력해 주세요.</p>
           <div className={styles.fields}>
             <label>
-              PIN
+              아이디
+              <input
+                type="text"
+                autoComplete="username"
+                value={id}
+                onChange={(event) => setId(event.target.value)}
+                autoFocus
+                required
+              />
+            </label>
+            <label>
+              비밀번호
               <input
                 type="password"
-                inputMode="numeric"
-                autoComplete="off"
-                pattern="[0-9]+"
-                value={pin}
-                onChange={(event) => setPin(event.target.value)}
-                autoFocus
+                autoComplete="current-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
                 required
               />
             </label>

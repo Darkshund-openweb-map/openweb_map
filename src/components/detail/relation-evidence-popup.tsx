@@ -10,7 +10,24 @@ const statusNames = { verified: '검토 완료', candidate: '검토 전', exclud
 
 function platformUrl(platform?: Platform) {
   if (!platform?.domain) return null;
-  return /^https?:\/\//i.test(platform.domain) ? platform.domain : `https://${platform.domain}`;
+  try {
+    const raw = platform.domain.trim();
+    const url = new URL(raw.includes('://') ? raw : `https://${raw}`);
+    if (
+      !['http:', 'https:'].includes(url.protocol) ||
+      !url.hostname.includes('.') ||
+      url.username ||
+      url.password ||
+      url.port ||
+      url.pathname !== '/' ||
+      url.search ||
+      url.hash
+    )
+      return null;
+    return `https://${url.hostname}`;
+  } catch {
+    return null;
+  }
 }
 
 export function RelationEvidencePopup({
