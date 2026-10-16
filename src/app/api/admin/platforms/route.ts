@@ -21,7 +21,7 @@ async function mutate(request: NextRequest, mode: 'add' | 'edit' | 'delete') {
     );
   const token = request.headers.get('authorization')?.replace(/^Bearer /, '') ?? null;
   try {
-    if (!verifyAdminSession(token))
+    if (!(await verifyAdminSession(token)))
       return NextResponse.json({ error: '관리자 로그인이 필요합니다.' }, { status: 401 });
     const body = await request.json();
     const id = platformId(body?.id);
@@ -37,10 +37,7 @@ async function mutate(request: NextRequest, mode: 'add' | 'edit' | 'delete') {
     await updatePlatform(id!, input);
     return NextResponse.json({ id });
   } catch {
-    return NextResponse.json(
-      { error: '요청을 처리하지 못했습니다.' },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: '요청을 처리하지 못했습니다.' }, { status: 400 });
   }
 }
 

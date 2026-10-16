@@ -39,7 +39,15 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         sessionStorage.setItem(SESSION_KEY, result.token);
         setToken(result.token);
       },
-      logout() {
+      async logout() {
+        if (token) {
+          const response = await fetch('/api/admin/session', {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` },
+            cache: 'no-store',
+          });
+          if (!response.ok) throw new Error('요청을 처리하지 못했습니다.');
+        }
         sessionStorage.removeItem(SESSION_KEY);
         setToken(null);
       },
