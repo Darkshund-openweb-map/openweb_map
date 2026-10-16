@@ -9,6 +9,43 @@ async function openMap(page: Page) {
   });
 }
 
+test('security headers protect the page without blocking map controls', async ({ page }) => {
+  const violations: string[] = [];
+  await page.addInitScript(() => {
+    (window as Window & { __cspViolations?: string[] }).__cspViolations = [];
+    document.addEventListener('securitypolicyviolation', (event) => {
+      (window as Window & { __cspViolations?: string[] }).__cspViolations?.push(
+        `${event.effectiveDirective}: ${event.blockedURI}`,
+      );
+    });
+  });
+  page.on('console', (message) => {
+    if (
+      message.type() === 'error' &&
+      /Content Security Policy|Content-Security-Policy/i.test(message.text())
+    )
+      violations.push(message.text());
+  });
+  const response = await page.goto('/');
+  expect(response?.headers()['x-content-type-options']).toBe('nosniff');
+  expect(response?.headers()['referrer-policy']).toBe('strict-origin-when-cross-origin');
+  expect(response?.headers()['x-frame-options']).toBe('DENY');
+  expect(response?.headers()['x-powered-by']).toBeUndefined();
+  const csp = response?.headers()['content-security-policy'];
+  expect(csp).toContain("frame-ancestors 'none'");
+  expect(csp).toContain("object-src 'none'");
+  expect(csp).toMatch(/script-src [^;]*'nonce-[A-Za-z0-9+/=]+'/);
+  await page.getByRole('button', { name: '통계', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '오픈웹 노출 분포 분석' })).toBeVisible();
+  await page.getByRole('button', { name: '지도', exact: true }).click();
+  await page.getByRole('button', { name: 'Pastebin 영토 선택', exact: true }).click();
+  await expect(page.getByRole('complementary', { name: 'Pastebin 상세 패널' })).toBeVisible();
+  expect(
+    await page.evaluate(() => (window as Window & { __cspViolations?: string[] }).__cspViolations),
+  ).toEqual([]);
+  expect(violations).toEqual([]);
+});
+
 test('map keeps all seven islands visible when some have no incidents', async ({ page }) => {
   await openMap(page);
   await expect(page.locator('[data-island-id]')).toHaveCount(7);
