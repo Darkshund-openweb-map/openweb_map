@@ -667,9 +667,9 @@ test('fixture platforms do not expose database incident writes', async ({ page }
 test('login checks both credentials and protects admin API', async ({ page, request }) => {
   const denied = await request.get('/api/admin/incidents?platformId=1');
   expect(denied.status()).toBe(401);
-  expect(
-    (await request.post('/api/admin/session', { data: { pin: '1234' } })).status(),
-  ).toBe(400);
+  const legacyLogin = await request.post('/api/admin/session', { data: { pin: '1234' } });
+  expect(legacyLogin.status()).toBe(401);
+  expect(await legacyLogin.json()).toEqual({ error: '로그인에 실패했습니다.' });
   expect(
     (
       await request.post('/api/admin/session', {
@@ -683,9 +683,21 @@ test('login checks both credentials and protects admin API', async ({ page, requ
   await page.getByRole('button', { name: '로그인', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '로그인' });
   await dialog.getByRole('textbox', { name: '아이디' }).fill('test-admin');
+  await page.route('**/api/admin/session', (route) =>
+    route.fulfill({
+      status: 503,
+      contentType: 'application/json',
+      body: JSON.stringify({ error: 'ADMIN_ID와 ADMIN_PASSWORD를 설정해 주세요.' }),
+    }),
+  );
   await dialog.getByLabel('비밀번호').fill('wrong-password');
   await dialog.getByRole('button', { name: '로그인' }).click();
-  await expect(dialog.getByRole('alert')).toHaveText('아이디 또는 비밀번호가 올바르지 않습니다.');
+  await expect(dialog.getByRole('alert')).toHaveText('로그인에 실패했습니다.');
+  await page.unroute('**/api/admin/session');
+
+  await dialog.getByLabel('비밀번호').fill('wrong-password');
+  await dialog.getByRole('button', { name: '로그인' }).click();
+  await expect(dialog.getByRole('alert')).toHaveText('로그인에 실패했습니다.');
 
   await dialog.getByLabel('비밀번호').fill('test-password-only-for-playwright');
   await dialog.getByRole('button', { name: '로그인' }).click();

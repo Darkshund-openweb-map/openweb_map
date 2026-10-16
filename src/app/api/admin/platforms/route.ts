@@ -36,9 +36,9 @@ async function mutate(request: NextRequest, mode: 'add' | 'edit' | 'delete') {
       return NextResponse.json({ id: await createPlatform(input) }, { status: 201 });
     await updatePlatform(id!, input);
     return NextResponse.json({ id });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : '요청을 처리하지 못했습니다.' },
+      { error: '요청을 처리하지 못했습니다.' },
       { status: 400 },
     );
   }
