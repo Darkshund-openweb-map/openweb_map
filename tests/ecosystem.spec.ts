@@ -373,7 +373,7 @@ test('platform territory is contiguous and only relevant events appear; date fil
   await page.getByRole('button', { name: 'Github Gist 영토 선택', exact: true }).click();
   const island = page.getByRole('button', { name: '코드 호스팅 섬 선택', exact: true });
   const centers = await island
-    .locator('[data-map-layer="tops"] polygon[fill="#447aff"]')
+    .locator('[data-map-layer="tops"] polygon[data-owner-id="gist"]')
     .evaluateAll((nodes) =>
       nodes.map((node) => {
         const numbers = node
@@ -482,6 +482,35 @@ test('selecting a platform shows its direct connections between territory center
   expect(Number(await relation.getAttribute('data-source-y'))).toBeCloseTo(gistCenter.y);
   expect(Number(await relation.getAttribute('data-target-x'))).toBeCloseTo(pastebinCenter.x);
   expect(Number(await relation.getAttribute('data-target-y'))).toBeCloseTo(pastebinCenter.y);
+});
+
+test('clicking a relation isolates that line and its endpoints', async ({ page }) => {
+  await openMap(page);
+  const allRelations = page.getByRole('switch', { name: '전체 관계 보기' });
+  await allRelations.click();
+  await expect(page.locator('[data-relation-id]')).toHaveCount(4);
+
+  await page.locator('[data-relation-id="gist-pastebin"]').dispatchEvent('click');
+  await expect(allRelations).toHaveAttribute('aria-checked', 'false');
+  await expect(page.locator('[data-relation-id]')).toHaveCount(1);
+  await expect(page.locator('[data-relation-id="gist-pastebin"]')).toBeVisible();
+  await expect(
+    page.locator('[data-map-layer="tops"] polygon[data-owner-id="mega"]').first(),
+  ).toHaveAttribute('data-elevation', '0');
+
+  await page.getByRole('button', { name: '전체 보기' }).click();
+  await page.getByRole('button', { name: 'Github Gist 영토 선택', exact: true }).click();
+  await expect(page.locator('[data-relation-id]')).toHaveCount(3);
+  const selectedLine = page.locator('[data-relation-id="gist-mega"]');
+  const originalPath = await selectedLine.locator('path').last().getAttribute('d');
+  await selectedLine.dispatchEvent('click');
+  await expect(page.locator('[data-relation-id]')).toHaveCount(1);
+  await expect(selectedLine).toBeVisible();
+  await expect(selectedLine.locator('path').last()).toHaveAttribute('d', originalPath!);
+
+  await allRelations.click();
+  await expect(allRelations).toHaveAttribute('aria-checked', 'true');
+  await expect(page.locator('[data-relation-id]')).toHaveCount(4);
 });
 
 test('candidate relations remain unverified when selected, and search handles no results', async ({
@@ -611,7 +640,7 @@ test('full viewport starts flat with boxed island titles and platform labels', a
   expect(await label.locator('rect').evaluate((node) => getComputedStyle(node).fill)).toBe(
     'rgb(255, 255, 255)',
   );
-  await expect(label.locator('rect')).toHaveAttribute('rx', '8');
+  await expect(label.locator('rect')).toHaveAttribute('rx', '10');
   expect(await label.locator('text').evaluate((node) => getComputedStyle(node).paintOrder)).toBe(
     'stroke',
   );

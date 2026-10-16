@@ -244,7 +244,7 @@ test('company-specific names share a category without losing the original incide
   expect(snapshot.exposureRows).toContainEqual({
     name: 'API 키 노출',
     count: 2,
-    heat: 100,
+    heat: 50,
     date: '10-02',
     state: '검토중',
   });

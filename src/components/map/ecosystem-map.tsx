@@ -116,13 +116,15 @@ export function EcosystemMap({
   const connectedRelations = useMemo(
     () =>
       selected?.kind === 'platform'
-        ? relations.filter(
-            (item) =>
-              item.status !== 'excluded' &&
-              (item.source === selected.id || item.target === selected.id),
-          )
+        ? relation
+          ? [relation]
+          : relations.filter(
+              (item) =>
+                item.status !== 'excluded' &&
+                (item.source === selected.id || item.target === selected.id),
+            )
         : [],
-    [relations, selected],
+    [relation, relations, selected],
   );
   const activePlatformIds = useMemo(() => {
     const ids = new Set<string>();

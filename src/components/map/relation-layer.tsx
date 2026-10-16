@@ -25,17 +25,20 @@ export function RelationLayer({
 }: Props) {
   const { getPlatform } = useEcosystemData();
 
-  if (!showAllRelations && selected?.kind !== 'platform') return null;
+  if (!selectedRelation && !showAllRelations && selected?.kind !== 'platform') return null;
 
   return relations
-    .filter(
-      (item) =>
-        item.status !== 'excluded' &&
-        (showAllRelations ||
-          (selected?.kind === 'platform' &&
-            (item.source === selected.id || item.target === selected.id))),
-    )
-    .map((item, index) => {
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => {
+      if (item.status === 'excluded') return false;
+      if (selectedRelation) return item.id === selectedRelation;
+      return (
+        showAllRelations ||
+        (selected?.kind === 'platform' &&
+          (item.source === selected.id || item.target === selected.id))
+      );
+    })
+    .map(({ item, index }) => {
       const source = getPlatform(item.source);
       const target = getPlatform(item.target);
       if (!source || !target) return null;
