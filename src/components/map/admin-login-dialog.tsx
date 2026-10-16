@@ -56,13 +56,27 @@ export function AdminLoginDialog({ onClose }: { onClose: () => void }) {
       {isAdmin ? (
         <>
           <p className={styles.hint}>로그인되었습니다.</p>
+          {error && (
+            <p className={styles.error} role="alert">
+              {error}
+            </p>
+          )}
           <footer className={styles['dialog-actions']}>
             <Button
               type="button"
               variant="secondary"
-              onClick={() => {
-                logout();
-                onClose();
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                setError('');
+                try {
+                  await logout();
+                  onClose();
+                } catch {
+                  setError('요청을 처리하지 못했습니다.');
+                } finally {
+                  setBusy(false);
+                }
               }}
             >
               로그아웃

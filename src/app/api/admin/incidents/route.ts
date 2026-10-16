@@ -9,10 +9,10 @@ import {
 
 export const runtime = 'nodejs';
 
-function authorized(request: NextRequest) {
+async function authorized(request: NextRequest) {
   const token = request.headers.get('authorization')?.replace(/^Bearer /, '') ?? null;
   try {
-    return verifyAdminSession(token);
+    return await verifyAdminSession(token);
   } catch {
     return false;
   }
@@ -24,7 +24,7 @@ function positiveId(value: unknown) {
 }
 
 export async function GET(request: NextRequest) {
-  if (!authorized(request))
+  if (!(await authorized(request)))
     return NextResponse.json({ error: '관리자 로그인이 필요합니다.' }, { status: 401 });
   const platformId = positiveId(request.nextUrl.searchParams.get('platformId'));
   if (!platformId)
@@ -32,15 +32,12 @@ export async function GET(request: NextRequest) {
   try {
     return NextResponse.json(await loadIncidentEditorData(platformId));
   } catch {
-    return NextResponse.json(
-      { error: '데이터를 읽지 못했습니다.' },
-      { status: 502 },
-    );
+    return NextResponse.json({ error: '데이터를 읽지 못했습니다.' }, { status: 502 });
   }
 }
 
 async function save(request: NextRequest, mode: 'add' | 'edit') {
-  if (!authorized(request))
+  if (!(await authorized(request)))
     return NextResponse.json({ error: '관리자 로그인이 필요합니다.' }, { status: 401 });
   let input: ReturnType<typeof parseIncidentMutation>;
   try {
@@ -59,10 +56,7 @@ async function save(request: NextRequest, mode: 'add' | 'edit') {
       { status: mode === 'add' ? 201 : 200 },
     );
   } catch {
-    return NextResponse.json(
-      { error: '저장하지 못했습니다.' },
-      { status: 502 },
-    );
+    return NextResponse.json({ error: '저장하지 못했습니다.' }, { status: 502 });
   }
 }
 
@@ -70,7 +64,7 @@ export const POST = (request: NextRequest) => save(request, 'add');
 export const PATCH = (request: NextRequest) => save(request, 'edit');
 
 export async function DELETE(request: NextRequest) {
-  if (!authorized(request))
+  if (!(await authorized(request)))
     return NextResponse.json({ error: '관리자 로그인이 필요합니다.' }, { status: 401 });
   let platformId: number | null;
   let incidentId: number | null;
@@ -87,9 +81,6 @@ export async function DELETE(request: NextRequest) {
     await deleteIncident(platformId, incidentId);
     return NextResponse.json({ ok: true });
   } catch {
-    return NextResponse.json(
-      { error: '삭제하지 못했습니다.' },
-      { status: 502 },
-    );
+    return NextResponse.json({ error: '삭제하지 못했습니다.' }, { status: 502 });
   }
 }
