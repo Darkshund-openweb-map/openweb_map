@@ -30,8 +30,8 @@ export function AdminLoginDialog({ onClose }: { onClose: () => void }) {
       setId('');
       setPassword('');
       onClose();
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : '로그인에 실패했습니다.');
+    } catch {
+      setError('로그인에 실패했습니다.');
     } finally {
       setBusy(false);
     }
@@ -55,9 +55,7 @@ export function AdminLoginDialog({ onClose }: { onClose: () => void }) {
       </header>
       {isAdmin ? (
         <>
-          <p className={styles.hint}>
-            관리자 기능이 열려 있습니다. 현재 탭을 닫으면 로그인이 해제됩니다.
-          </p>
+          <p className={styles.hint}>로그인되었습니다.</p>
           <footer className={styles['dialog-actions']}>
             <Button
               type="button"

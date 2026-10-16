@@ -31,9 +31,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: '플랫폼 ID가 올바르지 않습니다.' }, { status: 400 });
   try {
     return NextResponse.json(await loadIncidentEditorData(platformId));
-  } catch (error) {
+  } catch {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : '데이터를 읽지 못했습니다.' },
+      { error: '데이터를 읽지 못했습니다.' },
       { status: 502 },
     );
   }
@@ -58,9 +58,9 @@ async function save(request: NextRequest, mode: 'add' | 'edit') {
       { id: await saveIncident(input) },
       { status: mode === 'add' ? 201 : 200 },
     );
-  } catch (error) {
+  } catch {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : '저장하지 못했습니다.' },
+      { error: '저장하지 못했습니다.' },
       { status: 502 },
     );
   }
@@ -86,9 +86,9 @@ export async function DELETE(request: NextRequest) {
   try {
     await deleteIncident(platformId, incidentId);
     return NextResponse.json({ ok: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : '삭제하지 못했습니다.' },
+      { error: '삭제하지 못했습니다.' },
       { status: 502 },
     );
   }

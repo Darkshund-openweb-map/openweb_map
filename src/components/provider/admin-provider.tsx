@@ -35,7 +35,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
           cache: 'no-store',
         });
         const result = await response.json();
-        if (!response.ok) throw new Error(result.error ?? '관리자 로그인에 실패했습니다.');
+        if (!response.ok) throw new Error('로그인에 실패했습니다.');
         sessionStorage.setItem(SESSION_KEY, result.token);
         setToken(result.token);
       },

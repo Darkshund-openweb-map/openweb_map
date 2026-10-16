@@ -13,23 +13,21 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const failed = () =>
+    NextResponse.json({ error: '로그인에 실패했습니다.' }, { status: 401 });
   let id: unknown;
   let password: unknown;
   try {
     ({ id, password } = await request.json());
   } catch {
-    return NextResponse.json({ error: '아이디와 비밀번호를 입력해 주세요.' }, { status: 400 });
+    return failed();
   }
   if (typeof id !== 'string' || typeof password !== 'string' || !id || !password)
-    return NextResponse.json({ error: '아이디와 비밀번호를 입력해 주세요.' }, { status: 400 });
+    return failed();
   try {
-    if (!verifyAdminCredentials(id, password))
-      return NextResponse.json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' }, { status: 401 });
+    if (!verifyAdminCredentials(id, password)) return failed();
     return NextResponse.json({ token: createAdminSession() });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : '관리자 설정을 확인해 주세요.' },
-      { status: 503 },
-    );
+  } catch {
+    return failed();
   }
 }
