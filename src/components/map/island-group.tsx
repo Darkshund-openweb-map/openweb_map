@@ -8,7 +8,7 @@ import type { Category, CategoryId, Platform, Selection } from '@/lib/ecosystem-
 import { MAP_ELEVATION, type HexCell } from './geometry';
 import { IslandTiles } from './island-tiles';
 import { platformLabel } from '@/lib/platform-label';
-import { mapLabelArtwork } from '@/lib/map-label-artwork';
+import { mapLabelArtwork, mapPlatformArtwork } from '@/lib/map-label-artwork';
 import { getTerritoryCenters } from '@/lib/island-territories';
 
 type Props = {
@@ -53,12 +53,41 @@ export function IslandGroup({
       minX: Math.min(bounds.minX, cell.x),
       maxX: Math.max(bounds.maxX, cell.x),
       minY: Math.min(bounds.minY, cell.y),
+      maxY: Math.max(bounds.maxY, cell.y),
     }),
-    { minX: Infinity, maxX: -Infinity, minY: Infinity },
+    { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity },
   );
   const badgeX = (tileBounds.minX + tileBounds.maxX) / 2;
   const badgeY = tileBounds.minY - 36;
   const labelColor = d3Color(category.color)?.brighter(0.5).formatHex() ?? category.color;
+  const platformLabels = platforms
+    .filter(
+      (item) =>
+        item.category === category.id &&
+        (selected?.kind !== 'platform' || activePlatformIds.has(item.id)) &&
+        (item.featured || (selected?.kind === 'platform' && selected.id === item.id)) &&
+        (selected?.kind !== 'category' || selected.id === category.id),
+    )
+    .map((platform) => {
+      const active = selected?.kind === 'platform' && selected.id === platform.id;
+      const elevated =
+        activePlatformIds.has(platform.id) ||
+        (selected?.kind === 'category' && selected.id === category.id);
+      const { text, width } = platformLabel(platform.name);
+      const center = territoryCenters.get(platform.id) ?? platform;
+      return {
+        platform,
+        active,
+        text,
+        width,
+        x: center.x,
+        y: center.y - (elevated ? MAP_ELEVATION : 0),
+      };
+    });
+  const artworkWidth = Math.max(300, tileBounds.maxX - tileBounds.minX + 80);
+  const artworkHeight = Math.max(220, tileBounds.maxY - tileBounds.minY + 80);
+  const artworkX = (tileBounds.minX + tileBounds.maxX - artworkWidth) / 2;
+  const artworkY = (tileBounds.minY + tileBounds.maxY - artworkHeight) / 2;
   const selectCategory = () => onSelectCategory(category.id);
   const onCategoryKeyDown = (event: KeyboardEvent<SVGGElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -162,28 +191,14 @@ export function IslandGroup({
           aria-hidden="true"
         />
       </g>
-      {platforms
-        .filter(
-          (item) =>
-            item.category === category.id &&
-            (selected?.kind !== 'platform' || activePlatformIds.has(item.id)) &&
-            (item.featured || (selected?.kind === 'platform' && selected.id === item.id)),
-        )
-        .map((platform) => {
-          if (selected?.kind === 'category' && selected.id !== category.id) return null;
-          const active = selected?.kind === 'platform' && selected.id === platform.id;
-          const elevated =
-            activePlatformIds.has(platform.id) ||
-            (selected?.kind === 'category' && selected.id === category.id);
-          const { text: label, width } = platformLabel(platform.name);
-          const center = territoryCenters.get(platform.id) ?? platform;
+      {platformLabels.map(({ platform, active, text: label, width, x, y }) => {
           return (
             <g
               key={platform.id}
               className={styles['platform-label']}
               data-platform-id={platform.id}
               data-selected={active}
-              transform={`translate(${center.x},${center.y - (elevated ? MAP_ELEVATION : 0)})`}
+              transform={`translate(${x},${y})`}
               role="button"
               tabIndex={0}
               aria-label={`${platform.name} 영토 선택`}
@@ -212,7 +227,7 @@ export function IslandGroup({
                 fill="#353a42"
                 stroke="#777f8c"
                 opacity="0"
-                pointerEvents="none"
+                pointerEvents="all"
                 aria-hidden="true"
               />
               <text
@@ -227,23 +242,33 @@ export function IslandGroup({
               >
                 {label}
               </text>
-              <image
-                x={-width / 2}
-                y="-11"
-                width={width}
-                height="22"
-                href={mapLabelArtwork({
-                  text: label,
-                  color: labelColor,
-                  width,
-                  height: 22,
-                  highlighted: active,
-                })}
-                aria-hidden="true"
-              />
             </g>
           );
         })}
+      {platformLabels.length > 0 && (
+        <image
+          x={artworkX}
+          y={artworkY}
+          width={artworkWidth}
+          height={artworkHeight}
+          href={mapPlatformArtwork({
+            labels: platformLabels.map(({ text, x, y, width, active }) => ({
+              text,
+              x,
+              y,
+              width,
+              highlighted: active,
+            })),
+            color: labelColor,
+            x: artworkX,
+            y: artworkY,
+            width: artworkWidth,
+            height: artworkHeight,
+          })}
+          pointerEvents="none"
+          aria-hidden="true"
+        />
+      )}
     </g>
   );
 }

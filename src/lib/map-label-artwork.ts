@@ -42,3 +42,33 @@ export function mapLabelArtwork({
   </svg>`;
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
+
+export function mapPlatformArtwork({
+  labels,
+  color,
+  x,
+  y,
+  width,
+  height,
+}: {
+  labels: { text: string; x: number; y: number; width: number; highlighted: boolean }[];
+  color: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}): string {
+  const artwork = labels.map((label) => {
+    const left = (label.x - x - label.width / 2) * SCALE;
+    const top = (label.y - y - 11) * SCALE;
+    const centerX = (label.x - x) * SCALE;
+    const centerY = (label.y - y) * SCALE;
+    return `<rect x="${left}" y="${top}" width="${label.width * SCALE}" height="${22 * SCALE}" rx="${8 * SCALE}" fill="${BACKGROUND}" stroke="${label.highlighted ? color : BORDER}" stroke-width="${label.highlighted ? 1.5 * SCALE : SCALE}"/>
+      <text x="${centerX}" y="${centerY}" dominant-baseline="central" text-anchor="middle" font-size="${14.5 * SCALE}" font-weight="${label.highlighted ? 800 : 700}" fill="${color}">${escapeXml(label.text)}</text>`;
+  }).join('');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width * SCALE}" height="${height * SCALE}" viewBox="0 0 ${width * SCALE} ${height * SCALE}">
+    <rect width="100%" height="100%" fill="${BACKGROUND}" opacity="0.005"/>
+    <g font-family="Arial, Noto Sans KR, Malgun Gothic, sans-serif">${artwork}</g>
+  </svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
