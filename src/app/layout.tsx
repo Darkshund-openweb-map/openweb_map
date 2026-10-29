@@ -8,7 +8,8 @@ const initialThemeScript = `(function() {
     document.querySelector('meta[name="color-scheme"]').setAttribute('content', theme === 'light' ? 'only light' : 'dark');
   }
   try {
-    var saved = localStorage.getItem('openweb-map-theme-v2');
+    var mobile = matchMedia('(max-width: 750px)').matches;
+    var saved = mobile ? null : localStorage.getItem('openweb-map-theme-v2');
     applyTheme(saved === 'light' || saved === 'dark'
       ? saved
       : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');

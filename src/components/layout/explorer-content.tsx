@@ -24,30 +24,28 @@ function applyTheme(theme: 'light' | 'dark') {
 export function ExplorerContent() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   useEffect(() => {
-    const media = window.matchMedia('(prefers-color-scheme: dark)');
-    let savedTheme: string | null = null;
-    try {
-      savedTheme = window.localStorage.getItem('openweb-map-theme-v2');
-    } catch {
-      // The theme still works when storage is unavailable.
-    }
-    const initialTheme = savedTheme === 'light' || savedTheme === 'dark'
-      ? savedTheme
-      : media.matches ? 'dark' : 'light';
-    setTheme(initialTheme);
-    applyTheme(initialTheme);
-    const onSystemThemeChange = (event: MediaQueryListEvent) => {
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+    const mobile = window.matchMedia('(max-width: 750px)');
+    const syncTheme = () => {
+      let savedTheme: string | null = null;
       try {
-        if (window.localStorage.getItem('openweb-map-theme-v2')) return;
+        if (!mobile.matches) savedTheme = window.localStorage.getItem('openweb-map-theme-v2');
       } catch {
-        // Continue following the system preference without storage.
+        // Follow the system preference when storage is unavailable.
       }
-      const next = event.matches ? 'dark' : 'light';
+      const next = savedTheme === 'light' || savedTheme === 'dark'
+        ? savedTheme
+        : systemDark.matches ? 'dark' : 'light';
       setTheme(next);
       applyTheme(next);
     };
-    media.addEventListener('change', onSystemThemeChange);
-    return () => media.removeEventListener('change', onSystemThemeChange);
+    syncTheme();
+    systemDark.addEventListener('change', syncTheme);
+    mobile.addEventListener('change', syncTheme);
+    return () => {
+      systemDark.removeEventListener('change', syncTheme);
+      mobile.removeEventListener('change', syncTheme);
+    };
   }, []);
   const toggleTheme = () => {
     const next = theme === 'light' ? 'dark' : 'light';
