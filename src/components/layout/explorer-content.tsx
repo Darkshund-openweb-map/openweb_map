@@ -19,18 +19,40 @@ import { SnapshotTimeline } from '@/components/timeline/snapshot-timeline';
 export function ExplorerContent() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   useEffect(() => {
-    const savedTheme = window.localStorage.getItem('openweb-map-theme');
-    if (savedTheme === 'light' || savedTheme === 'dark') setTheme(savedTheme);
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    let savedTheme: string | null = null;
+    try {
+      savedTheme = window.localStorage.getItem('openweb-map-theme-v2');
+    } catch {
+      // The theme still works when storage is unavailable.
+    }
+    const initialTheme = savedTheme === 'light' || savedTheme === 'dark'
+      ? savedTheme
+      : media.matches ? 'dark' : 'light';
+    setTheme(initialTheme);
+    document.documentElement.dataset.theme = initialTheme;
+    const onSystemThemeChange = (event: MediaQueryListEvent) => {
+      try {
+        if (window.localStorage.getItem('openweb-map-theme-v2')) return;
+      } catch {
+        // Continue following the system preference without storage.
+      }
+      const next = event.matches ? 'dark' : 'light';
+      setTheme(next);
+      document.documentElement.dataset.theme = next;
+    };
+    media.addEventListener('change', onSystemThemeChange);
+    return () => media.removeEventListener('change', onSystemThemeChange);
   }, []);
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-  }, [theme]);
   const toggleTheme = () => {
-    setTheme((current) => {
-      const next = current === 'light' ? 'dark' : 'light';
-      window.localStorage.setItem('openweb-map-theme', next);
-      return next;
-    });
+    const next = theme === 'light' ? 'dark' : 'light';
+    try {
+      window.localStorage.setItem('openweb-map-theme-v2', next);
+    } catch {
+      // Keep the in-page theme switch available without storage.
+    }
+    document.documentElement.dataset.theme = next;
+    setTheme(next);
   };
   const state = useExplorerState();
   const { getCategory, getPlatform } = useEcosystemData();
