@@ -124,7 +124,8 @@ export function IslandGroup({
           width={badgeWidth}
           height="32"
           rx="16"
-          style={islandHovered ? { stroke: labelColor } : undefined}
+          fill="#353a42"
+          stroke={islandHovered ? labelColor : '#777f8c'}
           aria-hidden="true"
         />
         <text
@@ -188,6 +189,8 @@ export function IslandGroup({
                 width={width}
                 height="22"
                 rx="8"
+                fill="#353a42"
+                stroke="#777f8c"
                 aria-hidden="true"
               />
               <text
