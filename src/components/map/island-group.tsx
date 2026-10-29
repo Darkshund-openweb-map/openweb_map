@@ -2,6 +2,7 @@
 'use client';
 
 import styles from '@/styles/map.module.css';
+import { color as d3Color } from 'd3';
 import { useState, type KeyboardEvent } from 'react';
 import type { Category, CategoryId, Platform, Selection } from '@/lib/ecosystem-types';
 import { MAP_ELEVATION, type HexCell } from './geometry';
@@ -56,6 +57,7 @@ export function IslandGroup({
   );
   const badgeX = (tileBounds.minX + tileBounds.maxX) / 2;
   const badgeY = tileBounds.minY - 36;
+  const labelColor = d3Color(category.color)?.brighter(0.5).formatHex() ?? category.color;
   const selectCategory = () => onSelectCategory(category.id);
   const onCategoryKeyDown = (event: KeyboardEvent<SVGGElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -122,7 +124,7 @@ export function IslandGroup({
           width={badgeWidth}
           height="32"
           rx="16"
-          style={islandHovered ? { fill: category.color, stroke: category.color } : undefined}
+          style={islandHovered ? { stroke: labelColor } : undefined}
           aria-hidden="true"
         />
         <text
@@ -131,10 +133,10 @@ export function IslandGroup({
           y="5"
           fontSize="14.5"
           fontWeight={islandHovered ? '800' : '700'}
-          fill={islandHovered ? '#ffffff' : category.color}
+          fill={labelColor}
         >
           {category.name}
-          <tspan dx="9" fontWeight="500" fill={islandHovered ? '#ffffff' : '#62718b'}>
+          <tspan dx="9" fontWeight="500" fill="#c1c9d4">
             {category.count}건
           </tspan>
         </text>
@@ -182,10 +184,10 @@ export function IslandGroup({
               <rect
                 className={styles['platform-label-box']}
                 x={-width / 2}
-                y="-10"
+                y="-11"
                 width={width}
-                height="20"
-                rx="10"
+                height="22"
+                rx="8"
                 aria-hidden="true"
               />
               <text
@@ -194,7 +196,7 @@ export function IslandGroup({
                 y="5"
                 fontSize="14.5"
                 fontWeight={active ? '700' : '600'}
-                fill="#1e293b"
+                fill={labelColor}
               >
                 {label}
               </text>

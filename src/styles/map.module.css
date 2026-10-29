@@ -117,10 +117,11 @@
   outline: none;
 }
 .island-title-box {
-  fill: #fff;
-  stroke: #dce5f1;
+  fill: #353a42;
+  fill-opacity: 0.97;
+  stroke: #777f8c;
   stroke-width: 0.8px;
-  filter: drop-shadow(0 1px 2px #23385614);
+  filter: drop-shadow(0 1px 2px #17203355);
 }
 .island-title-text {
   pointer-events: none;
@@ -128,25 +129,21 @@
 }
 .island-badge[data-hovered='true'] .island-title-box {
   stroke-width: 1.25px;
-  filter: drop-shadow(0 1px 3px #23385624);
+  filter: drop-shadow(0 1px 3px #17203370);
 }
 .platform-label-box {
-  fill: #fff;
-  fill-opacity: 0.88;
-  stroke: #e6ecf4;
-  stroke-width: 0.55px;
-  filter: drop-shadow(0 0.5px 1px #23385612);
+  fill: #353a42;
+  fill-opacity: 0.97;
+  stroke: #777f8c;
+  stroke-width: 0.8px;
+  filter: drop-shadow(0 1px 2px #17203355);
 }
 .map-label-text {
-  paint-order: stroke fill;
-  stroke: #fff;
-  stroke-width: 2.8px;
   letter-spacing: 0.2px;
-  stroke-linejoin: round;
   pointer-events: none;
 }
-.platform-label[data-selected='true'] .map-label-text {
-  stroke-width: 3px;
+.platform-label[data-selected='true'] .platform-label-box {
+  stroke-width: 1.5px;
 }
 .platform-label:hover .map-label-text {
   font-weight: 700;
