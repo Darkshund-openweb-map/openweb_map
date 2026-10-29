@@ -16,6 +16,11 @@ import { ExplorerShell } from './explorer-shell';
 import { MapLegend } from '@/components/legend/map-legend';
 import { SnapshotTimeline } from '@/components/timeline/snapshot-timeline';
 
+function applyTheme(theme: 'light' | 'dark') {
+  document.documentElement.dataset.theme = theme;
+  document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', theme === 'light' ? 'only light' : 'dark');
+}
+
 export function ExplorerContent() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   useEffect(() => {
@@ -30,7 +35,7 @@ export function ExplorerContent() {
       ? savedTheme
       : media.matches ? 'dark' : 'light';
     setTheme(initialTheme);
-    document.documentElement.dataset.theme = initialTheme;
+    applyTheme(initialTheme);
     const onSystemThemeChange = (event: MediaQueryListEvent) => {
       try {
         if (window.localStorage.getItem('openweb-map-theme-v2')) return;
@@ -39,7 +44,7 @@ export function ExplorerContent() {
       }
       const next = event.matches ? 'dark' : 'light';
       setTheme(next);
-      document.documentElement.dataset.theme = next;
+      applyTheme(next);
     };
     media.addEventListener('change', onSystemThemeChange);
     return () => media.removeEventListener('change', onSystemThemeChange);
@@ -51,7 +56,7 @@ export function ExplorerContent() {
     } catch {
       // Keep the in-page theme switch available without storage.
     }
-    document.documentElement.dataset.theme = next;
+    applyTheme(next);
     setTheme(next);
   };
   const state = useExplorerState();

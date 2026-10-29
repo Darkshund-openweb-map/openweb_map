@@ -11,7 +11,7 @@
 }
 
 :root {
-  color-scheme: light;
+  color-scheme: only light;
   --text-body: 1rem;
   --text-caption: 0.9375rem;
   --leading-copy: 1.7;
@@ -24,7 +24,7 @@
 }
 
 html[data-theme='dark'] {
-  color-scheme: dark;
+  color-scheme: only dark;
   --ink: #e9eef7;
   --muted: #aab6c8;
   --line: #444d5a;

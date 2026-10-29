@@ -3,13 +3,17 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 const initialThemeScript = `(function() {
+  function applyTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    document.querySelector('meta[name="color-scheme"]').setAttribute('content', theme === 'light' ? 'only light' : 'dark');
+  }
   try {
     var saved = localStorage.getItem('openweb-map-theme-v2');
-    document.documentElement.dataset.theme = saved === 'light' || saved === 'dark'
+    applyTheme(saved === 'light' || saved === 'dark'
       ? saved
-      : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   } catch (error) {
-    document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    applyTheme(matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   }
 })();`;
 
