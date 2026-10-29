@@ -9,6 +9,7 @@ import { MAP_ELEVATION, type HexCell } from './geometry';
 import { IslandTiles } from './island-tiles';
 import { platformLabel } from '@/lib/platform-label';
 import { mapLabelArtwork, mapPlatformArtwork } from '@/lib/map-label-artwork';
+import { useRasterizedMapArtwork } from '@/hooks/use-rasterized-map-artwork';
 import { getTerritoryCenters } from '@/lib/island-territories';
 
 type Props = {
@@ -60,6 +61,7 @@ export function IslandGroup({
   const badgeX = (tileBounds.minX + tileBounds.maxX) / 2;
   const badgeY = tileBounds.minY - 36;
   const labelColor = d3Color(category.color)?.brighter(0.5).formatHex() ?? category.color;
+  const lightLabelColor = d3Color(category.color)?.darker(1.2).formatHex() ?? category.color;
   const platformLabels = platforms
     .filter(
       (item) =>
@@ -88,6 +90,36 @@ export function IslandGroup({
   const artworkHeight = Math.max(220, tileBounds.maxY - tileBounds.minY + 80);
   const artworkX = (tileBounds.minX + tileBounds.maxX - artworkWidth) / 2;
   const artworkY = (tileBounds.minY + tileBounds.maxY - artworkHeight) / 2;
+  const lightBadge = useRasterizedMapArtwork(mapLabelArtwork({
+    text: category.name,
+    count: `${category.count}건`,
+    color: lightLabelColor,
+    width: badgeWidth,
+    height: 32,
+    highlighted: islandHovered,
+    theme: 'light',
+  }));
+  const darkBadge = useRasterizedMapArtwork(mapLabelArtwork({
+    text: category.name,
+    count: `${category.count}건`,
+    color: labelColor,
+    width: badgeWidth,
+    height: 32,
+    highlighted: islandHovered,
+    theme: 'dark',
+  }));
+  const platformArtworkOptions = {
+    labels: platformLabels.map(({ text, x, y, width, active }) => ({
+      text, x, y, width, highlighted: active,
+    })),
+    color: labelColor,
+    x: artworkX,
+    y: artworkY,
+    width: artworkWidth,
+    height: artworkHeight,
+  };
+  const lightPlatforms = useRasterizedMapArtwork(mapPlatformArtwork({ ...platformArtworkOptions, theme: 'light' }));
+  const darkPlatforms = useRasterizedMapArtwork(mapPlatformArtwork({ ...platformArtworkOptions, theme: 'dark' }));
   const selectCategory = () => onSelectCategory(category.id);
   const onCategoryKeyDown = (event: KeyboardEvent<SVGGElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -177,19 +209,23 @@ export function IslandGroup({
           </tspan>
         </text>
         <image
-          className={styles['island-artwork']}
+          className={styles['island-artwork-light']}
           x={-badgeWidth / 2}
           y="-16"
           width={badgeWidth}
           height="32"
-          href={mapLabelArtwork({
-            text: category.name,
-            count: `${category.count}건`,
-            color: labelColor,
-            width: badgeWidth,
-            height: 32,
-            highlighted: islandHovered,
-          })}
+          href={lightBadge}
+          pointerEvents="all"
+          aria-hidden="true"
+        />
+        <image
+          className={styles['island-artwork-dark']}
+          x={-badgeWidth / 2}
+          y="-16"
+          width={badgeWidth}
+          height="32"
+          href={darkBadge}
+          pointerEvents="all"
           aria-hidden="true"
         />
       </g>
@@ -248,29 +284,21 @@ export function IslandGroup({
           );
         })}
       {platformLabels.length > 0 && (
-        <image
-          className={styles['platform-artwork']}
-          x={artworkX}
-          y={artworkY}
-          width={artworkWidth}
-          height={artworkHeight}
-          href={mapPlatformArtwork({
-            labels: platformLabels.map(({ text, x, y, width, active }) => ({
-              text,
-              x,
-              y,
-              width,
-              highlighted: active,
-            })),
-            color: labelColor,
-            x: artworkX,
-            y: artworkY,
-            width: artworkWidth,
-            height: artworkHeight,
-          })}
-          pointerEvents="none"
-          aria-hidden="true"
-        />
+        <>
+          {(['light', 'dark'] as const).map((theme) => (
+            <image
+              key={theme}
+              className={styles[theme === 'light' ? 'platform-artwork-light' : 'platform-artwork-dark']}
+              x={artworkX}
+              y={artworkY}
+              width={artworkWidth}
+              height={artworkHeight}
+              href={theme === 'light' ? lightPlatforms : darkPlatforms}
+              pointerEvents="none"
+              aria-hidden="true"
+            />
+          ))}
+        </>
       )}
     </g>
   );

@@ -157,8 +157,14 @@
   letter-spacing: 0.2px;
   pointer-events: none;
 }
-.island-artwork,
-.platform-artwork { display: none; }
+.island-artwork-light,
+.platform-artwork-light { display: block; }
+.island-artwork-dark,
+.platform-artwork-dark { display: none; }
+.island-title-box,
+.island-title-text,
+.platform-label-box,
+.map-label-text { opacity: 0; }
 .platform-label[data-selected='true'] .platform-label-box {
   stroke-width: 1.5px;
 }
@@ -406,12 +412,10 @@
 }
 
 :global(html[data-theme='dark']) .map-surface { background: #202124; border-color: #444d5a; }
-:global(html[data-theme='dark']) .island-title-box,
-:global(html[data-theme='dark']) .island-title-text,
-:global(html[data-theme='dark']) .platform-label-box,
-:global(html[data-theme='dark']) .map-label-text { opacity: 0; }
-:global(html[data-theme='dark']) .island-artwork,
-:global(html[data-theme='dark']) .platform-artwork { display: block; }
+:global(html[data-theme='dark']) .island-artwork-light,
+:global(html[data-theme='dark']) .platform-artwork-light { display: none; }
+:global(html[data-theme='dark']) .island-artwork-dark,
+:global(html[data-theme='dark']) .platform-artwork-dark { display: block; }
 :global(html[data-theme='dark']) .ecosystem-svg pattern circle { fill: #4b5058; }
 :global(html[data-theme='dark']) .timeline-empty-state { color: #b6c2d2; }
 :global(html[data-theme='dark']) .map-top-control,
