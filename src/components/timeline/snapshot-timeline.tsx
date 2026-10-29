@@ -1,11 +1,13 @@
 'use client';
 
-import type { CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useEcosystemData } from '@/hooks/use-ecosystem-data';
 import { timelineTicks } from '@/lib/snapshot-timeline';
+import { DataAccessRequestDialog } from '@/components/data-access/data-access-request-dialog';
 import styles from '@/styles/snapshot-timeline.module.css';
 
 export function SnapshotTimeline() {
+  const [requestOpen, setRequestOpen] = useState(false);
   const { timeline, events } = useEcosystemData();
   const last = timeline.quarters.length - 1;
   const progress = `${(timeline.index / last) * 100}%`;
@@ -101,6 +103,10 @@ export function SnapshotTimeline() {
           '날짜가 있는 사건이나 관계가 등록되면 타임라인을 탐색할 수 있습니다.'
         )}
       </p>
+      <button type="button" className={styles.mobileRequest} onClick={() => setRequestOpen(true)}>
+        조회 요청
+      </button>
+      {requestOpen && <DataAccessRequestDialog onClose={() => setRequestOpen(false)} />}
     </section>
   );
 }
