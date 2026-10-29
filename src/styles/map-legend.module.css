@@ -182,3 +182,15 @@
     display: none;
   }
 }
+
+:global(html[data-theme='dark']) .sidebar { background: #222428; border-color: #444d5a; }
+:global(html[data-theme='dark']) .heading,
+:global(html[data-theme='dark']) .list button,
+:global(html[data-theme='dark']) .definitions dt { color: #e9eef7; }
+:global(html[data-theme='dark']) .subtitle,
+:global(html[data-theme='dark']) .section,
+:global(html[data-theme='dark']) .section h3,
+:global(html[data-theme='dark']) .connectionRow { color: #aab6c8; }
+:global(html[data-theme='dark']) .list button:hover,
+:global(html[data-theme='dark']) .list button.active { background: #353941; }
+:global(html[data-theme='dark']) .list + .section { border-color: #444d5a; }

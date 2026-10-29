@@ -1,6 +1,7 @@
 // 헤더·범례·지도·통계·상세 패널을 현재 탐색 상태에 맞춰 배치하는 컴포넌트
 'use client';
 
+import { useEffect, useState } from 'react';
 import styles from '@/styles/explorer.module.css';
 import { useEcosystemData } from '@/hooks/use-ecosystem-data';
 import { useExplorerState } from '@/hooks/use-explorer-state';
@@ -16,6 +17,21 @@ import { MapLegend } from '@/components/legend/map-legend';
 import { SnapshotTimeline } from '@/components/timeline/snapshot-timeline';
 
 export function ExplorerContent() {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  useEffect(() => {
+    const savedTheme = window.localStorage.getItem('openweb-map-theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') setTheme(savedTheme);
+  }, []);
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+  const toggleTheme = () => {
+    setTheme((current) => {
+      const next = current === 'light' ? 'dark' : 'light';
+      window.localStorage.setItem('openweb-map-theme', next);
+      return next;
+    });
+  };
   const state = useExplorerState();
   const { getCategory, getPlatform } = useEcosystemData();
   const category =
@@ -60,6 +76,8 @@ export function ExplorerContent() {
               state.setView(view);
               if (view === 'statistics') state.setDetailOpen(false);
             }}
+            theme={theme}
+            onToggleTheme={toggleTheme}
           />
           {statistics ? (
             <Statistics

@@ -346,6 +346,23 @@
   box-shadow: 0 1px 3px #20385a20;
   font-weight: 700;
 }
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  padding: 7px;
+  border: 1px solid #d4deec;
+  border-radius: 6px;
+  background: #fff;
+  color: #596c86;
+}
+.theme-toggle svg {
+  display: block;
+  width: 19px;
+  height: 19px;
+}
 .panel-handle {
   width: 30px;
   height: 30px;
@@ -486,3 +503,37 @@
     z-index: 11;
   }
 }
+
+:global(html[data-theme='dark']) .workspace,
+:global(html[data-theme='dark']) .app-shell,
+:global(html[data-theme='dark']) .app-header {
+  background: #222428;
+}
+:global(html[data-theme='dark']) .app-header { border-color: #444d5a; }
+:global(html[data-theme='dark']) .brand,
+:global(html[data-theme='dark']) .content-path h1 { color: #e9eef7; }
+:global(html[data-theme='dark']) .brand small,
+:global(html[data-theme='dark']) .database-date,
+:global(html[data-theme='dark']) .content-summary,
+:global(html[data-theme='dark']) .content-path button { color: #aab6c8; }
+:global(html[data-theme='dark']) .header-divider { background: #444d5a; }
+:global(html[data-theme='dark']) .scope-tabs,
+:global(html[data-theme='dark']) .view-tabs { background: #1b1e23; }
+:global(html[data-theme='dark']) .scope-tabs button,
+:global(html[data-theme='dark']) .view-tabs button { color: #aab6c8; }
+:global(html[data-theme='dark']) .scope-tabs button.active,
+:global(html[data-theme='dark']) .view-tabs button.active { background: #45474b; color: #f2f5fb; }
+:global(html[data-theme='dark']) .search-input-wrap,
+:global(html[data-theme='dark']) .search-results,
+:global(html[data-theme='dark']) .search-results button,
+:global(html[data-theme='dark']) .theme-toggle,
+:global(html[data-theme='dark']) .panel-handle,
+:global(html[data-theme='dark']) .panel-handle.closed,
+:global(html[data-theme='dark']) .empty-scope { background: #292c32; border-color: #4b5563; color: #e9eef7; }
+:global(html[data-theme='dark']) .search-input-wrap input { background: transparent; color: #e9eef7; }
+:global(html[data-theme='dark']) .search-input-wrap input::placeholder,
+:global(html[data-theme='dark']) .search-results button small { color: #aab6c8; }
+:global(html[data-theme='dark']) .search-results button.active,
+:global(html[data-theme='dark']) .search-results button:hover { background: #353c46; }
+:global(html[data-theme='dark']) .main-content { background: #1d2026; }
+:global(html[data-theme='dark']) .empty-scope p { color: #aab6c8; }

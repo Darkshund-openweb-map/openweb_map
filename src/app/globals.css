@@ -23,6 +23,16 @@
   --panel: #fff;
 }
 
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --ink: #e9eef7;
+  --muted: #aab6c8;
+  --line: #444d5a;
+  --blue: #69b9ff;
+  --soft: #292e36;
+  --panel: #222428;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -33,7 +43,7 @@ body {
   min-height: 100%;
   font-family: Arial, 'Noto Sans KR', 'Malgun Gothic', sans-serif;
   color: var(--ink);
-  background: #fff;
+  background: var(--panel);
   line-height: 1.5;
 }
 

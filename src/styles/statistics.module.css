@@ -252,3 +252,24 @@
     padding-left: 0;
   }
 }
+
+:global(html[data-theme='dark']) .statistics-surface,
+:global(html[data-theme='dark']) .stats-table-row { background: #222428; border-color: #444d5a; color: #b6c2d2; }
+:global(html[data-theme='dark']) .category-chips button,
+:global(html[data-theme='dark']) .stats-metrics > div,
+:global(html[data-theme='dark']) .recent-activity { background: #292c32; border-color: #444d5a; color: #dce6f4; }
+:global(html[data-theme='dark']) .category-chips button.active,
+:global(html[data-theme='dark']) .category-chips button:hover,
+:global(html[data-theme='dark']) .stats-table-row.highlighted,
+:global(html[data-theme='dark']) .stats-table-row:not(.table-header):hover { background: #353941; color: #e9eef7; }
+:global(html[data-theme='dark']) .stats-table-row.table-header,
+:global(html[data-theme='dark']) .state-label,
+:global(html[data-theme='dark']) .recent-activity em { background: #292c32; color: #b6c2d2; }
+:global(html[data-theme='dark']) .stats-table-row strong,
+:global(html[data-theme='dark']) .recent-activity strong { color: #e9eef7; }
+:global(html[data-theme='dark']) .stats-metrics span,
+:global(html[data-theme='dark']) .recent-activity small,
+:global(html[data-theme='dark']) .recent-activity span { color: #aab6c8; }
+:global(html[data-theme='dark']) .stats-table,
+:global(html[data-theme='dark']) .recent-activity button + button { border-color: #444d5a; }
+:global(html[data-theme='dark']) .heat-bar { background: #444d5a; }
