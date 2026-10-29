@@ -8,6 +8,7 @@ import type { Category, CategoryId, Platform, Selection } from '@/lib/ecosystem-
 import { MAP_ELEVATION, type HexCell } from './geometry';
 import { IslandTiles } from './island-tiles';
 import { platformLabel } from '@/lib/platform-label';
+import { mapLabelArtwork } from '@/lib/map-label-artwork';
 import { getTerritoryCenters } from '@/lib/island-territories';
 
 type Props = {
@@ -126,6 +127,8 @@ export function IslandGroup({
           rx="16"
           fill="#353a42"
           stroke={islandHovered ? labelColor : '#777f8c'}
+          opacity="0"
+          pointerEvents="none"
           aria-hidden="true"
         />
         <text
@@ -135,12 +138,29 @@ export function IslandGroup({
           fontSize="14.5"
           fontWeight={islandHovered ? '800' : '700'}
           fill={labelColor}
+          opacity="0"
+          pointerEvents="none"
         >
           {category.name}
           <tspan dx="9" fontWeight="500" fill="#c1c9d4">
             {category.count}건
           </tspan>
         </text>
+        <image
+          x={-badgeWidth / 2}
+          y="-16"
+          width={badgeWidth}
+          height="32"
+          href={mapLabelArtwork({
+            text: category.name,
+            count: `${category.count}건`,
+            color: labelColor,
+            width: badgeWidth,
+            height: 32,
+            highlighted: islandHovered,
+          })}
+          aria-hidden="true"
+        />
       </g>
       {platforms
         .filter(
@@ -191,6 +211,8 @@ export function IslandGroup({
                 rx="8"
                 fill="#353a42"
                 stroke="#777f8c"
+                opacity="0"
+                pointerEvents="none"
                 aria-hidden="true"
               />
               <text
@@ -200,9 +222,25 @@ export function IslandGroup({
                 fontSize="14.5"
                 fontWeight={active ? '700' : '600'}
                 fill={labelColor}
+                opacity="0"
+                pointerEvents="none"
               >
                 {label}
               </text>
+              <image
+                x={-width / 2}
+                y="-11"
+                width={width}
+                height="22"
+                href={mapLabelArtwork({
+                  text: label,
+                  color: labelColor,
+                  width,
+                  height: 22,
+                  highlighted: active,
+                })}
+                aria-hidden="true"
+              />
             </g>
           );
         })}
