@@ -292,3 +292,12 @@
     grid-template-columns: 1fr;
   }
 }
+
+:global(html[data-theme='dark']) .card,
+:global(html[data-theme='dark']) .dialog,
+:global(html[data-theme='dark']) .dialogHeader { background: #292c32; border-color: #444d5a; color: #e9eef7; }
+:global(html[data-theme='dark']) .card h3 { color: #e9eef7; }
+:global(html[data-theme='dark']) .card p,
+:global(html[data-theme='dark']) .dialogHeader p { color: #b6c2d2; }
+:global(html[data-theme='dark']) .form input:not([type='checkbox']),
+:global(html[data-theme='dark']) .form textarea { background: #222428; border-color: #526070; color: #e9eef7; }

@@ -3,7 +3,7 @@
 
 import styles from '@/styles/map.module.css';
 import { color as d3Color } from 'd3';
-import { useState, type KeyboardEvent } from 'react';
+import { useState, type CSSProperties, type KeyboardEvent } from 'react';
 import type { Category, CategoryId, Platform, Selection } from '@/lib/ecosystem-types';
 import { MAP_ELEVATION, type HexCell } from './geometry';
 import { IslandTiles } from './island-tiles';
@@ -135,6 +135,7 @@ export function IslandGroup({
       <g
         className={styles['island-badge']}
         data-hovered={islandHovered}
+        style={{ '--island-color': category.color } as CSSProperties}
         transform={`translate(${badgeX},${badgeY})`}
         role="button"
         tabIndex={0}
@@ -176,6 +177,7 @@ export function IslandGroup({
           </tspan>
         </text>
         <image
+          className={styles['island-artwork']}
           x={-badgeWidth / 2}
           y="-16"
           width={badgeWidth}
@@ -247,6 +249,7 @@ export function IslandGroup({
         })}
       {platformLabels.length > 0 && (
         <image
+          className={styles['platform-artwork']}
           x={artworkX}
           y={artworkY}
           width={artworkWidth}

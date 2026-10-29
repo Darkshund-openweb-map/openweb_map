@@ -585,3 +585,16 @@
     box-shadow: -6px 0 20px #1d345526;
   }
 }
+
+:global(html[data-theme='dark']) .detail-panel { background: #222428; border-color: #444d5a; color: #e9eef7; }
+:global(html[data-theme='dark']) .detail-title,
+:global(html[data-theme='dark']) .detail-tabs { border-color: #444d5a; }
+:global(html[data-theme='dark']) .detail-title p,
+:global(html[data-theme='dark']) .detail-tabs button,
+:global(html[data-theme='dark']) .metric > span { color: #aab6c8; }
+:global(html[data-theme='dark']) .metric,
+:global(html[data-theme='dark']) .detail-tabs button span,
+:global(html[data-theme='dark']) .period-tabs,
+:global(html[data-theme='dark']) .date-button,
+:global(html[data-theme='dark']) .date-popover,
+:global(html[data-theme='dark']) .relation-card { background: #292c32; border-color: #444d5a; color: #e9eef7; }

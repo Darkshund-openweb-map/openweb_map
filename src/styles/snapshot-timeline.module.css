@@ -259,3 +259,15 @@
     font-weight: 700;
   }
 }
+
+:global(html[data-theme='dark']) .play,
+:global(html[data-theme='dark']) .reset,
+:global(html[data-theme='dark']) .speeds button,
+:global(html[data-theme='dark']) .ticks,
+:global(html[data-theme='dark']) .description,
+:global(html[data-theme='dark']) .snapshot > span { color: #b6c2d2; }
+:global(html[data-theme='dark']) .play,
+:global(html[data-theme='dark']) .snapshot output,
+:global(html[data-theme='dark']) .speeds button[aria-pressed='true'] { color: var(--blue); }
+:global(html[data-theme='dark']) .description strong { color: #e9eef7; }
+:global(html[data-theme='dark']) .mobileRequest { border-color: #526579; color: var(--blue); }

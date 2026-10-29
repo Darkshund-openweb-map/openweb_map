@@ -117,25 +117,48 @@
   outline: none;
 }
 .island-title-box {
+  opacity: 1;
+  fill: #fff;
+  stroke: #dce5f1;
   stroke-width: 0.8px;
-  filter: drop-shadow(0 1px 2px #17203355);
+  filter: drop-shadow(0 1px 2px #23385614);
 }
 .island-title-text {
+  opacity: 1;
+  fill: var(--island-color);
   pointer-events: none;
   letter-spacing: 0.15px;
 }
+.island-title-text tspan { fill: #62718b; }
 .island-badge[data-hovered='true'] .island-title-box {
+  fill: var(--island-color);
+  stroke: var(--island-color);
   stroke-width: 1.25px;
-  filter: drop-shadow(0 1px 3px #17203370);
+}
+.island-badge[data-hovered='true'] .island-title-text,
+.island-badge[data-hovered='true'] .island-title-text tspan {
+  fill: #fff;
 }
 .platform-label-box {
-  stroke-width: 0.8px;
-  filter: drop-shadow(0 1px 2px #17203355);
+  opacity: 1;
+  fill: #fff;
+  fill-opacity: 0.88;
+  stroke: #e6ecf4;
+  stroke-width: 0.55px;
+  filter: drop-shadow(0 0.5px 1px #23385612);
 }
 .map-label-text {
+  opacity: 1;
+  fill: #1e293b;
+  paint-order: stroke fill;
+  stroke: #fff;
+  stroke-width: 2.8px;
+  stroke-linejoin: round;
   letter-spacing: 0.2px;
   pointer-events: none;
 }
+.island-artwork,
+.platform-artwork { display: none; }
 .platform-label[data-selected='true'] .platform-label-box {
   stroke-width: 1.5px;
 }
@@ -381,3 +404,29 @@
     display: none;
   }
 }
+
+:global(html[data-theme='dark']) .map-surface { background: #202124; border-color: #444d5a; }
+:global(html[data-theme='dark']) .island-title-box,
+:global(html[data-theme='dark']) .island-title-text,
+:global(html[data-theme='dark']) .platform-label-box,
+:global(html[data-theme='dark']) .map-label-text { opacity: 0; }
+:global(html[data-theme='dark']) .island-artwork,
+:global(html[data-theme='dark']) .platform-artwork { display: block; }
+:global(html[data-theme='dark']) .ecosystem-svg pattern circle { fill: #4b5058; }
+:global(html[data-theme='dark']) .timeline-empty-state { color: #b6c2d2; }
+:global(html[data-theme='dark']) .map-top-control,
+:global(html[data-theme='dark']) .map-actions > button,
+:global(html[data-theme='dark']) .zoom-buttons,
+:global(html[data-theme='dark']) .map-empty-card,
+:global(html[data-theme='dark']) .admin-map-button { background: #292c32; border-color: #4b5563; color: #b6c2d2; }
+:global(html[data-theme='dark']) .relation-switch,
+:global(html[data-theme='dark']) .zoom-buttons button,
+:global(html[data-theme='dark']) .map-bottom-bar { color: #b6c2d2; }
+:global(html[data-theme='dark']) .map-bottom-bar > span { background: #292c32dd; }
+:global(html[data-theme='dark']) .switch-track { background: #667284; }
+:global(html[data-theme='dark']) .platform-hover-card { background: #292c32e8; border-color: #4b5563; color: #e9eef7; }
+:global(html[data-theme='dark']) .platform-hover-path,
+:global(html[data-theme='dark']) .platform-hover-card p,
+:global(html[data-theme='dark']) .platform-hover-metrics span,
+:global(html[data-theme='dark']) .map-empty-card p { color: #b6c2d2; }
+:global(html[data-theme='dark']) .platform-hover-metrics > div { background: #353941; border-color: #4b5563; }
