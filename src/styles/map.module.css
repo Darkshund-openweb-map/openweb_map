@@ -92,10 +92,7 @@
   outline-offset: 2px;
 }
 @media (hover: none) {
-  .admin-map-button {
-    transform: translateX(0);
-  }
-  .admin-button-edge::after {
+  .admin-button-edge {
     display: none;
   }
 }
